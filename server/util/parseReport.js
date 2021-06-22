@@ -97,6 +97,8 @@ function parse(report, machinesPings) {
 
   // Parse disks
   report.disks = report.disks?.map((disk) => {
+    disk.mount = disk.mount.replace("\\", "");
+    disk.fs = disk.fs.replace("\\", "");
     disk.size = parseFloat((disk.size / 1024 / 1024 / 1024).toFixed(2));
     disk.used = parseFloat((disk.used / 1024 / 1024 / 1024).toFixed(2));
     disk.available = parseFloat((disk.available / 1024 / 1024 / 1024).toFixed(2));
