@@ -66,7 +66,7 @@ router.get("/stats/processes/:machineUUID?", auth, async (req, res) => {
       const socket = io.sockets.sockets.get(Array.from(room)[0]);
 
       // When we get the response from the reporter resole the HTTP request
-      socket.on("processes", (processes) => {
+      socket.once("processes", (processes) => {
         clearTimeout(timeout);
         resolve(processes);
       });
