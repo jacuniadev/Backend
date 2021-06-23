@@ -87,7 +87,11 @@ io.on("connection", async (socket) => {
 
   if (socket.handshake.auth.type === "client") {
     if (!socket.user) return;
+
+    // General room for all clients to emit to if needed
     socket.join("client");
+
+    // Unique client rooms
     socket.join(`client-${socket.user._id}`);
 
     socket.on("getMachines", async () => {
@@ -109,6 +113,10 @@ io.on("connection", async (socket) => {
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== "") {
     await Machine.add(socket.handshake.auth.static);
 
+    // General reporter room for Heartbeat / pings
+    socket.join('reporter');
+
+    // Unique reporter room
     socket.join(`reporter-${socket.handshake.auth.uuid}`);
 
     // Calculate ping and append it to the machine map
