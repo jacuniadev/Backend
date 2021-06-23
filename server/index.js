@@ -34,7 +34,7 @@ app.use(upload.any());
 app.use(morgan("dev")); // Enable HTTPs code logs
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin (origin, callback) {
       if (whitelist.indexOf(origin) !== -1) {
         callback(null, true);
       } else {
