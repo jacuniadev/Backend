@@ -132,10 +132,6 @@ router.put("/datacenter/:datacenterUUID/user/:userUUID", datacenterAuth, async (
     return res.status(403).json({ message: "Undefined field" });
   }
 
-  if (req.params.userUUID === req.user._id) {
-    return res.status(403).json({ message: "You can not add yourself as a member idiot, you're the owner" });
-  }
-
   const user = await User.findOne({ _id: req.params.userUUID });
 
   if (!user) {
@@ -149,6 +145,10 @@ router.put("/datacenter/:datacenterUUID/user/:userUUID", datacenterAuth, async (
 router.delete("/datacenter/:datacenterUUID/user/:userUUID", datacenterAuth, async (req, res) => {
   if (req.params.datacenterUUID === "undefined" || req.params.userUUID === "undefined") {
     return res.status(403).json({ message: "Undefined field" });
+  }
+
+  if (req.params.userUUID === req.user._id) {
+    return res.status(403).json({ message: "You can not remove yourself from your own datacenter idiot, you're the owner" });
   }
 
   const user = await User.findOne({ _id: req.params.userUUID });

@@ -20,7 +20,7 @@ const schema = new Schema(
 );
 
 schema.statics.add = async function (owner, name) {
-  return await new this({ _id: uuidv4(), owner, name, created_at: Date.now() }).save();
+  return await new this({ _id: uuidv4(), owner, name, members: [owner], created_at: Date.now() }).save();
 };
 
 schema.statics.addMachine = async function (datacenterUUID, machineUUID) {
