@@ -92,6 +92,8 @@ schema.statics.update = async function (_id, newProfile) {
 schema.statics.addMachine = async function (_id, machineUUID) {
   return new Promise(async (resolve) => {
     const user = await this.findOne({ _id }).exec();
+    const datacenter = await Datacenter.findOne({_id: user.primaryDatacenter});
+    await Datacenter.addMachine(datacenter._id, machineUUID);
     if (machineUUID != null) {
       if (!user.machines.includes(machineUUID)) user.machines.push(machineUUID);
       resolve(user.save());
