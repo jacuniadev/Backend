@@ -5,6 +5,7 @@ mongoose.connect(process.env.MONGODB_HOST, { useNewUrlParser: true, useUnifiedTo
 const schema = new Schema(
   {
     at: { type: String, required: true },
+    user: { type: String, required: false},
     summary: { type: String },
     message: { type: Object },
     timestamp: { type: Number },
@@ -17,8 +18,8 @@ const schema = new Schema(
 /**
  * @param {Object} [log] Log message
  */
-schema.statics.add = async function (at, summary, message) {
-  await new this({ at, summary, message: JSON.stringify(message), timestamp: Date.now() }).save();
+schema.statics.add = async function (at, summary, message, user) {
+  await new this({ at, summary, message: JSON.stringify(message), user, timestamp: Date.now() }).save();
 };
 
 module.exports = mongoose.model("Logs", schema);
