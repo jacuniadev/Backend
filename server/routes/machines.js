@@ -16,7 +16,7 @@ router.post("/machine/:machineUUID/:method", auth, async (req, res) => {
       const datacenter = await Datacenter.findOne({ machines: req.params.machineUUID });
 
       // TODO: turn these into a middleware for future use
-      if (!req.user.machines.includes(machine._id) && !datacenter?.members.includes(req.user._id) && !req.user.is_admin) return res.status(403).json({ message: "you don't have permission to view this machine" });
+      if (!req.user.machines.includes(machine._id) && !datacenter?.members.includes(req.user._id)) return res.status(403).json({ message: "you don't have permission to view this machine" });
       if (!machine) return res.status(404).json({ message: "machine not found" });
 
       // Send a event to get the processes to this specific reporter
