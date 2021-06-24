@@ -5,7 +5,7 @@ node_modules
 /temp
 /uploads
 
-.env
+*.env
 
 # Log files
 npm-debug.log*
