@@ -25,7 +25,7 @@ schema.statics.add = async function (owner, name) {
 
 schema.statics.addMachine = async function (datacenterUUID, machineUUID) {
   if (!datacenterUUID && !machineUUID) return;
-  const datacenter = await this.findOne({ name: datacenterUUID }).exec();
+  const datacenter = await this.findOne({ _id: datacenterUUID }).exec();
   if (!datacenter.machines.includes(machineUUID)) datacenter.machines.push(machineUUID);
   await datacenter.save();
   return datacenter;
@@ -33,7 +33,7 @@ schema.statics.addMachine = async function (datacenterUUID, machineUUID) {
 
 schema.statics.removeMachine = async function (datacenterUUID, machineUUID) {
   if (!datacenterUUID && !machineUUID) return;
-  const datacenter = await this.findOne({ name: datacenterUUID }).exec();
+  const datacenter = await this.findOne({ _id: datacenterUUID }).exec();
   if (datacenter.machines.includes(userUUID)) datacenter.machines.splice(datacenter.machines.indexOf(machineUUID), 1);
   await datacenter.save();
   return datacenter;
@@ -41,7 +41,7 @@ schema.statics.removeMachine = async function (datacenterUUID, machineUUID) {
 
 schema.statics.addUser = async function (datacenterUUID, userUUID) {
   if (!datacenterUUID && !userUUID) return;
-  const datacenter = await this.findOne({ name: datacenterUUID }).exec();
+  const datacenter = await this.findOne({ _id: datacenterUUID }).exec();
   if (!datacenter.members.includes(userUUID)) datacenter.members.push(userUUID);
   await datacenter.save();
   return datacenter;
@@ -49,7 +49,7 @@ schema.statics.addUser = async function (datacenterUUID, userUUID) {
 
 schema.statics.removeUser = async function (datacenterUUID, userUUID) {
   if (!datacenterUUID && !userUUID) return;
-  const datacenter = await this.findOne({ name: datacenterUUID }).exec();
+  const datacenter = await this.findOne({ _id: datacenterUUID }).exec();
   if (datacenter.members.includes(userUUID)) datacenter.members.splice(datacenter.members.indexOf(userUUID), 1);
   await datacenter.save();
   return datacenter;

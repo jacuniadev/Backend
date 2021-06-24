@@ -6,6 +6,7 @@ const bcrypt = require("bcrypt");
 const saltRounds = parseInt(process.env.SALTROUNDS);
 const Machine = require("@/models/Machine.js");
 const Stats = require("@/models/Stats.js");
+const Datacenter = require("@/models/Datacenter.js");
 
 const schema = new Schema(
   {
