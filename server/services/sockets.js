@@ -48,6 +48,8 @@ async function getClientActiveMachines(client){
   let userMachines = new Map();
   const user = await User.findOne({_id: client.split("client-")[1]});
 
+  if (user.is_admin) return Object.fromEntries(machines);
+
   for(machine of user.machines){
     userMachines.set(machine, machines.get(machine));
   };
