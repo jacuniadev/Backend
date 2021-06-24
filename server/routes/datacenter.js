@@ -65,17 +65,17 @@ router.get("/datacenter/all", async (req, res) => {
 router.delete("/datacenter/:datacenter", datacenterAuth, async (req, res) => {
 
   // Find the datacenters ID and delete it from the user
-  let datacenter = await Datacenter.findOne({ _id: req.params.datacenter, owner: req.user._id });
+  let datacenter = await Datacenter.findOne({ _id: req.params.datacenter });
   await req.user.removeDatacenter(datacenter._id);
 
   // Delete the datacenter
-  await Datacenter.findOneAndDelete({ _id: req.params.datacenter, owner: req.user._id });
+  await Datacenter.findOneAndDelete({ _id: req.params.datacenter });
 
   res.status(200).json({message: "Datacenter deleted"});
 });
 
 router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
-  const datacenter = await Datacenter.findOne({ _id: req.params.datacenter, owner: req.user._id });
+  const datacenter = await Datacenter.findOne({ _id: req.params.datacenter });
   datacenter.owner == req.user;
   datacenter.members.map(async (member) => {
     const { username, profileImage, _id } = await User.findOne({ _id: member });

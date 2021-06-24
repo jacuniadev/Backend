@@ -140,7 +140,7 @@ schema.methods.removeDatacenter = async function (datacenterUUID) {
  */
 schema.methods.getTotalRam = async function () {
   // Replace the array with a new one that sums up all the ram for each machine
-  let totalRam = (await Machine.find({ _id: this.machines })).map((machine) => machine.static.memLayout.reduce((a, b) => a + b.size, 0));
+  let totalRam = (await Machine.find({ _id: this.machines })).map((machine) => machine.static?.memLayout?.reduce((a, b) => a + b.size, 0));
 
   // Sum up all the ram together and return
   return totalRam.reduce((a, b) => a + b, 0);
@@ -151,7 +151,7 @@ schema.methods.getTotalRam = async function () {
  */
 schema.methods.getTotalCores = async function () {
   // Replace the array with a new one that sums up all the ram for each machine
-  let totalRam = (await Machine.find({ _id: this.machines })).map((machine) => machine.static.cpu.cores);
+  let totalRam = (await Machine.find({ _id: this.machines })).map((machine) => machine.static?.cpu?.cores);
 
   // Sum up all the ram together and return
   return totalRam.reduce((a, b) => a + b, 0);

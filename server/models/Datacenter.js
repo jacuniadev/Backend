@@ -39,9 +39,9 @@ schema.statics.removeMachine = async function (datacenterUUID, machineUUID) {
   return datacenter;
 };
 
-schema.statics.addUser = async function (datacenterUUID, userUUID) {
-  if (!datacenterUUID && !userUUID) return;
-  const datacenter = await this.findOne({ _id: datacenterUUID }).exec();
+schema.statics.addUser = async function (datacenterName, userUUID) {
+  if (!datacenterName && !userUUID) return;
+  const datacenter = await this.findOne({ name: datacenterName }).exec();
   if (!datacenter.members.includes(userUUID)) datacenter.members.push(userUUID);
   await datacenter.save();
   return datacenter;
