@@ -28,7 +28,7 @@ function parseReport(report, latestVersion, machinesPings) {
       error: error.message,
       stack: error.stack,
       report,
-    }, report.reporter.linked_account);
+    }, report.linked_account);
 
     // // Log this in the database
     // if (!process.env.TESTING === "true")
