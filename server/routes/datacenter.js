@@ -35,9 +35,7 @@ router.post("/datacenter/new", async (req, res) => {
     await req.user.addDatacenter(datacenter._id);
 
     // If this is their first datacenter automatically make it their primary datacenter
-    if (req.user.datacenters.length === 0){
-      req.user.primaryDatacenter === req.body.name;
-    }
+    if (!req.user.primaryDatacenter) await req.user.setPrimaryDatacenter(datacenter._id);
 
     res.status(201).json(datacenter);
   } catch (error) {
