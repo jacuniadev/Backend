@@ -123,12 +123,13 @@ schema.methods.removeDatacenter = async function (datacenterUUID) {
   return new Promise(async (resolve, reject) => {
     if (!datacenterUUID) reject();
 
+    this.datacenters.splice(this.datacenters.indexOf(datacenterUUID), 1);
+
     // If they deleted their primary DC reset it to null
-    if (this.primaryDatacenter === datacenterUUID){
-      this.primaryDatacenter == null
+    if (this.primaryDatacenter === datacenterUUID || this.datacenters.length == 0){
+      this.primaryDatacenter = null;
     }
 
-    this.datacenters.splice(this.datacenters.indexOf(datacenterUUID), 1);
     await this.save();
     resolve();
   });

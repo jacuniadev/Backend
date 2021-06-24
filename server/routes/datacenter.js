@@ -186,10 +186,15 @@ router.patch("/datacenter/primary/:datacenter", datacenterAuth, async (req, res)
     return res.status(403).json({ message: "Undefined field" });
   }
   
-  req.user = await req.user.setPrimaryDatacenter(req.params.datacenter);
-  delete req.user.password;
+  // We do this step because if we change the user from
+  // Req.user and save it, it fucks up the database and adds
+  // The entire datacenter object in the datacenters
+  // Array on the user where they are supposed to be strings of UUIDs
+  let updatedUser = await User.findOne({_id: req.user._id});
+  updatedUser = await updatedUser.setPrimaryDatacenter(req.params.datacenter);
+  delete updatedUser.password;
 
-  res.status(201).json({message: "Datacenter set as primary", me: req.user});
+  res.status(201).json({message: "Datacenter set as primary", me: updatedUser});
 });
 
 module.exports = router;
