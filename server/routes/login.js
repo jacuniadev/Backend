@@ -18,8 +18,9 @@ async function createToken(user, res) {
       res.status(500).json({ message: err });
     }
 
-    delete user.password;
-
+    user.password = undefined;
+    user.email = undefined;
+  
     res.status(200).cookie("token", token).json({
       message: "Logged in",
       token: token,
@@ -31,6 +32,8 @@ async function createToken(user, res) {
 router.post("/login", async (req, res) => {
   // Parse body
   const user = await User.findOne({ username: req.body.username }).exec();
+
+  console.log(user);
 
   // If there is no user with those credentials return this
   if (!user) return res.status(400).json({ message: "User not found ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
