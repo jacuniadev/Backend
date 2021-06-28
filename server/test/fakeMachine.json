@@ -1,0 +1,347 @@
+{
+    "system": {
+      "manufacturer": "Gigabyte Technology Co., Ltd.",
+      "model": "X470 AORUS ULTRA GAMING",
+      "uuid": "8c5ca39547a14adc8491ce0247009777"
+    },
+    "bios": {
+      "vendor": "American Megatrends Inc."
+    },
+    "baseboard": {
+      "manufacturer": "Gigabyte Technology Co., Ltd.",
+      "version": "x.x",
+      "memMax": 268435456,
+      "memSlots": 4
+    },
+    "chassis": {
+      "type": "Desktop"
+    },
+    "os": {
+      "platform": "win32",
+      "distro": "Microsoft Windows 10 Pro",
+      "release": "10.0.19042",
+      "kernel": "10.0.19042",
+      "arch": "x64",
+      "hostname": "snowflake",
+      "fqdn": "SNOWFLAKE",
+      "codepage": " 437",
+      "logofile": "windows",
+      "build": "19042",
+      "servicepack": "0.0"
+    },
+    "uuid": {
+      "macs": {
+        "0": "00:15:5d:17:27:4b",
+        "1": "00:15:5d:8e:98:5e",
+        "2": "00:15:5d:b4:37:61",
+        "3": "00:15:5d:fd:a8:26",
+        "4": "00:e0:4c:68:01:f1",
+        "5": "b4:2e:99:44:f4:d7",
+        "6": "d0:37:45:ef:e6:e3"
+      }
+    },
+    "versions": {
+      "kernel": "10.0.19042",
+      "openssl": "1.1.1j",
+      "node": "14.16.0",
+      "npm": "6.14.11",
+      "git": "2.31.1.windows.1",
+      "python": "3.8.10",
+      "python3": "3.8.10",
+      "pip": "20.2.4",
+      "pip3": "20.2.4",
+      "java": "1.8.0_291",
+      "powershell": "5.1.19041.1023:",
+      "dotnet": "4.8.04084"
+    },
+    "cpu": {
+      "manufacturer": "AMD",
+      "vendor": "AuthenticAMD",
+      "family": "23",
+      "model": "8",
+      "stepping": "2",
+      "revision": "2050",
+      "speed": 3.7,
+      "speedMin": 3.7,
+      "speedMax": 3.7,
+      "cores": 16,
+      "physicalCores": 8,
+      "processors": 1,
+      "socket": "AM4",
+      "flags": "de pse tsc msr sep mtrr mca cmov psn clfsh ds mmx fxsr sse sse2 ss htt tm ia64 pbe",
+      "virtualization": true,
+      "cache": {
+        "l2": 4194304,
+        "l3": 16777216
+      }
+    },
+    "graphics": {
+      "controllers": {
+        "0": {
+          "vendor": "NVIDIA",
+          "model": "NVIDIA GeForce GTX 1660 SUPER",
+          "bus": "PCI",
+          "vram": 6144,
+          "subDeviceId": "0x40141458",
+          "driverVersion": "461.40",
+          "name": "GeForce GTX 1660 SUPER",
+          "pciBus": "00000000:09:00.0",
+          "memoryTotal": 6144,
+          "memoryUsed": 3542,
+          "memoryFree": 2602,
+          "utilizationGpu": 26,
+          "utilizationMemory": 7,
+          "temperatureGpu": 54,
+          "powerDraw": 28.39,
+          "powerLimit": 140,
+          "clockCore": 1170,
+          "clockMemory": 7000
+        }
+      },
+      "displays": {
+        "0": {
+          "vendor": "(Standard monitor types)",
+          "model": "Generic PnP Monitor",
+          "deviceName": "\\\\.\\DISPLAY1",
+          "connection": "DP",
+          "resolutionX": 1920,
+          "resolutionY": 1080,
+          "sizeX": 60,
+          "sizeY": 34,
+          "pixelDepth": "32",
+          "currentResX": 1920,
+          "currentResY": 1080,
+          "positionX": 2560,
+          "positionY": 162
+        },
+        "1": {
+          "deviceName": "\\\\.\\DISPLAY2",
+          "connection": "HDMI",
+          "resolutionX": 1920,
+          "resolutionY": 1080,
+          "sizeX": 52,
+          "sizeY": 29,
+          "pixelDepth": "32",
+          "currentResX": 1920,
+          "currentResY": 1080,
+          "positionY": 162
+        },
+        "2": {
+          "deviceName": "\\\\.\\DISPLAY3",
+          "main": true,
+          "connection": "DVI",
+          "resolutionX": 2048,
+          "resolutionY": 1152,
+          "sizeX": 52,
+          "sizeY": 29,
+          "pixelDepth": "32",
+          "currentResX": 2048,
+          "currentResY": 1152
+        }
+      }
+    },
+    "net": {
+      "0": {
+        "iface": "vEthernet (Ethernet 2)",
+        "ip4": "172.23.208.1",
+        "ip4subnet": "255.255.240.0",
+        "ip6": "fe80::4c4d:cbc5:c1f2:d888",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:15:5d:17:27:4b",
+        "virtual": true,
+        "operstate": "up",
+        "type": "wired",
+        "speed": 10000,
+        "dhcp": "false",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "1": {
+        "iface": "vEthernet (Ethernet)",
+        "ip4": "172.22.192.1",
+        "ip4subnet": "255.255.240.0",
+        "ip6": "fe80::9463:30b0:1904:7c69",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:15:5d:fd:a8:26",
+        "virtual": true,
+        "operstate": "up",
+        "type": "wired",
+        "speed": 10000,
+        "dhcp": "false",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "2": {
+        "iface": "vEthernet (Ethernet 3)",
+        "ip4": "172.22.64.1",
+        "ip4subnet": "255.255.240.0",
+        "ip6": "fe80::142e:56da:1859:888e",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:15:5d:b4:37:61",
+        "virtual": true,
+        "operstate": "up",
+        "type": "wired",
+        "speed": 10000,
+        "dhcp": "false",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "3": {
+        "iface": "vEthernet (Default Switch)",
+        "ip4": "172.23.240.1",
+        "ip4subnet": "255.255.240.0",
+        "ip6": "fe80::c1b2:1cf4:6db8:e9a0",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:15:5d:8e:98:5e",
+        "virtual": true,
+        "operstate": "up",
+        "type": "wired",
+        "speed": 10000,
+        "dhcp": "false",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "4": {
+        "iface": "Ethernet",
+        "ifaceName": "Realtek PCIe GbE Family Controller",
+        "ip4": "10.0.0.21",
+        "ip4subnet": "255.255.0.0",
+        "ip6": "fe80::55c5:8876:751f:9c5a",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "00:e0:4c:68:01:f1",
+        "operstate": "up",
+        "type": "wired",
+        "speed": 1000,
+        "dhcp": "true",
+        "dnsSuffix": "localdomain",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "5": {
+        "iface": "Ethernet 2",
+        "ifaceName": "Intel(R) I211 Gigabit Network Connection",
+        "ip4": "10.0.0.20",
+        "ip4subnet": "255.255.0.0",
+        "ip6": "fe80::30e2:aeeb:5531:afd3",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "b4:2e:99:44:f4:d7",
+        "operstate": "up",
+        "type": "wired",
+        "speed": 1000,
+        "dhcp": "true",
+        "dnsSuffix": "localdomain",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "6": {
+        "iface": "Ethernet 3",
+        "ip4": "10.0.227.49",
+        "ip4subnet": "255.255.0.0",
+        "ip6": "fe80::2551:672f:697a:98a9",
+        "ip6subnet": "ffff:ffff:ffff:ffff::",
+        "mac": "d0:37:45:ef:e6:e3",
+        "operstate": "up",
+        "type": "wired",
+        "speed": 1000,
+        "dhcp": "true",
+        "dnsSuffix": "localdomain",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      },
+      "7": {
+        "ip4": "127.0.0.1",
+        "ip4subnet": "255.0.0.0",
+        "ip6": "::1",
+        "ip6subnet": "ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff",
+        "mac": "00:00:00:00:00:00",
+        "internal": true,
+        "operstate": "down",
+        "ieee8021xAuth": "Not defined",
+        "ieee8021xState": "Disabled"
+      }
+    },
+    "geolocation": {
+      "ip": "178.147.213.253",
+      "location": "Greece",
+      "countryCode": "GR",
+      "isp": "Ote SA (Hellenic Telecommunications Organisation)"
+    },
+    "reporter": {},
+    "ram": {
+      "0": {
+        "size": 17179869184,
+        "bank": "P0 CHANNEL A",
+        "clockSpeed": 3000,
+        "formFactor": "DIMM",
+        "serialNum": "00000000",
+        "voltageConfigured": 1.2,
+        "voltageMin": 1.2,
+        "voltageMax": 1.2
+      },
+      "1": {
+        "size": 17179869184,
+        "bank": "P0 CHANNEL A",
+        "clockSpeed": 3000,
+        "formFactor": "DIMM",
+        "serialNum": "00000000",
+        "voltageConfigured": 1.2,
+        "voltageMin": 1.2,
+        "voltageMax": 1.2
+      },
+      "2": {
+        "size": 17179869184,
+        "bank": "P0 CHANNEL B",
+        "clockSpeed": 3000,
+        "formFactor": "DIMM",
+        "serialNum": "00000000",
+        "voltageConfigured": 1.2,
+        "voltageMin": 1.2,
+        "voltageMax": 1.2
+      },
+      "3": {
+        "size": 17179869184,
+        "bank": "P0 CHANNEL B",
+        "clockSpeed": 3000,
+        "formFactor": "DIMM",
+        "serialNum": "00000000",
+        "voltageConfigured": 1.2,
+        "voltageMin": 1.2,
+        "voltageMax": 1.2
+      }
+    },
+    "disk": {
+      "0": {
+        "device": "SCSI\\DISK&amp;VEN_SAMSUNG&amp;PROD_SSD_860_EVO_500G\\5&amp;1E87CE0F&amp;0&amp;010000",
+        "type": "SSD",
+        "name": "Samsung SSD 860 EVO 500GB",
+        "vendor": "(Standard disk drives)",
+        "size": 500105249280,
+        "bytesPerSector": 512,
+        "totalCylinders": 60801,
+        "totalHeads": 255,
+        "totalSectors": 976768065,
+        "totalTracks": 15504255,
+        "tracksPerCylinder": 255,
+        "sectorsPerTrack": 63,
+        "firmwareRevision": "RVT03B6Q",
+        "serialNum": "S4CNNE0M720643F",
+        "interfaceType": "SATA",
+        "smartStatus": "Ok"
+      },
+      "1": {
+        "type": "HD",
+        "vendor": "(Standard disk drives)",
+        "size": 3000590369280,
+        "bytesPerSector": 512,
+        "totalCylinders": 364801,
+        "totalHeads": 255,
+        "totalSectors": 5860528065,
+        "totalTracks": 93024255,
+        "tracksPerCylinder": 255,
+        "sectorsPerTrack": 63,
+        "firmwareRevision": "80.00A80",
+        "interfaceType": "SATA",
+        "smartStatus": "Ok"
+      }
+    }
+  }

@@ -16,6 +16,7 @@ router.post("/signup", async (req, res) => {
   try {
     var form = await schema.validateAsync(req.body);
   } catch (error) {
+    // security--;
     return res.status(400).json({ message: error.details[0].message });
   }
 
@@ -23,7 +24,7 @@ router.post("/signup", async (req, res) => {
   try {
     var response = await User.add(form);
   } catch (error) {
-    return res.status(400).json({ message: error });
+    return res.status(400).json({ message: error.message });
   }
 
   return res.status(201).json(response);
