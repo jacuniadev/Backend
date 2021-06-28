@@ -33,8 +33,6 @@ router.post("/login", async (req, res) => {
   // Parse body
   const user = await User.findOne({ username: req.body.username }).exec();
 
-  console.log(user);
-
   // If there is no user with those credentials return this
   if (!user) return res.status(400).json({ message: "User not found ｡･ﾟﾟ*(>д<)*ﾟﾟ･｡" });
 
