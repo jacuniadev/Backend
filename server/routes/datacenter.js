@@ -132,9 +132,6 @@ router.put("/datacenter/:datacenter/machine/:machineUUID", datacenterAuth, async
 });
 
 router.delete("/datacenter/:datacenter/machine/:machineUUID", datacenterAuth, async (req, res) => {
-  if (req.params.machineUUID === "undefined" || req.params.user === "undefined") {
-    return res.status(403).json({ message: "Undefined field" });
-  }
 
   if (!req.user.machines.includes(req.params.machineUUID) && !req.user.is_admin) {
     return res.status(403).json({ message: "That machine doesn't belong to you" });
@@ -145,10 +142,6 @@ router.delete("/datacenter/:datacenter/machine/:machineUUID", datacenterAuth, as
 });
 
 router.put("/datacenter/:datacenter/user/:userUUID", datacenterAuth, async (req, res) => {
-  if (req.params.datacenter === "undefined" || req.params.userUUID === "undefined") {
-    return res.status(403).json({ message: "Undefined field" });
-  }
-
   const user = await User.findOne({ _id: req.params.userUUID });
 
   if (!user) {
@@ -179,10 +172,6 @@ router.delete("/datacenter/:datacenter/user/:userUUID", datacenterAuth, async (r
 });
 
 router.patch("/datacenter/primary/:datacenter", datacenterAuth, async (req, res) => {
-  if (req.params.datacenterUUID === "undefined" || req.params.userUUID === "undefined") {
-    return res.status(403).json({ message: "Undefined field" });
-  }
-
   // We do this step because if we change the user from
   // Req.user and save it, it fucks up the database and adds
   // The entire datacenter object in the datacenters
