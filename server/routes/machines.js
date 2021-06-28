@@ -11,7 +11,7 @@ router.use(auth);
 router.post("/machine/:machineUUID/:method", auth, async (req, res) => {
   return res.status(200).json(
     await new Promise(async (resolve) => {
-      if (req.params.method !== 'shutdown' && req.params.method !== 'restart') return res.status(404).json({ message: "method must be either 'shutdown' or 'restart'" });
+      if (req.params.method !== "shutdown" && req.params.method !== "restart") return res.status(404).json({ message: "method must be either 'shutdown' or 'restart'" });
       const machine = await Machine.findOne({ _id: req.params.machineUUID });
       const datacenter = await Datacenter.findOne({ machines: req.params.machineUUID });
 

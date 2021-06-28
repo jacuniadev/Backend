@@ -27,7 +27,7 @@ const schema = new Schema(
     is_admin: { type: Boolean, default: false }, // Is user administrator or not
     machines: { type: Array, default: null }, // The array that contains the UUID's of the machines the user has
     datacenters: { type: Array, default: null }, // A list of the user's owned datacenters
-    primaryDatacenter: { type: String,  default: null }, // The users current primary datacenter
+    primaryDatacenter: { type: String, default: null }, // The users current primary datacenter
   },
   {
     versionKey: false, // You should be aware of the outcome after set to false
@@ -93,7 +93,7 @@ schema.statics.update = async function (_id, newProfile) {
 schema.statics.addMachine = async function (_id, machineUUID) {
   return new Promise(async (resolve) => {
     const user = await this.findOne({ _id }).exec();
-    const datacenter = await Datacenter.findOne({_id: user.primaryDatacenter});
+    const datacenter = await Datacenter.findOne({ _id: user.primaryDatacenter });
     await Datacenter.addMachine(datacenter._id, machineUUID);
     if (machineUUID != null) {
       if (!user.machines.includes(machineUUID)) user.machines.push(machineUUID);
@@ -126,7 +126,7 @@ schema.methods.removeDatacenter = async function (datacenterUUID) {
     this.datacenters.splice(this.datacenters.indexOf(datacenterUUID), 1);
 
     // If they deleted their primary DC reset it to null
-    if (this.primaryDatacenter === datacenterUUID || this.datacenters.length == 0){
+    if (this.primaryDatacenter === datacenterUUID || this.datacenters.length == 0) {
       this.primaryDatacenter = null;
     }
 
@@ -164,7 +164,6 @@ schema.methods.setPrimaryDatacenter = async function (datacenterUUID) {
   this.primaryDatacenter = datacenterUUID;
   return await this.save();
 };
-
 
 /**
  * @returns Adds points

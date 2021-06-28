@@ -5,7 +5,7 @@ mongoose.connect(process.env.MONGODB_HOST, { useNewUrlParser: true, useUnifiedTo
 const schema = new Schema(
   {
     at: { type: String, required: true },
-    user: { type: String, required: false},
+    user: { type: String, required: false },
     summary: { type: String },
     message: { type: Object },
     timestamp: { type: Number },

@@ -8,7 +8,7 @@ async function authSocket(socket, next) {
 
     jwt.verify(socket.handshake.auth.token, process.env.SECRET, async (error, user) => {
       if (error) next(new Error("You must be logged in to connect to a websocket idiot 🖕🖕🖕"));
-      if (user) socket.user = await User.findOne({_id: user.uuid});
+      if (user) socket.user = await User.findOne({ _id: user.uuid });
       next();
     });
   }

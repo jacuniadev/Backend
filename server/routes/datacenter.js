@@ -63,7 +63,6 @@ router.get("/datacenter/all", async (req, res) => {
 });
 
 router.delete("/datacenter/:datacenter", datacenterAuth, async (req, res) => {
-
   // Find the datacenters ID and delete it from the user
   let datacenter = await Datacenter.findOne({ _id: req.params.datacenter });
   await req.user.removeDatacenter(datacenter._id);
@@ -71,7 +70,7 @@ router.delete("/datacenter/:datacenter", datacenterAuth, async (req, res) => {
   // Delete the datacenter
   await Datacenter.findOneAndDelete({ _id: req.params.datacenter });
 
-  res.status(200).json({message: "Datacenter deleted"});
+  res.status(200).json({ message: "Datacenter deleted" });
 });
 
 router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
@@ -183,16 +182,16 @@ router.patch("/datacenter/primary/:datacenter", datacenterAuth, async (req, res)
   if (req.params.datacenterUUID === "undefined" || req.params.userUUID === "undefined") {
     return res.status(403).json({ message: "Undefined field" });
   }
-  
+
   // We do this step because if we change the user from
   // Req.user and save it, it fucks up the database and adds
   // The entire datacenter object in the datacenters
   // Array on the user where they are supposed to be strings of UUIDs
-  let updatedUser = await User.findOne({_id: req.user._id});
+  let updatedUser = await User.findOne({ _id: req.user._id });
   updatedUser = await updatedUser.setPrimaryDatacenter(req.params.datacenter);
   delete updatedUser.password;
 
-  res.status(201).json({message: "Datacenter set as primary", me: updatedUser});
+  res.status(201).json({ message: "Datacenter set as primary", me: updatedUser });
 });
 
 module.exports = router;

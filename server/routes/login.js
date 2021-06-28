@@ -18,7 +18,8 @@ async function createToken(user, res) {
       res.status(500).json({ message: err });
     }
 
-    delete user.password;
+    user.password = undefined;
+    user.email = undefined;
 
     res.status(200).cookie("token", token).json({
       message: "Logged in",

@@ -43,21 +43,24 @@ setInterval(() => io.sockets.in("reporter").emit("runSpeedtest"), 3600000 * 8);
 
 // Gets all the active machines for a client
 // Certainly can be improved performance wise
-async function getClientActiveMachines(client){
-  if (!client) return
+async function getClientActiveMachines(client) {
+  if (!client) return;
   let userMachines = new Map();
-  const user = await User.findOne({_id: client.split("client-")[1]});
+  const user = await User.findOne({ _id: client.split("client-")[1] });
 
   if (user.is_admin) return Object.fromEntries(machines);
 
-  for(machine of user.machines){
+  for (machine of user.machines) {
     userMachines.set(machine, machines.get(machine));
-  };
+  }
 
-  const sharedDatacenters = await Datacenter.find({members: user._id});
-  const sharedMachines = [].concat.apply([], sharedDatacenters.map(datacenter => datacenter.machines));
+  const sharedDatacenters = await Datacenter.find({ members: user._id });
+  const sharedMachines = [].concat.apply(
+    [],
+    sharedDatacenters.map((datacenter) => datacenter.machines)
+  );
 
-  for(machine of sharedMachines){
+  for (machine of sharedMachines) {
     const onlineMachine = machines.get(machine);
     if (onlineMachine) userMachines.set(machine, onlineMachine);
   }
@@ -66,13 +69,18 @@ async function getClientActiveMachines(client){
 }
 
 // Emits to all the clients
-async function emitToClients(){
+async function emitToClients() {
   let allSockets = Array.from(io.sockets.adapter.rooms.keys());
-  let clients = allSockets.filter(socket => socket.startsWith("client-"));
+  let clients = allSockets.filter((socket) => socket.startsWith("client-"));
 
-  for(client of clients){
+  for (client of clients) {
     io.sockets.in(client).emit("machines", await getClientActiveMachines(client));
   }
+}
+
+async function emitMachinesToClient(socket) {
+  let machines = await getClientActiveMachines(Array.from(socket.rooms).pop());
+  socket.emit("machines", machines);
 }
 
 // Temp clear out machines every 60seconds to clear
@@ -96,10 +104,8 @@ io.on("connection", async (socket) => {
     // Unique client rooms
     socket.join(`client-${socket.user._id}`);
 
-    socket.on("getMachines", async () => {
-      let machines = await getClientActiveMachines(Array.from(socket.rooms).pop());
-      socket.emit("machines", machines);
-    });
+    await emitMachinesToClient(socket);
+    socket.on("getMachines", async () => await emitMachinesToClient(socket));
 
     socket.on("getPoints", (username) => {
       userToGetPointsOf = username;
@@ -116,7 +122,7 @@ io.on("connection", async (socket) => {
     await Machine.add(socket.handshake.auth.static);
 
     // General reporter room for Heartbeat / pings
-    socket.join('reporter');
+    socket.join("reporter");
 
     // Unique reporter room
     socket.join(`reporter-${socket.handshake.auth.uuid}`);
