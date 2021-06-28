@@ -20,7 +20,7 @@ async function createToken(user, res) {
 
     user.password = undefined;
     user.email = undefined;
-  
+
     res.status(200).cookie("token", token).json({
       message: "Logged in",
       token: token,

@@ -24,11 +24,16 @@ function parseReport(report, latestVersion, machinesPings) {
   } catch (error) {
     report.rogue = true;
 
-    Logs.add("Report parser", "Got invalid Report from reporter", {
-      error: error.message,
-      stack: error.stack,
-      report,
-    }, report.linked_account);
+    Logs.add(
+      "Report parser",
+      "Got invalid Report from reporter",
+      {
+        error: error.message,
+        stack: error.stack,
+        report,
+      },
+      report.linked_account
+    );
 
     // // Log this in the database
     // if (!process.env.TESTING === "true")
