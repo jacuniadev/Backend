@@ -14,7 +14,7 @@ const Joi = require("joi");
 router.use(auth);
 
 router.post("/datacenter/new", async (req, res) => {
-  if (req.body.name.toLowerCase() === "unassigned") return res.status(403).json({ message: "you can't call your datacenter 'unassigned'" });
+  if (req.body.name.toLowerCase() === "unassigned" || req.body.name.toLowerCase() === "all") return res.status(403).json({ message: "you can't call your datacenter 'unassigned' or 'all'" });
 
   // Validate name
   const schema = Joi.object({
