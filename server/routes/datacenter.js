@@ -14,12 +14,13 @@ const Joi = require("joi");
 router.use(auth);
 
 router.post("/datacenter/new", async (req, res) => {
+  req.body.name = req.body.name.trim();
   if (req.body.name.toLowerCase() === "unassigned" || req.body.name.toLowerCase() === "all") return res.status(403).json({ message: "you can't call your datacenter 'unassigned' or 'all'" });
 
   // Validate name
   const schema = Joi.object({
     name: Joi.string()
-      .regex(/^[a-z\d\-_\s]+$/i)
+      .regex(/^[a-z\d\-._\s]+$/i)
       .min(2)
       .max(30),
   });
@@ -85,7 +86,7 @@ router.get("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
 
 router.patch("/datacenter/:datacenter?", datacenterAuth, async (req, res) => {
   if (req.files.length == 0) return res.status(403).json({ message: "no images provided" });
-  const datacenter = await Datacenter.findOne({ _id: req.params.datacenter });
+  const datacenter = await Datacenter.findOne({ name: req.params.datacenter });
 
   try {
     for (file of req.files) {

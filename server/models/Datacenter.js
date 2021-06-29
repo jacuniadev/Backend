@@ -23,9 +23,9 @@ schema.statics.add = async function (owner, name) {
   return await new this({ _id: uuidv4(), owner, name, members: [owner], created_at: Date.now() }).save();
 };
 
-schema.statics.addMachine = async function (datacenterName, machineUUID) {
-  if (!datacenterName && !machineUUID) return;
-  const datacenter = await this.findOne({ name: datacenterName }).exec();
+schema.statics.addMachine = async function (datacenterUUID, machineUUID) {
+  if (!datacenterUUID && !machineUUID) return;
+  const datacenter = await this.findOne({ _id: datacenterUUID }).exec();
   if (!datacenter.machines.includes(machineUUID)) datacenter.machines.push(machineUUID);
   await datacenter.save();
   return datacenter;
