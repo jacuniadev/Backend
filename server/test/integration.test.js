@@ -66,21 +66,13 @@ describe("Integration", () => {
   it("POST /signup          - can signup", async () => {
     const response = await axios.post(`${url}/signup`, fakeUser);
     assert.strictEqual(response.status, 201);
-    assert.strictEqual(
-      response.data.message,
-      `User '${fakeUser.username}' added to the database!`
-    );
+    assert.strictEqual(response.data.message, `User '${fakeUser.username}' added to the database!`);
   });
   it("POST /signup          - can detect if another user with the same username exists", async () => {
-    const response = await axios
-      .post(`${url}/signup`, fakeUser)
-      .catch((err) => {
-        assert.strictEqual(err.response.status, 400);
-        assert.strictEqual(
-          err.response.data.message,
-          `User '${fakeUser.username}' is already in the database!`
-        );
-      });
+    const response = await axios.post(`${url}/signup`, fakeUser).catch((err) => {
+      assert.strictEqual(err.response.status, 400);
+      assert.strictEqual(err.response.data.message, `User '${fakeUser.username}' is already in the database!`);
+    });
   });
   it("POST /login           - can detect if body is invalid", async () => {
     const response = await axios.post(`${url}/login`, {}).catch((err) => {
@@ -96,33 +88,21 @@ describe("Integration", () => {
     fakeHeaders.headers.Cookie = `token=${response.data.token}`;
   });
   it("GET /profile          - can get a user's profile", async () => {
-    const response = await axios.get(
-      `${url}/profile/${fakeUser.username}`,
-      fakeHeaders
-    );
+    const response = await axios.get(`${url}/profile/${fakeUser.username}`, fakeHeaders);
     assert.strictEqual(response.status, 200);
     assert.isNotEmpty(response.data);
     fakeUser2.uuid = response.data._id;
   });
   it("POST /datacenter/new  - can create new datacenter", async () => {
-    const response = await axios.post(
-      `${url}/datacenter/new`,
-      { name: fakeDatacenterName },
-      fakeHeaders
-    );
+    const response = await axios.post(`${url}/datacenter/new`, { name: fakeDatacenterName }, fakeHeaders);
     assert.strictEqual(response.status, 201);
     assert.isNotEmpty(response.data);
   });
   it("GET /datacenter       - can respond with unauthorized for datacenters you don't have access to", async () => {
-    const response = await axios
-      .get(`${url}/datacenter/bro`, fakeHeaders)
-      .catch((err) => {
-        assert.strictEqual(err.response.status, 401);
-        assert.strictEqual(
-          err.response.data.message,
-          "You don't have access to view this datacenter"
-        );
-      });
+    const response = await axios.get(`${url}/datacenter/bro`, fakeHeaders).catch((err) => {
+      assert.strictEqual(err.response.status, 401);
+      assert.strictEqual(err.response.data.message, "You don't have access to view this datacenter");
+    });
   });
   it("GET /datacenter/all   - can get all datacenters you have access to", async () => {
     const response = await axios.get(`${url}/datacenter/all`, fakeHeaders);
@@ -131,26 +111,13 @@ describe("Integration", () => {
     assert.isArray(response.data);
   });
   it("PUT /datacenter       - can respond with unauthorized for datacenter a you don't have access to", async () => {
-    const response = await axios
-      .put(
-        `${url}/datacenter/${fakeDatacenterName}/machine/${fakeMachineUuid}`,
-        undefined,
-        fakeHeaders
-      )
-      .catch((err) => {
-        assert.strictEqual(err.response.status, 403);
-        assert.strictEqual(
-          err.response.data.message,
-          "That machine doesn't belong to you"
-        );
-      });
+    const response = await axios.put(`${url}/datacenter/${fakeDatacenterName}/machine/${fakeMachineUuid}`, undefined, fakeHeaders).catch((err) => {
+      assert.strictEqual(err.response.status, 403);
+      assert.strictEqual(err.response.data.message, "That machine doesn't belong to you");
+    });
   });
   it("PUT /datacenter       - can add a user to a datacenter you're in", async () => {
-    const response = await axios.put(
-      `${url}/datacenter/${fakeDatacenterName}/user/${fakeUser2.uuid}`,
-      undefined,
-      fakeHeaders
-    );
+    const response = await axios.put(`${url}/datacenter/${fakeDatacenterName}/user/${fakeUser2.uuid}`, undefined, fakeHeaders);
     assert.strictEqual(response.status, 201);
   });
 });

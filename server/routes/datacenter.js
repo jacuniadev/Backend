@@ -133,7 +133,6 @@ router.put("/datacenter/:datacenter/machine/:machineUUID", datacenterAuth, async
 });
 
 router.delete("/datacenter/:datacenter/machine/:machineUUID", datacenterAuth, async (req, res) => {
-
   if (!req.user.machines.includes(req.params.machineUUID) && !req.user.is_admin) {
     return res.status(403).json({ message: "That machine doesn't belong to you" });
   }
