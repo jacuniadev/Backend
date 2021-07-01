@@ -131,7 +131,7 @@ function validate(report, latestVersion) {
   isNotEmpty(report.reporterVersion);
   versionIsValid(report.reporterVersion, latestVersion);
 
-  // Validate ram
+  // Validate RAM
   isValidNumber(report.ram.used);
   isValidNumber(report.ram.total);
   isValidNumber(report.ram.free);
@@ -143,14 +143,14 @@ function validate(report, latestVersion) {
   isValidNumber(report.cpu);
   isNotNegative(report.cpu);
 
-  // Validate Cores
+  // Validate cores
   report.cores?.forEach(core => {
-    isValidNumber(core.load);
-    isNotNegative(core.load);
-    isNotAbove100(core.load);
+    isValidNumber(core);
+    isNotNegative(core);
+    isNotAbove100(core);
   })
 
-  // Validate netowkr
+  // Validate network
   isValidObject(report.network);
   isValidNumber(report.network.TxSec);
   isNotNegative(report.network.TxSec);
