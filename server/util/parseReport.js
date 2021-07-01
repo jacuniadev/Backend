@@ -143,6 +143,13 @@ function validate(report, latestVersion) {
   isValidNumber(report.cpu);
   isNotNegative(report.cpu);
 
+  // Validate Cores
+  report.cores?.forEach(core => {
+    isValidNumber(core.load);
+    isNotNegative(core.load);
+    isNotAbove100(core.load);
+  })
+
   // Validate netowkr
   isValidObject(report.network);
   isValidNumber(report.network.TxSec);
@@ -258,6 +265,10 @@ function isValidNumber(value) {
 
 function isNotNegative(value) {
   if (value < 0) throw new Error(`"${value}" is a Negative value`);
+}
+
+function isNotAbove100(value) {
+  if (value > 100) throw new Error(`"${value}" is above 100`);
 }
 
 function isValidBoolean(value) {

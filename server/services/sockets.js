@@ -7,7 +7,7 @@ const Stats = require("@/models/Stats.js");
 const authSocket = require("@/middleware/authSocket.js");
 io.use(authSocket);
 
-let latestVersion = "0.0.25";
+let latestVersion = "0.0.26";
 
 const SPEEDTEST_BASE_REWARD = 30;
 const REPORT_BASE_REWARD = 5;
