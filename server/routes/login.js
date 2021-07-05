@@ -21,7 +21,7 @@ async function createToken(user, res) {
     user.password = undefined;
     user.email = undefined;
 
-    res.status(200).cookie("token", token).json({
+    res.status(200).json({
       message: "Logged in",
       token: token,
       me: user,

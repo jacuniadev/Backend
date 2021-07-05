@@ -23,7 +23,6 @@ const Logs = require("@/models/Logs.js");
 
 const pty = require("node-pty-prebuilt-multiarch");
 const PTYService = require("@/services/PTYService");
-const whitelist = ["https://xornet.cloud", "http://localhost:8080"];
 const multer = require("multer");
 const upload = multer({ dest: "./temp/" });
 
@@ -32,30 +31,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(upload.any());
 app.use(morgan("dev")); // Enable HTTPs code logs
-app.use(
-  cors({
-    origin(origin, callback) {
-      if (whitelist.indexOf(origin) !== -1) {
-        callback(null, true);
-      } else {
-        callback(null, true);
-        // callback(new Error('Not allowed by CORS'))
-      }
-    },
-    credentials: true,
-  })
-);
-
-// app.get("/stats", async (req, res) => {
-//   let object = {
-//     totalMachines: machines.size,
-//     totalTraffic: ((await Stats.fetchDailyTraffic(86400000)).total_megabytes / 1000).toFixed(2),
-//     totalCores: Array.from(machinesStatic.values()).reduce((a, b) => a + b.static.cpu.cores, 0),
-//     totalRam: Math.ceil(Array.from(machines.values()).reduce((a, b) => a + b.ram.total, 0)),
-//   };
-//   res.json(object);
-// });
-
+app.use(cors({allowedHeaders: ['Content-Type', 'Authorization']}));
 app.use(require("@/routes/login"));
 app.use(require("@/routes/signup"));
 app.use(require("@/routes/profile"));
