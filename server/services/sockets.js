@@ -86,13 +86,17 @@ io.on("connection", async (socket) => {
         reporterSocket.emit("input", input)
       });
 
+      reporterSocket.on("output", output => socket.emit("output", output));
+
       // If the client disconnects disconnect the terminal
       socket.once("disconnect", () => {
         socket.off("input");
+        reporterSocket.off('output');
         reporterSocket.emit('terminateTerminal')
       });
       socket.once("terminateTerminal", () =>  {
         socket.off("input");
+        reporterSocket.off('output');
         reporterSocket.emit('terminateTerminal')
       });
     });
