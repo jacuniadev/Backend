@@ -63,14 +63,8 @@ io.on("connection", async (socket) => {
     // Unique client rooms
     socket.join(`client-${socket.user._id}`);
 
-    socketTerminalConnections = 0;
-
     // Forward terminal input to PTY
     socket.on("newTerminalConnection", machineUUID => {
-      socketTerminalConnections++;
-      console.log(socketTerminalConnections);
-      if (socketTerminalConnections > 1) return;
-
       // Get the room of the reporter
       const room = io.sockets.adapter.rooms.get(`reporter-${machineUUID}`);
 
@@ -80,27 +74,26 @@ io.on("connection", async (socket) => {
       // Get the reporter from it's room
       const reporterSocket = io.sockets.sockets.get(Array.from(room)[0]);
 
-      // If the client disconnects disconnect the terminal
-      socket.on("disconnect", () => {
-        socketTerminalConnections--;
-        reporterSocket.emit('terminateTerminal')
-      });
-      socket.on("terminateTerminal", () => {
-        socketTerminalConnections--;
-        reporterSocket.emit('terminateTerminal')
-      });
-
       // Log the event
       console.log("New terminal connection");
 
       // Tell the reporter we wanna start a terminal
       reporterSocket.emit("startTerminal");
 
-
       // When the client sends text input forward it to the reporter
       socket.on("input", input => {
         console.log(input);
         reporterSocket.emit("input", input)
+      });
+
+      // If the client disconnects disconnect the terminal
+      socket.once("disconnect", () => {
+        socket.off("input");
+        reporterSocket.emit('terminateTerminal')
+      });
+      socket.once("terminateTerminal", () =>  {
+        socket.off("input");
+        reporterSocket.emit('terminateTerminal')
       });
     });
 
