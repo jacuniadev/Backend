@@ -121,7 +121,12 @@ io.on("connection", async (socket) => {
         interface.rx_sec = interface.rx_sec ? interface.rx_sec : 0;
         return interface;
       });
-      report.cpu = report.cpu ? report.cpu : 0;
+
+      // For now assume that these devices are mobiles
+      if (report.cpu) {
+        report.cpu = report.cpu ? report.cpu : 0;
+        report.isMobile = true;
+      }
 
       // Return if theres some value that is undefined
       if (Object.values(report).some((field) => field == null)) return;
@@ -154,8 +159,6 @@ io.on("connection", async (socket) => {
 
       // Validate / parse the report
       report = parseReport(report, latestVersion, machinesPings);
-
-
 
       // Assign statics
       machinesStatic.set(report.uuid, socket.handshake.auth);
