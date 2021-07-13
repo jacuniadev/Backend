@@ -115,6 +115,14 @@ io.on("connection", async (socket) => {
       // Return if the reporter hasn't authenticated
       if (socket.handshake.auth.static?.reporter?.linked_account == null) return;
 
+      // Revert values that are null to 0 for mobile devices
+      report.network.map(interface => {
+        interface.tx_sec = interface.tx_sec ? interface.tx_sec : 0;
+        interface.rx_sec = interface.rx_sec ? interface.rx_sec : 0;
+        return interface;
+      });
+      report.cpu = report.cpu ? report.cpu : 0;
+
       // Return if theres some value that is undefined
       if (Object.values(report).some((field) => field == null)) return;
 
@@ -146,6 +154,8 @@ io.on("connection", async (socket) => {
 
       // Validate / parse the report
       report = parseReport(report, latestVersion, machinesPings);
+
+
 
       // Assign statics
       machinesStatic.set(report.uuid, socket.handshake.auth);
