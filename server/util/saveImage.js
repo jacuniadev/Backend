@@ -18,7 +18,7 @@ module.exports = async function saveImage(image) {
         reject(err);
       }
       resolve({
-        url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
+        url: `${process.env.BACKEND_URL}/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
       });
     });
   });

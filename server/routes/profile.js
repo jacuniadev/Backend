@@ -44,7 +44,7 @@ async function resizeSaveImage(image) {
         // Save the image
         jimpImage.write(`./uploads/images/${date}-${image.originalname}`);
         resolve({
-          url: `https://backend.xornet.cloud/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
+          url: `${process.env.BACKEND_URL}/images/${date}-${image.originalname}`.replace(/\s/g, "%20"),
           hasAlpha: jimpImage.hasAlpha(),
         });
       });

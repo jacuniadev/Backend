@@ -9,12 +9,18 @@ const cookieParser = require("cookie-parser");
 const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const cors = require("cors");
-const options = {
-  key: fs.readFileSync("./key.pem"),
-  cert: fs.readFileSync("./cert.pem"),
-};
-const https = require("https").createServer(options, app);
-const io = require("socket.io")(https, { cors: { origin: "*" } });
+process.env.BACKEND_URL = process.env.NODE_ENV.trim() === "development" ? "http://localhost:8080" : "https://backend.xornet.cloud";
+if(process.env.NODE_ENV.trim() === "development") {
+  var server = require("http").createServer(app);
+  var io = require("socket.io")(server, { cors: { origin: "*" } });
+} else {
+  var options = {
+    key: fs.readFileSync("./key.pem"),
+    cert: fs.readFileSync("./cert.pem"),
+  };
+  var server = require("https").createServer(options, app);
+  var io = require("socket.io")(server, { cors: { origin: "*" } });
+}
 module.exports = io;
 require("@/services/sockets");
 
@@ -47,4 +53,5 @@ process.on("uncaughtException", async (err, origin) => {
   console.log(err);
 });
 
-https.listen(port, () => console.log(`Started on port ${port.toString()}`));
+
+server.listen(port, () => console.log(`Started on port ${port.toString()}`));
