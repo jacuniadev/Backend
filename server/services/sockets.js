@@ -63,6 +63,47 @@ io.on("connection", async (socket) => {
     // Unique client rooms
     socket.join(`client-${socket.user._id}`);
 
+    socketTerminalConnections = 0;
+
+    // Forward terminal input to PTY
+    socket.on("newTerminalConnection", machineUUID => {
+      socketTerminalConnections++;
+      console.log(socketTerminalConnections);
+      if (socketTerminalConnections > 1) return;
+
+      // Get the room of the reporter
+      const room = io.sockets.adapter.rooms.get(`reporter-${machineUUID}`);
+
+      // If it doesn't exist it means it's offline so return
+      if (!room) return;
+
+      // Get the reporter from it's room
+      const reporterSocket = io.sockets.sockets.get(Array.from(room)[0]);
+
+      // If the client disconnects disconnect the terminal
+      socket.on("disconnect", () => {
+        socketTerminalConnections--;
+        reporterSocket.emit('terminateTerminal')
+      });
+      socket.on("terminateTerminal", () => {
+        socketTerminalConnections--;
+        reporterSocket.emit('terminateTerminal')
+      });
+
+      // Log the event
+      console.log("New terminal connection");
+
+      // Tell the reporter we wanna start a terminal
+      reporterSocket.emit("startTerminal");
+
+
+      // When the client sends text input forward it to the reporter
+      socket.on("input", input => {
+        console.log(input);
+        reporterSocket.emit("input", input)
+      });
+    });
+
     socket.on("getMachines", async () => Object.fromEntries(machines));
     socket.on("getPoints", (username) => {
       userToGetPointsOf = username;
@@ -72,6 +113,12 @@ io.on("connection", async (socket) => {
       const points = (await User.findOne({ username: userToGetPointsOf }))?.points;
       if (points) socket.emit("points", points);
     }, 1000);
+
+    // This should be moved into the reporters and be secured
+    // let pty = new PTYService(socket);
+    // socket.on("input", input => {
+    //   pty.write(input);
+    // });
 
     socket.on("disconnect", () => clearInterval(pointInterval));
   }
@@ -87,11 +134,6 @@ io.on("connection", async (socket) => {
     // Calculate ping and append it to the machine map
     socket.on("heartbeatResponse", (heartbeat) => machinesPings.set(heartbeat.uuid, Math.ceil((Date.now() - heartbeat.epoch) / 2)));
 
-    // This should be moved into the reporters and be secured
-    // let pty = new PTYService(socket);
-    // socket.on("input", input => {
-    //   pty.write(input);
-    // });
 
     let pausePoints = false;
 

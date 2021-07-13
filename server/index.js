@@ -27,8 +27,6 @@ require("@/services/sockets");
 const Stats = require("@/models/Stats.js");
 const Logs = require("@/models/Logs.js");
 
-const pty = require("node-pty-prebuilt-multiarch");
-const PTYService = require("@/services/PTYService");
 const multer = require("multer");
 const upload = multer({ dest: "./temp/" });
 
@@ -47,6 +45,8 @@ app.use(require("@/routes/search"));
 app.use(require("@/routes/logs"));
 app.use(require("@/routes/datacenter"));
 app.use(require("@/routes/machines"));
+
+
 
 process.on("uncaughtException", async (err, origin) => {
   await Logs.add("API", err);
