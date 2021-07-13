@@ -144,11 +144,11 @@ function validate(report, latestVersion) {
   isNotNegative(report.cpu);
 
   // Validate cores
-  report.cores?.forEach(core => {
+  report.cores?.forEach((core) => {
     isValidNumber(core);
     isNotNegative(core);
     isNotAbove100(core);
-  })
+  });
 
   // Validate network
   isValidObject(report.network);

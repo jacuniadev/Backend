@@ -10,7 +10,7 @@ const port = process.env.BACKEND_PORT || 8080;
 const app = express();
 const cors = require("cors");
 process.env.BACKEND_URL = process.env.NODE_ENV.trim() === "development" ? "http://localhost:8080" : "https://backend.xornet.cloud";
-if(process.env.NODE_ENV.trim() === "development") {
+if (process.env.NODE_ENV.trim() === "development") {
   var server = require("http").createServer(app);
   var io = require("socket.io")(server, { cors: { origin: "*" } });
 } else {
@@ -37,7 +37,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 app.use(upload.any());
 app.use(morgan("dev")); // Enable HTTPs code logs
-app.use(cors({allowedHeaders: ['Content-Type', 'Authorization']}));
+app.use(cors({ allowedHeaders: ["Content-Type", "Authorization"] }));
 app.use(require("@/routes/login"));
 app.use(require("@/routes/signup"));
 app.use(require("@/routes/profile"));
@@ -52,6 +52,5 @@ process.on("uncaughtException", async (err, origin) => {
   await Logs.add("API", err);
   console.log(err);
 });
-
 
 server.listen(port, () => console.log(`Started on port ${port.toString()}`));
