@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const User = require("@/models/User.js");
 
 let auth = (req, res, next) => {
-  const token = req.get('Authorization').substring(7);
+  const token = req.get("Authorization").substring(7);
 
   jwt.verify(token, process.env.SECRET, async (error, payload) => {
     if (error) {
