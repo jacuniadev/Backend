@@ -17,11 +17,12 @@ const schema = new Schema(
  * @param {Object} [staticData] contains the staticData data of the machine
  */
 schema.statics.add = async function (staticData) {
-  const machines = await this.find({ _id: staticData.system.uuid }).exec();
-  if (machines.length !== 0) {
-    // console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
-    machines[0].static = staticData;
-    machines[0].save();
+  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
+  const machine = await this.findOne({ _id: staticData.system.uuid }).exec();
+  if (machine) {
+    console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
+    machine.static = staticData;
+    await machine.save();
     return;
   }
   await new this({ _id: staticData.system.uuid, static: staticData }).save();

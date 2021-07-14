@@ -22,6 +22,18 @@ async function calculateReportPoints() {
   return REPORT_BASE_REWARD + ~~(Math.random() * REPORT_BASE_REWARD);
 }
 
+// Gets the machine's socket by the UUID if it's online
+function getReporterSocket(uuid){
+  // Get the room of the reporter
+  const room = io.sockets.adapter.rooms.get(`reporter-${uuid}`);
+
+  // If it doesn't exist it means it's offline so return
+  if (!room) return;
+
+  // Get the reporter from it's room
+  return io.sockets.sockets.get(Array.from(room)[0]);
+}
+
 let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
@@ -65,14 +77,13 @@ io.on("connection", async (socket) => {
 
     // Forward terminal input to PTY
     socket.on("newTerminalConnection", machineUUID => {
-      // Get the room of the reporter
-      const room = io.sockets.adapter.rooms.get(`reporter-${machineUUID}`);
-
-      // If it doesn't exist it means it's offline so return
-      if (!room) return;
 
       // Get the reporter from it's room
-      const reporterSocket = io.sockets.sockets.get(Array.from(room)[0]);
+      const reporterSocket = getReporterSocket(machineUUID);
+
+      // If the client disconnects disconnect the terminal
+      socket.on("disconnect", () => reporterSocket.emit('terminateTerminal'));
+      socket.on("terminateTerminal", () =>  reporterSocket.emit('terminateTerminal'));
 
       // Log the event
       console.log("New terminal connection");
@@ -82,23 +93,12 @@ io.on("connection", async (socket) => {
 
       // When the client sends text input forward it to the reporter
       socket.on("input", input => {
-        console.log(input);
+        console.log(`[TERMINAL WS] Got input: ${input}`);
         reporterSocket.emit("input", input)
       });
 
+      // Send the report's output back to the client 
       reporterSocket.on("output", output => socket.emit("output", output));
-
-      // If the client disconnects disconnect the terminal
-      socket.once("disconnect", () => {
-        socket.off("input");
-        reporterSocket.off('output');
-        reporterSocket.emit('terminateTerminal')
-      });
-      socket.once("terminateTerminal", () =>  {
-        socket.off("input");
-        reporterSocket.off('output');
-        reporterSocket.emit('terminateTerminal')
-      });
     });
 
     socket.on("getMachines", async () => Object.fromEntries(machines));
