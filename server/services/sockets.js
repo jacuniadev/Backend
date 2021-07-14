@@ -34,6 +34,15 @@ function getReporterSocket(uuid){
   return io.sockets.sockets.get(Array.from(room)[0]);
 }
 
+function destroyTerminalConnection(clientSocket, reporterSocket){
+  console.log(`[TERMINAL WS] Client destroy event, closing terminal`);
+  clientSocket.removeAllListeners("output");
+  clientSocket.removeAllListeners("input");
+  clientSocket.removeAllListeners("disconnect");
+  clientSocket.removeAllListeners("terminateTerminal");
+  reporterSocket.emit('terminateTerminal')
+}
+
 let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
@@ -81,15 +90,15 @@ io.on("connection", async (socket) => {
       // Get the reporter from it's room
       const reporterSocket = getReporterSocket(machineUUID);
 
-      // If the client disconnects disconnect the terminal
-      socket.on("disconnect", () => reporterSocket.emit('terminateTerminal'));
-      socket.on("terminateTerminal", () =>  reporterSocket.emit('terminateTerminal'));
-
       // Log the event
       console.log("New terminal connection");
 
       // Tell the reporter we wanna start a terminal
       reporterSocket.emit("startTerminal");
+
+      // If the client disconnects disconnect the terminal
+      socket.on("disconnect", () => destroyTerminalConnection(socket, reporterSocket));
+      socket.on("terminateTerminal", () =>  destroyTerminalConnection(socket, reporterSocket));
 
       // When the client sends text input forward it to the reporter
       socket.on("input", input => {
