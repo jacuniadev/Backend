@@ -87,6 +87,9 @@ io.on("connection", async (socket) => {
     // Forward terminal input to PTY
     socket.on("newTerminalConnection", machineUUID => {
 
+      // Only allow owners to connect
+      if (!socket.user.machines.includes(machineUUID)) return;
+
       // Get the reporter from it's room
       const reporterSocket = getReporterSocket(machineUUID);
 
