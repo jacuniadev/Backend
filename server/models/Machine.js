@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 mongoose.connect(process.env.MONGODB_HOST, { useNewUrlParser: true, useUnifiedTopology: true });
+const uuidRegex = /([a-f0-9]{32})|([a-f0-9]{16})/;
 
 const schema = new Schema(
   {
@@ -18,9 +19,10 @@ const schema = new Schema(
  */
 schema.statics.add = async function (staticData) {
   staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
+  if (!uuidRegex.test(staticData.system.uuid)) return;
   const machine = await this.findOne({ _id: staticData.system.uuid }).exec();
   if (machine) {
-    console.warn(`[MANGOLIA]: Machine with uuid '${staticData.system.uuid}' is already in the database!`);
+    console.warn(`[MANGOLIA]: Machine with uuid '${machine._id}' is already in the database!`);
     machine.static = staticData;
     await machine.save();
     return;

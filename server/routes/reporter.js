@@ -9,6 +9,8 @@ router.post("/reporter", async (req, res) => {
     return res.status(200).json({ message: "Test reporter accepted" });
   }
 
+  console.log(req.body);
+
   const user = await User.findOne({ machines: req.body.uuid });
   if (user) {
     res.status(200).json({ message: "Reporter linked to an account", account_uuid: user._id });
