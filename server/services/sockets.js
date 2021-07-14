@@ -132,7 +132,9 @@ io.on("connection", async (socket) => {
     socket.on("disconnect", () => clearInterval(pointInterval));
   }
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== "") {
-    await Machine.add(socket.handshake.auth.static);
+
+    // Add new static data if theres a user that has this machine
+    if (await User.findOne({machines: socket.handshake.auth.uuid})) await Machine.add(socket.handshake.auth.static);
 
     // General reporter room for Heartbeat / pings
     socket.join("reporter");
@@ -165,6 +167,10 @@ io.on("connection", async (socket) => {
     socket.on("report", async (report) => {
       // Return if the reporter hasn't authenticated
       if (socket.handshake.auth.static?.reporter?.linked_account == null) return;
+
+      const machine = await Machine.findOne({_id: socket.handshake.auth.uuid});
+      //
+      if (!machine) socket.disconnect();
 
       // Revert values that are null to 0 for mobile devices
       report.network.map(interface => {

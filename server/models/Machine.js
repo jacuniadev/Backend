@@ -28,4 +28,8 @@ schema.statics.add = async function (staticData) {
   await new this({ _id: staticData.system.uuid, static: staticData }).save();
 };
 
+schema.statics.delete = async function (machineUUID) {
+  return await this.findOneAndRemove({_id: machineUUID});
+};
+
 module.exports = mongoose.model("Machine", schema);

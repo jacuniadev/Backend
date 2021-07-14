@@ -136,8 +136,16 @@ router.put("/profile/machine", auth, async (req, res) => {
   if (await User.findOne({ machines: req.body.machine })) return res.status(403).json({ message: "this machine is already bound to a user" });
   if (!req.user.primaryDatacenter) return res.status(400).json({ message: "You don't have a primary datacenter, select one first" });
   if (!uuidRegex.test(req.body.machine)) return res.status(400).json({ message: "invalid uuid" });
-  await User.addMachine(req.user._id, req.body.machine.replace(/-/g, ""));
+  await req.user.addMachine(req.body.machine.replace(/-/g, ""));
   res.status(201).json({ message: "machine added" });
+});
+
+router.delete("/profile/machine/:machineUUID", auth, async (req, res) => {
+  if (!uuidRegex.test(req.params.machineUUID)) return res.status(400).json({ message: "invalid uuid" });
+  if (!req.user.machines.includes(req.params.machineUUID)) return res.status(403).json({ message: "this machine doesn't belong to you" });
+  await req.user.removeMachine(req.params.machineUUID);
+  await Machine.delete(req.params.machineUUID);
+  res.status(200).json({ message: "machine deleted" });
 });
 
 module.exports = router;

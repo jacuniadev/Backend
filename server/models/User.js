@@ -87,17 +87,30 @@ schema.statics.update = async function (_id, newProfile) {
 
 /**
  * Simply adds a machine to the user's database
- * @param {String} [_id] the uuid of the user
  * @param {String} [machineUUID] the uuid of the machine to add to the user
  */
-schema.statics.addMachine = async function (_id, machineUUID) {
+schema.methods.addMachine = async function (machineUUID) {
   return new Promise(async (resolve) => {
-    const user = await this.findOne({ _id }).exec();
-    const datacenter = await Datacenter.findOne({ _id: user.primaryDatacenter });
+    const datacenter = await Datacenter.findOne({ _id: this.primaryDatacenter });
     await Datacenter.addMachine(datacenter._id, machineUUID);
     if (machineUUID != null) {
-      if (!user.machines.includes(machineUUID)) user.machines.push(machineUUID);
-      resolve(user.save());
+      if (!this.machines.includes(machineUUID)) this.machines.push(machineUUID);
+      resolve(this.save());
+    } else reject();
+  });
+};
+
+/**
+ * Deletes a machine from the user
+ * @param {String} [machineUUID] the uuid of the machine to remove
+ */
+schema.methods.removeMachine = async function (machineUUID) {
+  return new Promise(async (resolve) => {
+    const datacenter = await Datacenter.findOne({ _id: this.primaryDatacenter });
+    await datacenter.removeMachine(machineUUID);
+    if (machineUUID != null) {
+      this.machines.splice(this.machines.indexOf(machineUUID), 1);
+      resolve(this.save());
     } else reject();
   });
 };

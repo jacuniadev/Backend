@@ -31,12 +31,11 @@ schema.statics.addMachine = async function (datacenterUUID, machineUUID) {
   return datacenter;
 };
 
-schema.statics.removeMachine = async function (datacenterName, machineUUID) {
-  if (!datacenterName && !machineUUID) return;
-  const datacenter = await this.findOne({ name: datacenterName }).exec();
-  if (datacenter.machines.includes(userUUID)) datacenter.machines.splice(datacenter.machines.indexOf(machineUUID), 1);
-  await datacenter.save();
-  return datacenter;
+schema.methods.removeMachine = async function (machineUUID) {
+  if (!machineUUID) return;
+  this.machines.splice(this.machines.indexOf(machineUUID), 1);
+  await this.save();
+  return this;
 };
 
 schema.statics.addUser = async function (datacenterName, userUUID) {
