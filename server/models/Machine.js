@@ -15,19 +15,20 @@ const schema = new Schema(
 
 /**
  * Attempts to create a machine and save them to the database
+ * @param {String} [machineUUID] The machine's uuid
  * @param {Object} [staticData] contains the staticData data of the machine
  */
-schema.statics.add = async function (staticData) {
-  staticData.system.uuid = staticData.system.uuid.replace(/-/g, "");
-  if (!uuidRegex.test(staticData.system.uuid)) return;
-  const machine = await this.findOne({ _id: staticData.system.uuid }).exec();
+schema.statics.add = async function (machineUUID, staticData) {
+  machineUUID = machineUUID.replace(/-/g, "");
+  if (!uuidRegex.test(machineUUID)) return;
+  const machine = await this.findOne({ _id: machineUUID }).exec();
   if (machine) {
     console.warn(`[MANGOLIA]: Machine with uuid '${machine._id}' is already in the database!`);
     machine.static = staticData;
     await machine.save();
     return;
   }
-  await new this({ _id: staticData.system.uuid, static: staticData }).save();
+  await new this({ _id: machineUUID, static: staticData }).save();
 };
 
 schema.statics.delete = async function (machineUUID) {

@@ -131,8 +131,7 @@ io.on("connection", async (socket) => {
   if (socket.handshake.auth.type === "reporter" && socket.handshake.auth.uuid !== "") {
 
     // Add new static data if theres a user that has this machine
-    let user = await User.findOne({machines: socket.handshake.auth.uuid});
-    if (user.machines.includes(socket.handshake.auth.uuid)) await Machine.add(socket.handshake.auth.static);
+    await Machine.add(socket.handshake.auth.uuid, socket.handshake.auth.static);
 
     // General reporter room for Heartbeat / pings
     socket.join("reporter");
@@ -166,11 +165,12 @@ io.on("connection", async (socket) => {
       // Return if the reporter hasn't authenticated
       if (socket.handshake.auth.static?.reporter?.linked_account == null) return;
 
-      const machine = await Machine.findOne({_id: socket.handshake.auth.uuid});
-      if (!machine) {
-        console.log("kicking", socket.handshake.auth.uuid);
-        socket.disconnect()
-      };
+      // Check if machine exists in the database
+      // const machine = await Machine.findOne({_id: socket.handshake.auth.uuid});
+      // if (!machine) {
+      //   console.log("kicking", socket.handshake.auth.uuid);
+      //   socket.disconnect()
+      // };
 
       // Revert values that are null to 0 for mobile devices
       report.network.map(interface => {
