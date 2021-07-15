@@ -197,10 +197,8 @@ function isValidFS(fs, platform) {
       if (!windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
       break;
     case "linux":
-      if (!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
-      break;
     case "darwin":
-      if (!darwinRegex.test(fs)) throw new Error(`"${fs}" is not a valid darwin folder`);
+      if (!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
       break;
   }
 }
