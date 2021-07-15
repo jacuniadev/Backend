@@ -198,8 +198,10 @@ function isValidFS(fs, platform) {
       break;
     case "linux":
       if (!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
+      break;
     case "darwin":
-      if (!darwinRegex.test(fs)) throw new Error(`"${fs}" is not a vailid darwin folder`);
+      if (!darwinRegex.test(fs)) throw new Error(`"${fs}" is not a valid darwin folder`);
+      break;
   }
 }
 
