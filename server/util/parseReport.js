@@ -190,14 +190,16 @@ function isValidFS(fs, platform) {
 
   let windowsRegex = /[A-Z]:$/g;
   let linuxRegex = /^\/dev\/\w*/g;
+  let darwinRegex = /^\/\/\w*/g;
 
   switch (platform) {
     case "win32":
       if (!windowsRegex.test(fs)) throw new Error(`"${fs}" is not a valid drive letter`);
       break;
     case "linux":
-    case "darwin":
       if (!linuxRegex.test(fs)) throw new Error(`"${fs}" is not a valid linux folder`);
+    case "darwin":
+      if (!darwinRegex.test(fs)) throw new Error(`"${fs}" is not a vailid darwin folder`);
   }
 }
 
