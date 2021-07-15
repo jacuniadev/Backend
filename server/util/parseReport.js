@@ -189,8 +189,7 @@ function isValidFS(fs, platform) {
   isNotEmpty(fs);
 
   let windowsRegex = /[A-Z]:$/g;
-  let linuxRegex = /^\/dev\/\w*/g;
-  let darwinRegex = /^\/\/\w*/g;
+  let linuxRegex = /(^\/\/\w*)|(^\/dev\/\w*)/g;
 
   switch (platform) {
     case "win32":
