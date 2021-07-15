@@ -179,11 +179,7 @@ io.on("connection", async (socket) => {
         return interface;
       });
 
-      // For now assume that these devices are mobiles
-      if (report.cpu) {
-        report.cpu = report.cpu ? report.cpu : 0;
-        report.isMobile = true;
-      }
+      report.cpu = report.cpu ? report.cpu : 0;
 
       // Return if theres some value that is undefined
       if (Object.values(report).some((field) => field == null)) return;
