@@ -96,6 +96,11 @@ function parse(report, machinesPings) {
   // Replace whats there with proper data
   report.network = {
     totalInterfaces,
+    interfaces: report.network.map(iface => {
+      iface.rx_sec = iface.rx_sec * 8 / 1000 / 1000;
+      iface.tx_sec = iface.tx_sec * 8 / 1000 / 1000;
+      return iface;
+    }),
     TxSec: parseFloat(txSec.toFixed(2)),
     RxSec: parseFloat(rxSec.toFixed(2)),
   };
