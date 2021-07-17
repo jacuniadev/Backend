@@ -243,6 +243,8 @@ io.on("connection", async (socket) => {
           profileImage: socket.user?.profileImage?.url
         };
 
+        device.location = socket.handshake.auth.location;
+
         if (!devices[device.type]) {
           devices[device.type] = {}
           devices[device.type][device.uuid] = device;
