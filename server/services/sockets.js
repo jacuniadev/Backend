@@ -238,6 +238,11 @@ io.on("connection", async (socket) => {
           formatted: formatSeconds(device.uptime),
         };
 
+        device.owner = {
+          username: socket.user.username,
+          profileImage: socket.user?.profileImage?.url
+        };
+
         if (!devices[device.type]) {
           devices[device.type] = {}
           devices[device.type][device.uuid] = device;
