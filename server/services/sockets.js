@@ -243,7 +243,7 @@ io.on("connection", async (socket) => {
           profileImage: socket.user?.profileImage?.url
         };
 
-        device.location = socket.handshake.auth.location;
+        device.geolocation = socket.handshake.auth.geolocation;
 
         if (!devices[device.type]) {
           devices[device.type] = {}
