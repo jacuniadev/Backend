@@ -231,8 +231,11 @@ io.on("connection", async (socket) => {
     socket.join("johanna");
 
     socket.on('data', data => {
+
       // Add shit to RAM
       for (device of data){
+        if (!device.uuid) return
+
         device.uptime = {
           pure: device.uptime,
           formatted: formatSeconds(device.uptime),
