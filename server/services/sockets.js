@@ -5,6 +5,8 @@ const User = require("@/models/User.js");
 const Datacenter = require("@/models/Datacenter.js");
 const Stats = require("@/models/Stats.js");
 const authSocket = require("@/middleware/authSocket.js");
+const formatSeconds = require("../util/formatSeconds");
+
 io.use(authSocket);
 
 let latestVersion = "0.0.28";
@@ -205,6 +207,8 @@ io.on("connection", async (socket) => {
       // TODO: Make this not query the DB on every report as its inneffienct
       report.datacenter = await Datacenter.findOne({ machines: socket.handshake.auth.uuid }).exec();
 
+      report.type = 'computer';
+
       // Add geolocation data
       // So it goes to the frontend
       report.geolocation = socket.handshake.auth.static.geolocation;
@@ -221,6 +225,39 @@ io.on("connection", async (socket) => {
 
       // Add to database
       if (!report.rogue) await Stats.add(report);
+    });
+  }
+
+  if (socket.handshake.auth.type === "johanna") {
+    // General room for all clients to emit to if needed
+    socket.join("johanna");
+
+    function parseJohanna(machine) {
+
+      machine.uptime = {
+        pure: machine.uptime,
+        formatted: formatSeconds(~~(machine.uptime / 100)),
+      }
+
+      machine.ram = {
+        total: parseInt(machine.memory_total) / 1000,
+        free: parseInt(machine.memory_free) / 1000,
+      }
+
+      machine.location = socket.handshake.auth.location;
+
+      if (machine.fan_status) machine.fans = machine.fan_status == "1" ? true : false;
+
+      return machine;
+    }
+
+    socket.on("data", data => {
+      // Assign reports
+      for (let machine of data){
+
+
+        machines.set(machine.uuid, parseJohanna(machine));
+      }
     });
   }
 });
