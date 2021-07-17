@@ -1,7 +1,11 @@
+
+function pad(seconds){
+  return seconds < 9 ? `0${seconds}` : seconds.toString();
+}
+
 /**
- * @author Geoxor
- *
  * Formats seconds into days, hours, minutes and seconds.
+ * @author Geoxor
  * @return {Object} days, hours, minutes, seconds
  */
 function formatSeconds(seconds) {
@@ -12,7 +16,12 @@ function formatSeconds(seconds) {
   const m = ~~((seconds % 3600) / 60);
   const s = ~~((seconds % 3600) % 60);
 
-  return { d, h, m, s };
+  return { 
+    d: pad(d), 
+    h: pad(h), 
+    m: pad(m), 
+    s: pad(s) 
+  };
 }
 
 module.exports = formatSeconds;

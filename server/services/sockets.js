@@ -5,6 +5,8 @@ const User = require("@/models/User.js");
 const Datacenter = require("@/models/Datacenter.js");
 const Stats = require("@/models/Stats.js");
 const authSocket = require("@/middleware/authSocket.js");
+const formatSeconds = require("@/util/formatSeconds");
+
 io.use(authSocket);
 
 let latestVersion = "0.0.28";
@@ -46,6 +48,7 @@ function destroyTerminalConnection(clientSocket, reporterSocket){
 let machines = new Map();
 let machinesPings = new Map();
 let machinesStatic = new Map();
+let devices = {};
 
 // Temp clear out machines every 60seconds to clear
 setInterval(() => {
@@ -68,6 +71,7 @@ setInterval(async () => {
   // emitToClients();
   io.sockets.in("reporter").emit("heartbeat", Date.now());
   io.sockets.in("client").emit("machines", Object.fromEntries(machines));
+  io.sockets.in("client").emit("devices", devices);
 }, 1000);
 
 io.on("connection", async (socket) => {
@@ -223,7 +227,28 @@ io.on("connection", async (socket) => {
       if (!report.rogue) await Stats.add(report);
     });
   }
+  if (socket.handshake.auth.type === "johanna") {
+    socket.join("johanna");
+
+    socket.on('data', data => {
+      // Add shit to RAM
+      for (device of data){
+        device.uptime = {
+          pure: device.uptime,
+          formatted: formatSeconds(device.uptime),
+        };
+
+        if (!devices[device.type]) {
+          devices[device.type] = {}
+          devices[device.type][device.uuid] = device;
+        }else {
+          devices[device.type][device.uuid] = device;
+        }
+      }
+    })
+  }
 });
+
 
 io.on("disconnection", () => {
   console.log("[WEBSOCKET] Disconnected");
