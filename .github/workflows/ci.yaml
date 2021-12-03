@@ -39,7 +39,7 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: xornet_server__${{ steps.version.outputs.value }}_linux_${{matrix.targetArch}}
+          name: xornet_server_${{ steps.version.outputs.value }}_linux_${{matrix.targetArch}}
           path: dist/xornet_server_${{ steps.version.outputs.value }}_linux_${{matrix.targetArch}}
 
   compile-freebsd:
@@ -70,7 +70,7 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: xornet_server__${{ steps.version.outputs.value }}_freebsd_${{matrix.targetArch}}
+          name: xornet_server_${{ steps.version.outputs.value }}_freebsd_${{matrix.targetArch}}
           path: dist/xornet_server_${{ steps.version.outputs.value }}_freebsd_${{matrix.targetArch}}
 
   compile-netbsd:
@@ -101,7 +101,7 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: xornet_server__${{ steps.version.outputs.value }}_netbsd_${{matrix.targetArch}}
+          name: xornet_server_${{ steps.version.outputs.value }}_netbsd_${{matrix.targetArch}}
           path: dist/xornet_server_${{ steps.version.outputs.value }}_netbsd_${{matrix.targetArch}}
 
   compile-openbsd:
@@ -131,7 +131,7 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: xornet_server__${{ steps.version.outputs.value }}_openbsd_${{matrix.targetArch}}
+          name: xornet_server_${{ steps.version.outputs.value }}_openbsd_${{matrix.targetArch}}
           path: dist/xornet_server_${{ steps.version.outputs.value }}_openbsd_${{matrix.targetArch}}
   compile-windows:
     strategy:
@@ -160,7 +160,7 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: xornet_server__${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}
+          name: xornet_server_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}
           path: dist/xornet_server_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}.exe
 
   compile-darwin:
@@ -184,5 +184,5 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: xornet_server__${{ steps.version.outputs.value }}_darwin_amd64
+          name: xornet_server_${{ steps.version.outputs.value }}_darwin_amd64
           path: dist/xornet_server_${{ steps.version.outputs.value }}_darwin_amd64
