@@ -42,7 +42,7 @@ jobs:
       - name: Install Gox
         run: go get github.com/mitchellh/gox
       - name: Compile 
-        run: gox -os="linux" -arch="{{matrix.targetArch}}" -output="./dist/xornet_server_{{.OS}}_{{.Arch}}"
+        run: gox -os="linux" -arch="${{matrix.targetArch}}" -output="./dist/xornet_server_{{.OS}}_{{.Arch}}"
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
