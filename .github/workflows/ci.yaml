@@ -6,6 +6,27 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+
+  compile-all: 
+    runs-on: ubuntu-latest
+    name: "Compile the server"
+    steps: 
+      - name: 🛎 Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.4
+        with:
+          go-version: '^1.17.1'
+      - name: Install Gox
+        run: go get github.com/mitchellh/gox
+      - name: Compile 
+        run: gox -output="./dist/xornet_server_{{.OS}}_{{.Arch}}"
+      - name: 💎 Upload Builds
+        uses: actions/upload-artifact@v1
+        with:
+          name: xornet_server
+          path: dist
+
   compile-linux:
     strategy:
       fail-fast: true
