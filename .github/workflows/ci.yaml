@@ -1,0 +1,46 @@
+name: Build Xornet Server
+
+on: [push, pull_request, workflow_dispatch]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  compile-linux:
+    strategy:
+      fail-fast: true
+      matrix: 
+        targetArch:
+          - 386
+          - amd64
+          - arm
+          - mips
+          - mips64
+          - mips64le
+          - mipsle
+          - s390x
+          # - darwin_amd64
+          # - freebsd_386
+          # - freebsd_amd64
+          # - freebsd_arm
+          # - netbsd_386
+          # - netbsd_amd64
+          # - netbsd_arm
+          # - openbsd_386
+          # - openbsd_amd64
+          # - windows_386
+          # - windows_amd64
+    runs-on: self-hosted
+    name: "Compile the server"
+    steps: 
+      - name: Setup Go environment
+        uses: actions/setup-go@v2.1.4
+      - name: Install Gox
+        run: go get github.com/mitchellh/gox
+      - name: Compile 
+        run: gox -os="linux" -arch="{{matrix.targetArch}}" -output="./dist/xornet_server_{{.OS}}_{{.Arch}}"
+      - name: 💎 Upload Builds
+        uses: actions/upload-artifact@v1
+        with:
+          name: xornet_server
+          path: dist/xornet_server_linux_{{matrix.targetArch}}
