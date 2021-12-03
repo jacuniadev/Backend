@@ -161,7 +161,7 @@ jobs:
         uses: actions/upload-artifact@v1
         with:
           name: xornet_server_windows_${{matrix.targetArch}}
-          path: dist/xornet_server_windows_${{matrix.targetArch}}
+          path: dist/xornet_server_windows_${{matrix.targetArch}}.exe
 
   compile-darwin:
     runs-on: ubuntu-latest
