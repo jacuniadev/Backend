@@ -256,7 +256,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: ${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
-          path: build/${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
+          path: build
 
       # Upload Release
       - name: 💎 Upload ${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}} Artifact
