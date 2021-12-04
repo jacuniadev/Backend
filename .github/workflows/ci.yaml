@@ -187,3 +187,85 @@ jobs:
         with:
           name: ${{env.APP_NAME}}_${{ steps.version.outputs.value }}_darwin_amd64
           path: dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_darwin_amd64
+
+  create-release:
+    name: "📦 Create Release"
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted
+    needs: [compile-linux, compile-freebsd, compile-netbsd, compile-openbsd, compile-windows, compile-darwin]
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      version: ${{steps.version.outputs.value}}
+    steps:
+      
+      # Yes we get the repo again but only for the version in the package.json
+      - name: 🛎 Checkout
+        uses: actions/checkout@v2
+
+      - name: ⚡ Set Version Variable
+        id: version
+        run: >
+          echo "::set-output name=value::$(cat ./version.txt)"
+     
+      # The release script that prepares a new Github release
+      - name: ⚡ Create Release
+        if: ${{needs.latest-tag.outputs.tag != steps.version.outputs.value}}
+        uses: actions/create-release@v1
+        id: create_release
+        continue-on-error: true
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{env.APP_NAME}} v${{ steps.version.outputs.value }}
+          tag_name: v${{ steps.version.outputs.value }}
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+  upload: 
+    name: "📤 Upload Builds"
+    # runs-on: ubuntu-latest
+    runs-on: self-hosted
+    needs: create-release
+    strategy:
+      matrix: 
+        targetPlatform:
+          - darwin_amd64
+          - freebsd_386
+          - freebsd_amd64
+          - freebsd_arm
+          - linux_386
+          - linux_amd64
+          - linux_arm
+          - linux_mips
+          - linux_mips64
+          - linux_mips64le
+          - linux_mipsle
+          - linux_s390x
+          - netbsd_386
+          - netbsd_amd64
+          - netbsd_arm
+          - openbsd_386
+          - openbsd_amd64
+          - windows_386
+          - windows_amd64
+      fail-fast: false
+    steps:
+
+      # Download the artifacts
+      - name: 💎 Download ${{matrix.targetPlatform}} Binaries
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{matrix.targetPlatform}}
+          path: ${{matrix.targetPlatform}}_build
+
+      # Upload Release
+      - name: 💎 Upload ${{matrix.targetPlatform}} Artifact
+        continue-on-error: true
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ needs.create-release.outputs.upload_url }}
+          asset_path: ${{matrix.targetPlatform}}_build/${{ matrix.targetPlatform == 'windows_386' || matrix.targetPlatform == 'windows_amd64' && '${{env.APP_NAME}}.exe' || '${{env.APP_NAME}}' }}
+          asset_name: ${{env.APP_NAME}}.${{matrix.targetPlatform}}
+          asset_content_type: application/octet-stream
