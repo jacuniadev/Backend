@@ -161,7 +161,7 @@ jobs:
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
-          name: ${{env.APP_NAME}}_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}
+          name: ${{env.APP_NAME}}_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}.exe
           path: dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}.exe
 
   compile-darwin:
@@ -229,25 +229,25 @@ jobs:
     strategy:
       matrix: 
         targetPlatform:
-          - darwin_amd64
-          - freebsd_386
-          - freebsd_amd64
-          - freebsd_arm
-          - linux_386
-          - linux_amd64
-          - linux_arm
-          - linux_mips
-          - linux_mips64
-          - linux_mips64le
-          - linux_mipsle
-          - linux_s390x
-          - netbsd_386
-          - netbsd_amd64
-          - netbsd_arm
-          - openbsd_386
-          - openbsd_amd64
-          - windows_386
-          - windows_amd64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_darwin_amd64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_freebsd_386
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_freebsd_amd64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_freebsd_arm
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_386
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_amd64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_arm
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_mips
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_mips64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_mips64le
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_mipsle
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_linux_s390x
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_netbsd_386
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_netbsd_amd64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_netbsd_arm
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_openbsd_386
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_openbsd_amd64
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_windows_386.exe
+          - ${{env.APP_NAME}}_${{steps.version.outputs.value}}_windows_amd64.exe
       fail-fast: false
     steps:
 
@@ -255,8 +255,8 @@ jobs:
       - name: 💎 Download ${{matrix.targetPlatform}} Binaries
         uses: actions/download-artifact@v2
         with:
-          name: ${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
-          path: ${{matrix.targetPlatform}}_build
+          name: ${{matrix.targetPlatform}}
+          path: build/${{matrix.targetPlatform}}
 
       # Upload Release
       - name: 💎 Upload ${{matrix.targetPlatform}} Artifact
@@ -266,6 +266,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: ${{matrix.targetPlatform}}_build/${{ echo (mv `ls | head -n 1`)}}
-          asset_name: ${{env.APP_NAME}}.${{matrix.targetPlatform}}
+          asset_path: build/${{matrix.targetPlatform}}
+          asset_name: ${{matrix.targetPlatform}}
           asset_content_type: application/octet-stream
