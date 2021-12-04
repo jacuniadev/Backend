@@ -5,7 +5,8 @@ on: [push, pull_request, workflow_dispatch]
 env:
   CARGO_TERM_COLOR: always
   APP_NAME: xornet_server
-
+  APP_NAME_PRETTY: Xornet Server
+  
 jobs:
   compile-linux:
     strategy:
@@ -216,7 +217,7 @@ jobs:
         with:
           draft: false
           prerelease: false
-          release_name: ${{env.APP_NAME}} v${{ steps.version.outputs.value }}
+          release_name: ${{env.APP_NAME_PRETTY}} v${{ steps.version.outputs.value }}
           tag_name: v${{ steps.version.outputs.value }}
         env:
           GITHUB_TOKEN: ${{ github.token }}
