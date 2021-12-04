@@ -223,8 +223,8 @@ jobs:
 
   upload: 
     name: "📤 Upload Builds"
-    # runs-on: ubuntu-latest
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
+    # runs-on: self-hosted
     needs: create-release
     strategy:
       matrix: 
