@@ -255,17 +255,17 @@ jobs:
       - name: 💎 Download ${{matrix.targetPlatform}} Binaries
         uses: actions/download-artifact@v2
         with:
-          name: ${{env.APP_NAME}}_${{steps.version.outputs.value}}_${{matrix.targetPlatform}}
-          path: build/${{env.APP_NAME}}_${{steps.version.outputs.value}}_${{matrix.targetPlatform}}
+          name: ${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
+          path: build/${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
 
       # Upload Release
-      - name: 💎 Upload ${{env.APP_NAME}}_${{steps.version.outputs.value}}_${{matrix.targetPlatform}} Artifact
+      - name: 💎 Upload ${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}} Artifact
         continue-on-error: true
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ needs.create-release.outputs.upload_url }}
-          asset_path: build/${{env.APP_NAME}}_${{steps.version.outputs.value}}_${{matrix.targetPlatform}}
-          asset_name: ${{env.APP_NAME}}_${{steps.version.outputs.value}}_${{matrix.targetPlatform}}
+          asset_path: build/${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
+          asset_name: ${{env.APP_NAME}}_${{needs.create-release.outputs.version}}_${{matrix.targetPlatform}}
           asset_content_type: application/octet-stream
