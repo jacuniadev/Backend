@@ -32,6 +32,8 @@ jobs:
           echo "::set-output name=value::$(cat ./version.txt)"
       - name: Compile 
         run: gox -os="linux" -arch="${{matrix.targetArch}}" -output="./dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_{{.OS}}_{{.Arch}}"
+      - name: 🗜 Compress with UPX
+        run: upx dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_linux_${{matrix.targetArch}}
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
@@ -57,6 +59,8 @@ jobs:
           echo "::set-output name=value::$(cat ./version.txt)"
       - name: Compile 
         run: gox -os="freebsd" -arch="${{matrix.targetArch}}" -output="./dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_{{.OS}}_{{.Arch}}"
+      - name: 🗜 Compress with UPX
+        run: upx dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_freebsd_${{matrix.targetArch}}
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
@@ -82,6 +86,8 @@ jobs:
           echo "::set-output name=value::$(cat ./version.txt)"
       - name: Compile 
         run: gox -os="netbsd" -arch="${{matrix.targetArch}}" -output="./dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_{{.OS}}_{{.Arch}}"
+      - name: 🗜 Compress with UPX
+        run: upx dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_netbsd_${{matrix.targetArch}}
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
@@ -106,6 +112,8 @@ jobs:
           echo "::set-output name=value::$(cat ./version.txt)"
       - name: Compile 
         run: gox -os="openbsd" -arch="${{matrix.targetArch}}" -output="./dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_{{.OS}}_{{.Arch}}"
+      - name: 🗜 Compress with UPX
+        run: upx dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_openbsd_${{matrix.targetArch}}
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
@@ -129,6 +137,8 @@ jobs:
           echo "::set-output name=value::$(cat ./version.txt)"
       - name: Compile 
         run: gox -os="windows" -arch="${{matrix.targetArch}}" -output="./dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_{{.OS}}_{{.Arch}}"
+      - name: 🗜 Compress with UPX
+        run: upx dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}.exe
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
@@ -147,6 +157,8 @@ jobs:
           echo "::set-output name=value::$(cat ./version.txt)"
       - name: Compile 
         run: gox -os="darwin" -arch="amd64" -output="./dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_{{.OS}}_{{.Arch}}"
+      - name: 🗜 Compress with UPX
+        run: upx dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_darwin_amd64
       - name: 💎 Upload Builds
         uses: actions/upload-artifact@v1
         with:
