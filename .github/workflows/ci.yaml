@@ -21,7 +21,7 @@ jobs:
           - mips64le
           - mipsle
           - s390x
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: "Compile for Linux"
     steps: 
       - name: 🛎 Checkout
@@ -52,7 +52,7 @@ jobs:
           - 386
           - amd64
           - arm
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: "Compile for FreeBSD"
     steps: 
       - name: 🛎 Checkout
@@ -83,7 +83,7 @@ jobs:
           - 386
           - amd64
           - arm
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: "Compile for NetBSD"
     steps: 
       - name: 🛎 Checkout
@@ -113,7 +113,7 @@ jobs:
         targetArch:
           - 386
           - amd64
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: "Compile for OpenBSD"
     steps: 
       - name: 🛎 Checkout
@@ -142,7 +142,7 @@ jobs:
         targetArch:
           - 386
           - amd64
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: "Compile for Windows"
     steps: 
       - name: 🛎 Checkout
@@ -166,7 +166,7 @@ jobs:
           path: dist/${{env.APP_NAME}}_${{ steps.version.outputs.value }}_windows_${{matrix.targetArch}}.exe
 
   compile-darwin:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     name: "Compile for Darwin (amd64)"
     steps: 
       - name: 🛎 Checkout
@@ -191,7 +191,7 @@ jobs:
 
   create-release:
     name: "📦 Create Release"
-    runs-on: ubuntu-latest 
+    runs-on: self-hosted 
     # runs-on: self-hosted
     needs: [compile-linux, compile-freebsd, compile-netbsd, compile-openbsd, compile-windows, compile-darwin]
     outputs:
@@ -224,7 +224,7 @@ jobs:
 
   upload: 
     name: "📤 Upload Builds"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     # runs-on: self-hosted
     needs: create-release
     strategy:
