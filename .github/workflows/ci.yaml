@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix: 
-        targetArch:
+        targetArch: 
           - 386
           - amd64
           - arm
