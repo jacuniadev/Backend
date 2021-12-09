@@ -2,7 +2,6 @@ package database
 
 import (
 	"context"
-	"time"
 
 	"github.com/xornet-cloud/Backend/utils"
 	"go.mongodb.org/mongo-driver/bson"
@@ -24,7 +23,7 @@ func Connect() Database {
 	if err != nil {
 		utils.Log(err)
 	}
-	ctx, _ := context.WithTimeout(context.Background(), 10*time.Second)
+	ctx := context.TODO()
 	err = client.Connect(ctx)
 	if err != nil {
 		utils.Log(err)
@@ -37,18 +36,21 @@ func Connect() Database {
 }
 
 func (db *Database) GetUsers() ([]User, error) {
+	// Get all the users from the database
 	cursor, err := db.mongo.Collection("users").Find(*db.ctx, bson.D{})
-
-	// if theres an error return it
 	if err != nil {
+		// if theres an error return it
 		return nil, err
 	}
 
+	// Prepare users array
 	var users []User
 
+	// Pass a pointer to the users array for this dumb function to write the users to
 	if err := cursor.All(*db.ctx, &users); err != nil {
 		return nil, err
 	}
 
+	// Return the users
 	return users, nil
 }
