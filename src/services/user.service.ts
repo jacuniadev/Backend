@@ -13,6 +13,11 @@ export const createUser = (input: UserInput): Promise<UserDocument> => User.crea
 export const findUser = (query: FilterQuery<UserDocument>) => User.findOne(query);
 
 /**
+ * Returns all the users in the database
+ */
+export const getUsers = () => User.find();
+
+/**
  * Attempts to login a user
  */
 export const loginUser = async ({ email, password }: { email: string; password: string }) => {

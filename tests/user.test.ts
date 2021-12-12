@@ -1,6 +1,6 @@
 import "mocha";
 import "ts-mocha";
-import { createUser, deleteAllUsers, loginUser } from "../src/services/user.service";
+import { createUser, deleteAllUsers, findUser, getUsers, loginUser } from "../src/services/user.service";
 import { UserDocument } from "../src/types/user";
 import { expect } from "chai";
 import mongoose from "mongoose";
@@ -35,6 +35,22 @@ describe("create user", () => {
   });
 });
 
+describe("find user", () => {
+  describe("given valid input", () => {
+    it("should find a user by username", async () => {
+      await createUser(userPayload);
+      const user = await findUser({ username: userPayload.username });
+      expect(user).to.exist;
+    });
+
+    it("should find a user by email", async () => {
+      await createUser(userPayload);
+      const user = await findUser({ email: userPayload.email });
+      expect(user).to.exist;
+    });
+  });
+});
+
 describe("login user", () => {
   describe("given a valid password", () => {
     it("should return true", async () => {
@@ -50,5 +66,14 @@ describe("login user", () => {
       const isValid = await loginUser({ email: userPayload.email, password: "wrong" });
       expect(isValid).to.be.false;
     });
+  });
+});
+
+describe("delete all users", () => {
+  it("should leave the database empty", async () => {
+    await createUser(userPayload);
+    await deleteAllUsers();
+    const users = await getUsers();
+    expect(users).to.be.empty;
   });
 });

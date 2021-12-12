@@ -9,7 +9,7 @@ jobs:
     steps:
     - name: 🛎 Checkout
       uses: actions/checkout@v2
-    - name: Start MongoDB
+    - name: 🛠 Install MongoDB
       uses: supercharge/mongodb-github-action@1.7.0
       with:
         mongodb-version: 5.0
