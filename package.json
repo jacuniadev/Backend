@@ -25,6 +25,7 @@
     "ts-mocha": "^8.0.0"
   },
   "dependencies": {
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "mongoose": "^6.1.1"
   }
 }
