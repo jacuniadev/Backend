@@ -22,6 +22,9 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  biography: {
+    type: String,
+  },
 });
 
 userSchema.pre("save", async function (this: UserDocument, next) {
@@ -53,6 +56,11 @@ userSchema.methods.updateEmail = async function (this: UserDocument, newEmail: s
 
 userSchema.methods.updateUsername = async function (this: UserDocument, newUsername: string): Promise<UserDocument> {
   this.username = newUsername;
+  return this.save();
+};
+
+userSchema.methods.updateBiography = async function (this: UserDocument, newBiography: string): Promise<UserDocument> {
+  this.biography = newBiography;
   return this.save();
 };
 

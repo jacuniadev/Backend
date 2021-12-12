@@ -106,4 +106,13 @@ describe("update user", () => {
       expect(user.username).to.not.be.equal(oldUsername);
     });
   });
+
+  describe("change biography", () => {
+    it("should be different", async () => {
+      const user: UserDocument = await createUser(userPayload);
+      const oldBiography = user.biography;
+      await user.updateBiography("hello my name is john xina");
+      expect(user.biography).to.not.be.equal(oldBiography);
+    });
+  });
 });
