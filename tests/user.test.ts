@@ -31,6 +31,7 @@ describe("create user", () => {
       expect(user.password).to.have.lengthOf(60);
       expect(user.username).to.be.equals(userPayload.username);
       expect(user.email).to.be.equals(userPayload.email);
+      expect(user.created_at).to.be.exist;
     });
   });
 });
@@ -79,6 +80,15 @@ describe("delete all users", () => {
 });
 
 describe("update user", () => {
+  describe("check updated at field", () => {
+    it("it should update when an update happens", async () => {
+      const user: UserDocument = await createUser(userPayload);
+      const oldUpdatedAt = user.updated_at;
+      await user.updatePassword("yeet");
+      expect(user.updated_at).to.not.be.equal(oldUpdatedAt);
+    });
+  });
+
   describe("change password", () => {
     it("should get rehashed & different", async () => {
       const user: UserDocument = await createUser(userPayload);

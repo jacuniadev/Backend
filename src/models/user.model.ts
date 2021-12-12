@@ -9,6 +9,12 @@ const userSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
+  created_at: {
+    type: Number,
+  },
+  updated_at: {
+    type: Number,
+  },
   email: {
     type: String,
     unique: true,
@@ -28,10 +34,17 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", async function (this: UserDocument, next) {
-  if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  const hash = await bcrypt.hash(this.password, salt);
-  this.password = hash;
+  if (this.isNew) this.created_at = Date.now();
+
+  // Intercept the password save and hash it
+  if (this.isModified("password")) {
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(this.password, salt);
+    this.password = hash;
+  }
+
+  this.updated_at = Date.now();
+
   return next();
 });
 
