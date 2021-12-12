@@ -1,0 +1,17 @@
+name: Check on Push
+
+on: [push, pull_request, workflow_dispatch]
+
+jobs:
+  compile-test:
+    name: "🛠 Compile & Test"
+    runs-on: ubuntu-latest
+    steps:
+    - name: 🛎 Checkout
+      uses: actions/checkout@v2
+    - name: 🛠 Install bloat
+      run: npm i 
+    - name: 🛠 Compile typescript
+      run: tsc 
+    - name: 🧪 Run tests
+      run: npm run test

@@ -9,12 +9,6 @@
     "outDir": "dist",
     "declaration": false,
     "module": "commonjs",
-    "rootDirs": ["./src"],
-    "baseUrl": "./",
-    "paths": {
-      "src/*": ["src/*"]
-    },
     "forceConsistentCasingInFileNames": true
-  },
-  "include": ["./src"],
+  }
 }
