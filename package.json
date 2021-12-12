@@ -23,5 +23,8 @@
   "devDependencies": {
     "mocha": "^8.4.0",
     "ts-mocha": "^8.0.0"
+  },
+  "dependencies": {
+    "express": "^4.17.1"
   }
 }
