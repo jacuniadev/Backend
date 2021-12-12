@@ -6,7 +6,13 @@ export interface UserInput {
   username: string;
 }
 
+// prettier-ignore
 export interface UserDocument extends UserInput, mongoose.Document {
   created_at: number;
-  comparePassword: (comparisonPassword: string) => Promise<boolean>;
+  avatar?: string;
+  comparePassword: (newPassword: string) => Promise<boolean>;
+  updateAvatar:    (url: string)         => Promise<UserDocument>;
+  updatePassword:  (newPassword: string) => Promise<UserDocument>;
+  updateEmail:     (newEmail: string)    => Promise<UserDocument>;
+  updateUsername:  (newUsername: string) => Promise<UserDocument>;
 }
