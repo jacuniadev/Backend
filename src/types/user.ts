@@ -12,10 +12,10 @@ export interface UserDocument extends UserInput, mongoose.Document {
   updated_at: number;
   avatar?:    string;
   biography?: string;
-  comparePassword: (newPassword: string)  => Promise<boolean>;
-  updateAvatar:    (url: string)          => Promise<UserDocument>;
-  updatePassword:  (newPassword: string)  => Promise<UserDocument>;
-  updateEmail:     (newEmail: string)     => Promise<UserDocument>;
-  updateUsername:  (newUsername: string)  => Promise<UserDocument>;
-  updateBiography: (newBiography: string) => Promise<UserDocument>;
+  comparePassword: (candidatePassword: string) => Promise<boolean>;
+  updateAvatar:    (newValue: string)          => Promise<UserDocument>;
+  updatePassword:  (newValue: string)          => Promise<UserDocument>;
+  updateEmail:     (newValue: string)          => Promise<UserDocument>;
+  updateUsername:  (newValue: string)          => Promise<UserDocument>;
+  updateBiography: (newValue: string)          => Promise<UserDocument>;
 }

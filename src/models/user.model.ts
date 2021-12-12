@@ -48,32 +48,32 @@ userSchema.pre("save", async function (this: UserDocument, next) {
   return next();
 });
 
-userSchema.methods.comparePassword = async function (this: UserDocument, newPassword: string): Promise<boolean> {
-  return bcrypt.compare(newPassword, this.password).catch(() => false);
+userSchema.methods.comparePassword = async function (this: UserDocument, candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password).catch(() => false);
 };
 
-userSchema.methods.updateAvatar = async function (this: UserDocument, url: string): Promise<UserDocument> {
-  this.avatar = url;
+userSchema.methods.updateAvatar = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
+  this.avatar = newValue;
   return this.save();
 };
 
-userSchema.methods.updatePassword = async function (this: UserDocument, newPassword: string): Promise<UserDocument> {
-  this.password = newPassword;
+userSchema.methods.updatePassword = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
+  this.password = newValue;
   return this.save();
 };
 
-userSchema.methods.updateEmail = async function (this: UserDocument, newEmail: string): Promise<UserDocument> {
-  this.email = newEmail;
+userSchema.methods.updateEmail = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
+  this.email = newValue;
   return this.save();
 };
 
-userSchema.methods.updateUsername = async function (this: UserDocument, newUsername: string): Promise<UserDocument> {
-  this.username = newUsername;
+userSchema.methods.updateUsername = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
+  this.username = newValue;
   return this.save();
 };
 
-userSchema.methods.updateBiography = async function (this: UserDocument, newBiography: string): Promise<UserDocument> {
-  this.biography = newBiography;
+userSchema.methods.updateBiography = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
+  this.biography = newValue;
   return this.save();
 };
 
