@@ -41,13 +41,15 @@ describe("🚀 Test Server Endpoints", () => {
   });
 
   describe("/users", () => {
-    // Figure out how to send the body there
-    // it("POST /signup => should return the new user", async () => {
-    //   const response = await request(server).post("/users/signup");
-    //   const body = response.body[0] as UserObject;
-    //   // validateUser(body, userPayload);
-    //   expect(response.status).to.be.equal(201);
-    // });
+    it("POST /@signup => should return the new user", async () => {
+      const response = await request(server).post("/users/@signup").send(userPayload);
+      const body = response.body as UserObject;
+      expect(response.status).to.be.equal(201);
+      expect(body.created_at).to.exist;
+      expect(body.updated_at).to.exist;
+      expect(body.username).to.be.deep.equal(userPayload.username);
+      expect(body.email).to.be.deep.equal(userPayload.email);
+    });
 
     it("GET /@all => should contain an array of users", async () => {
       const user: UserObject = (await createUser(userPayload)).toObject();
