@@ -101,31 +101,15 @@ describe("📔 User Database Functions & Methods", () => {
       });
     });
 
-    describe("user.updateEmail()", () => {
-      it("should be different", async () => {
-        const user: UserDocument = await createUser(userPayload);
-        const oldEmail = user.email;
-        await user.updateEmail("newemail@gmail.com");
-        expect(user.email).to.not.be.equal(oldEmail);
+    for (const method of ["updateEmail", "updateAvatar", "updateUsername", "updateBiography"]) {
+      describe(`user.${method}()`, () => {
+        it("should be different", async () => {
+          const user: UserDocument = await createUser(userPayload);
+          const oldValue = user[method];
+          await user[method]("coolnewValue");
+          expect(user.email).to.not.be.equal(oldValue);
+        });
       });
-    });
-
-    describe("user.updateUsername()", () => {
-      it("should be different", async () => {
-        const user: UserDocument = await createUser(userPayload);
-        const oldUsername = user.username;
-        await user.updateUsername("NewUsername673");
-        expect(user.username).to.not.be.equal(oldUsername);
-      });
-    });
-
-    describe("user.updateBiography()", () => {
-      it("should be different", async () => {
-        const user: UserDocument = await createUser(userPayload);
-        const oldBiography = user.biography;
-        await user.updateBiography("hello my name is john xina");
-        expect(user.biography).to.not.be.equal(oldBiography);
-      });
-    });
+    }
   });
 });
