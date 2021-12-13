@@ -13,11 +13,11 @@ const { server } = new Server(3001);
 
 after(() => server.close());
 
+type SignupLoginResponse = { body: { user: UserObject; token: string; message: string }; status: number };
+
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: { body: { user: UserObject; token: string; message: string }; status: number } = await request(server)
-    .post("/users/@signup")
-    .send(payload);
+  const { body, status }: SignupLoginResponse = await request(server).post("/users/@signup").send(payload);
   return {
     status,
     body,
@@ -26,9 +26,7 @@ async function signup(payload: UserSignupInput = userPayload) {
 
 async function login(payload: UserLoginInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: { body: { user: UserObject; token: string; message: string }; status: number } = await request(server)
-    .post("/users/@login")
-    .send(payload);
+  const { body, status }: SignupLoginResponse = await request(server).post("/users/@login").send(payload);
   return {
     status,
     body,
@@ -50,134 +48,83 @@ describe("🚀 Test Server Endpoints", () => {
 
   describe("/users", () => {
     describe("POST /@signup", () => {
+      let response: SignupLoginResponse;
       describe("given valid input", () => {
-        it("status code 201", async () => {
-          const { status } = await signup();
-          expect(status).to.be.equal(201);
-        });
-        it("token should exist", async () => {
-          const { body } = await signup();
-          expect(body.token).to.exist;
-        });
-        it("created_at should exist", async () => {
-          const { body } = await signup();
-          expect(body.user.created_at!).to.exist;
-        });
-        it("updated_at should exist", async () => {
-          const { body } = await signup();
-          expect(body.user.updated_at!).to.exist;
-        });
-        it("username should be equal to the payload", async () => {
-          const { body } = await signup();
-          expect(body.user.username!).to.be.deep.equal(userPayload.username);
-        });
-        it("email should be equal to the payload", async () => {
-          const { body } = await signup();
-          expect(body.user.email!).to.be.deep.equal(userPayload.email);
-        });
-        it("avatar should be undefined", async () => {
-          const { body } = await signup();
-          expect(body.user.avatar!).to.be.undefined;
-        });
-        it("biography should be undefined", async () => {
-          const { body } = await signup();
-          expect(body.user.biography!).to.be.undefined;
-        });
+        before(async () => (response = await signup()));
+        it("status code 201", async () => expect(response.status).to.be.equal(201));
+        it("token should exist", async () => expect(response.body.token).to.exist);
+        it("created_at should exist", async () => expect(response.body.user.created_at!).to.exist);
+        it("updated_at should exist", async () => expect(response.body.user.updated_at!).to.exist);
+        it("username should be equal to the payload", async () =>
+          expect(response.body.user.username!).to.be.deep.equal(userPayload.username));
+        it("email should be equal to the payload", async () =>
+          expect(response.body.user.email!).to.be.deep.equal(userPayload.email));
+        it("avatar should be undefined", async () => expect(response.body.user.avatar!).to.be.undefined);
+        it("biography should be undefined", async () => expect(response.body.user.biography!).to.be.undefined);
       });
 
       describe("given invalid email", () => {
-        it("should say 'email doesn't meet complexity requirements'", async () => {
-          const { body } = await signup({ username: "bobby", email: "", password: "bobby" });
-          expect(body.message).to.be.equal("email doesn't meet complexity requirements");
-        });
-        it("status code 400", async () => {
-          const { status } = await signup({ username: "bobby", email: "", password: "bobby" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await signup({ username: "bobby", email: "", password: "bobby" })));
+
+        it("should say 'email doesn't meet complexity requirements'", async () =>
+          expect(response.body.message).to.be.equal("email doesn't meet complexity requirements"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid password", () => {
-        it("should say 'password doesn't meet complexity requirements'", async () => {
-          const { body } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
-          expect(body.message).to.be.equal("password doesn't meet complexity requirements");
-        });
-        it("status code 400", async () => {
-          const { status } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" })));
+
+        it("should say 'password doesn't meet complexity requirements'", async () =>
+          expect(response.body.message).to.be.equal("password doesn't meet complexity requirements"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid username", () => {
-        it("should say 'username doesn't meet complexity requirements'", async () => {
-          const { body } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
-          expect(body.message).to.be.equal("username doesn't meet complexity requirements");
-        });
-        it("status code 400", async () => {
-          const { status } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" })));
+
+        it("should say 'username doesn't meet complexity requirements'", async () =>
+          expect(response.body.message).to.be.equal("username doesn't meet complexity requirements"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
     });
 
     describe("POST /@login", () => {
-      beforeEach(async () => await signup());
+      let response: SignupLoginResponse;
+      before(async () => {
+        await signup();
+        response = await login();
+      });
+
       describe("given valid input", () => {
-        it("status code 200", async () => {
-          const { status } = await login();
-          expect(status).to.be.equal(200);
-        });
-        it("user object should exist", async () => {
-          const { body } = await login();
-          expect(body.user).to.exist;
-        });
-        it("token should exist", async () => {
-          const { body } = await login();
-          expect(body.token).to.exist;
-        });
+        it("status code 200", async () => expect(response.status).to.be.equal(200));
+        it("user object should exist", async () => expect(response.body.user).to.exist);
+        it("token should exist", async () => expect(response.body.token).to.exist);
       });
 
       describe("given invalid password", () => {
-        it("should say 'password doesn't meet complexity requirements'", async () => {
-          const { body } = await login({ username: "bobby", password: "" });
-          expect(body.message).to.be.equal("password doesn't meet complexity requirements");
-        });
-        it("status code 400", async () => {
-          const { status } = await login({ username: "bobby", password: "" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await login({ username: "bobby", password: "" })));
+        it("should say 'password doesn't meet complexity requirements'", async () =>
+          expect(response.body.message).to.be.equal("password doesn't meet complexity requirements"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid username", () => {
-        it("should say 'username doesn't meet complexity requirements'", async () => {
-          const { body } = await login({ username: "", password: "bobby" });
-          expect(body.message).to.be.equal("username doesn't meet complexity requirements");
-        });
-        it("status code 400", async () => {
-          const { status } = await login({ username: "", password: "bobby" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await login({ username: "", password: "bobby" })));
+        it("should say 'username doesn't meet complexity requirements'", async () =>
+          expect(response.body.message).to.be.equal("username doesn't meet complexity requirements"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a username that doesn't exist", () => {
-        it("should say 'invalid credentials'", async () => {
-          const { body } = await login({ username: "bobbyjohn", password: "bobby92835H" });
-          expect(body.message).to.be.equal("invalid credentials");
-        });
-        it("status code 400", async () => {
-          const { status } = await login({ username: "bobbyjohn", password: "bobby92835H" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await login({ username: "bobbyjohn", password: "bobby92835H" })));
+        it("should say 'invalid credentials'", async () => expect(response.body.message).to.be.equal("invalid credentials"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a valid username but wrong password", () => {
-        it("should say 'invalid credentials'", async () => {
-          const { body } = await login({ username: userPayload.username, password: "bobby92835H" });
-          expect(body.message).to.be.equal("invalid credentials");
-        });
-        it("status code 400", async () => {
-          const { status } = await login({ username: userPayload.username, password: "bobby92835H" });
-          expect(status).to.be.equal(400);
-        });
+        before(async () => (response = await login({ username: userPayload.username, password: "bobby92835H" })));
+        it("should say 'invalid credentials'", async () => expect(response.body.message).to.be.equal("invalid credentials"));
+        it("status code 400", async () => expect(response.status).to.be.equal(400));
       });
     });
 
@@ -233,15 +180,16 @@ describe("🚀 Test Server Endpoints", () => {
         }
       });
 
+      let response: request.Response;
+
       describe("with invalid inputs", () => {
         for (const entry of ["email", "username"]) {
+          before(async () => (response = await request(server).get(`/users/@search/${entry}/wrongvalue891351@@`)));
           it(`searching by ${entry} status code 404`, async () => {
-            const response = await request(server).get(`/users/@search/${entry}/wrongvalue891351@@`);
             expect(response.status).to.be.equal(404);
           });
 
           it(`searching by ${entry} should return a message saying 'user not found'`, async () => {
-            const response = await request(server).get(`/users/@search/${entry}/wrongvalue891351@@`);
             const body: { message: string } = response.body;
             expect(body.message).to.be.deep.equal("user not found");
           });
