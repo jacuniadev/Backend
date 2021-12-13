@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
-    "test": "set TESTING=true && nyc ts-mocha --colors -p ./tsconfig.json ./tests/**/*.test.ts",
+    "test": "cross-env TESTING=true nyc ts-mocha --colors -p ./tsconfig.json ./tests/**/*.test.ts",
     "constant-test": "nodemon --ext ts --exec npm run test"
   },
   "repository": {
@@ -32,6 +32,7 @@
     "@types/mocha": "^9.0.0",
     "@types/supertest": "^2.0.11",
     "chai": "^4.3.4",
+    "cross-env": "^7.0.3",
     "mocha": "^8.4.0",
     "nyc": "^15.1.0",
     "supertest": "^6.1.6",
