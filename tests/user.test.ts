@@ -105,9 +105,9 @@ describe("📔 User Database Functions & Methods", () => {
       describe(`user.${method}()`, () => {
         it("should be different", async () => {
           const user: UserDocument = await createUser(userPayload);
-          const oldValue = user[method];
+          const oldValue = user[method.toLowerCase().substring(6)];
           await user[method]("coolnewValue");
-          expect(user.email).to.not.be.equal(oldValue);
+          expect(user[method.toLowerCase().substring(6)]).to.not.be.equal(oldValue);
         });
       });
     }
