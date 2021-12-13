@@ -4,6 +4,7 @@ import mongoose from "mongoose";
  * What the user signs up with
  */
 export interface UserInput {
+  [key: string]: any;
   password: string;
   email: string;
   username: string;
@@ -13,6 +14,7 @@ export interface UserInput {
  * This is the safe object that will be sent through the API endpoints
  */
 export interface UserObject {
+  [key: string]: any;
   created_at: number;
   updated_at: number;
   avatar?: string;
