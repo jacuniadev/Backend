@@ -10,10 +10,10 @@ export const colorizeKeywords = (string: string): string => {
 
   return string
     .replace("GET", chalk.hex("#7D69CB")("GET"))
-    .replace("POST", chalk.hex("#59A210")("POST"))
-    .replace("PUT", chalk.hex("#D07502")("PUT"))
-    .replace("PATCH", chalk.hex("#AE9602")("PATCH"))
-    .replace("DELETE", chalk.hex("#D04444")("DELETE"));
+    .replace("POST", chalk.hex("#7D69CB")("POST"))
+    .replace("PUT", chalk.hex("#7D69CB")("PUT"))
+    .replace("PATCH", chalk.hex("#7D69CB")("PATCH"))
+    .replace("DELETE", chalk.hex("#7D69CB")("DELETE"));
 };
 
 /**

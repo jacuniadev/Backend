@@ -13,7 +13,8 @@ const { server } = new Server(3001);
 
 after(() => server.close());
 
-type SignupLoginResponse = { body: { user: UserObject; token: string; message: string }; status: number };
+type BasicResponse = { status: number; body: { message: string } };
+type SignupLoginResponse = { status: number; body: { user: UserObject; token: string; message: string } };
 
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
@@ -34,16 +35,11 @@ async function login(payload: UserLoginInput = userPayload) {
 }
 
 describe("🚀 Test Server Endpoints", () => {
+  let response: BasicResponse;
   describe("GET /", () => {
-    it("message should be Hello World", async () => {
-      const response = await request(server).get("/");
-      expect(response.body.message).to.be.equal("Hello World");
-    });
-
-    it("should have status 200", async () => {
-      const response = await request(server).get("/");
-      expect(response.status).to.be.equal(200);
-    });
+    before(async () => (response = await request(server).get("/")));
+    it("message should be Hello World", () => expect(response.body.message).to.be.equal("Hello World"));
+    it("should have status 200", () => expect(response.status).to.be.equal(200));
   });
 
   describe("/users", () => {
@@ -51,40 +47,39 @@ describe("🚀 Test Server Endpoints", () => {
       let response: SignupLoginResponse;
       describe("given valid input", () => {
         before(async () => (response = await signup()));
-        it("status code 201", async () => expect(response.status).to.be.equal(201));
-        it("token should exist", async () => expect(response.body.token).to.exist);
-        it("created_at should exist", async () => expect(response.body.user.created_at!).to.exist);
-        it("updated_at should exist", async () => expect(response.body.user.updated_at!).to.exist);
-        it("username should be equal to the payload", async () =>
+        it("status code 201", () => expect(response.status).to.be.equal(201));
+        it("token should exist", () => expect(response.body.token).to.exist);
+        it("created_at should exist", () => expect(response.body.user.created_at!).to.exist);
+        it("updated_at should exist", () => expect(response.body.user.updated_at!).to.exist);
+        it("username should be equal to the payload", () =>
           expect(response.body.user.username!).to.be.deep.equal(userPayload.username));
-        it("email should be equal to the payload", async () =>
-          expect(response.body.user.email!).to.be.deep.equal(userPayload.email));
-        it("avatar should be undefined", async () => expect(response.body.user.avatar!).to.be.undefined);
-        it("biography should be undefined", async () => expect(response.body.user.biography!).to.be.undefined);
+        it("email should be equal to the payload", () => expect(response.body.user.email!).to.be.deep.equal(userPayload.email));
+        it("avatar should be undefined", () => expect(response.body.user.avatar!).to.be.undefined);
+        it("biography should be undefined", () => expect(response.body.user.biography!).to.be.undefined);
       });
 
       describe("given invalid email", () => {
         before(async () => (response = await signup({ username: "bobby", email: "", password: "bobby" })));
 
-        it("should say 'email doesn't meet complexity requirements'", async () =>
+        it("should say 'email doesn't meet complexity requirements'", () =>
           expect(response.body.message).to.be.equal("email doesn't meet complexity requirements"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid password", () => {
         before(async () => (response = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" })));
 
-        it("should say 'password doesn't meet complexity requirements'", async () =>
+        it("should say 'password doesn't meet complexity requirements'", () =>
           expect(response.body.message).to.be.equal("password doesn't meet complexity requirements"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid username", () => {
         before(async () => (response = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" })));
 
-        it("should say 'username doesn't meet complexity requirements'", async () =>
+        it("should say 'username doesn't meet complexity requirements'", () =>
           expect(response.body.message).to.be.equal("username doesn't meet complexity requirements"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
     });
 
@@ -96,35 +91,35 @@ describe("🚀 Test Server Endpoints", () => {
       });
 
       describe("given valid input", () => {
-        it("status code 200", async () => expect(response.status).to.be.equal(200));
-        it("user object should exist", async () => expect(response.body.user).to.exist);
-        it("token should exist", async () => expect(response.body.token).to.exist);
+        it("status code 200", () => expect(response.status).to.be.equal(200));
+        it("user object should exist", () => expect(response.body.user).to.exist);
+        it("token should exist", () => expect(response.body.token).to.exist);
       });
 
       describe("given invalid password", () => {
         before(async () => (response = await login({ username: "bobby", password: "" })));
-        it("should say 'password doesn't meet complexity requirements'", async () =>
+        it("should say 'password doesn't meet complexity requirements'", () =>
           expect(response.body.message).to.be.equal("password doesn't meet complexity requirements"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid username", () => {
         before(async () => (response = await login({ username: "", password: "bobby" })));
-        it("should say 'username doesn't meet complexity requirements'", async () =>
+        it("should say 'username doesn't meet complexity requirements'", () =>
           expect(response.body.message).to.be.equal("username doesn't meet complexity requirements"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a username that doesn't exist", () => {
         before(async () => (response = await login({ username: "bobbyjohn", password: "bobby92835H" })));
-        it("should say 'invalid credentials'", async () => expect(response.body.message).to.be.equal("invalid credentials"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("should say 'invalid credentials'", () => expect(response.body.message).to.be.equal("invalid credentials"));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a valid username but wrong password", () => {
         before(async () => (response = await login({ username: userPayload.username, password: "bobby92835H" })));
-        it("should say 'invalid credentials'", async () => expect(response.body.message).to.be.equal("invalid credentials"));
-        it("status code 400", async () => expect(response.status).to.be.equal(400));
+        it("should say 'invalid credentials'", () => expect(response.body.message).to.be.equal("invalid credentials"));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
       });
     });
 
