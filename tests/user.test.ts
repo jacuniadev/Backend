@@ -87,16 +87,7 @@ describe("📔 User Database Functions & Methods", () => {
   });
 
   describe("update user", () => {
-    describe("check updated at field", () => {
-      it("it should update when an update happens", async () => {
-        const user: UserDocument = await createUser(userPayload);
-        const oldUpdatedAt = user.updated_at;
-        await user.updatePassword("yeet");
-        expect(user.updated_at).to.not.be.equal(oldUpdatedAt);
-      });
-    });
-
-    describe("change password", () => {
+    describe("updatePassword()", () => {
       it("should get rehashed & different", async () => {
         const user: UserDocument = await createUser(userPayload);
         const oldPasswordHash = user.password;
@@ -106,7 +97,7 @@ describe("📔 User Database Functions & Methods", () => {
       });
     });
 
-    describe("change email", () => {
+    describe("updateEmail()", () => {
       it("should be different", async () => {
         const user: UserDocument = await createUser(userPayload);
         const oldEmail = user.email;
@@ -115,7 +106,7 @@ describe("📔 User Database Functions & Methods", () => {
       });
     });
 
-    describe("change username", () => {
+    describe("updateUsername()", () => {
       it("should be different", async () => {
         const user: UserDocument = await createUser(userPayload);
         const oldUsername = user.username;
@@ -124,7 +115,7 @@ describe("📔 User Database Functions & Methods", () => {
       });
     });
 
-    describe("change biography", () => {
+    describe("updateBiography()", () => {
       it("should be different", async () => {
         const user: UserDocument = await createUser(userPayload);
         const oldBiography = user.biography;
