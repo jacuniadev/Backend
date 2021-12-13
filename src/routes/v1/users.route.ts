@@ -16,14 +16,14 @@ users.delete<{}, { message: string }>("/@all", async (req, res) =>
     .catch(() => res.status(500).send())
 );
 
-users.post<{}, { user: UserObject } | { message: string }, UserInput>("/@signup", async (req, res) => {
+users.post<{}, { user: UserObject } | { message: string }, UserInput>("/@signup", async (req, res) =>
   createUser(req.body)
     .then(
       (user) => res.status(201).json({ user }),
       (reason) => res.status(400).json({ message: reason })
     )
-    .catch(() => res.status(500).send());
-});
+    .catch(() => res.status(500).send())
+);
 
 users.get("/@search/:by/:query", async (req, res) =>
   getUser({ [req.params.by]: req.params.query })
