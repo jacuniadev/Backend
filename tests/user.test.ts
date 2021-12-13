@@ -5,6 +5,7 @@ import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src
 import mongoose from "mongoose";
 import { describe } from "./utils";
 import { userPayload } from "./constants";
+import { UserLoginResult } from "../src/types/user";
 
 before(async () => {
   const MONGO_URI: string = "mongodb://localhost/xornet-testing";
@@ -21,35 +22,17 @@ afterEach(async () => await deleteAllUsers());
 describe("User Database Functions & Methods", () => {
   describe("Statics", () => {
     describe("createUser()", () => {
+      let response: UserLoginResult;
       describe("given valid input", () => {
-        it("should have a hash password of length 60", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.password).to.have.lengthOf(60);
-        });
-        it("username should match the payload username", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.username).to.be.equals(userPayload.username);
-        });
-        it("email should match the payload email", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.email).to.be.equals(userPayload.email);
-        });
-        it("should have a filled created_at field", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.created_at).to.be.exist;
-        });
-        it("should have a filled updated_at field", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.updated_at).to.be.exist;
-        });
-        it("should not init with an avatar", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.avatar).to.be.undefined;
-        });
-        it("should not init with a biography", async () => {
-          const { user } = await createUser(userPayload);
-          expect(user.biography).to.be.undefined;
-        });
+        before(async () => (response = await createUser(userPayload)));
+        it("should have a hash password of length 60", () => expect(response.user.password).to.have.lengthOf(60));
+        it("username should match the payload username", () =>
+          expect(response.user.username).to.be.equals(userPayload.username));
+        it("email should match the payload email", () => expect(response.user.email).to.be.equals(userPayload.email));
+        it("should have a filled created_at field", () => expect(response.user.created_at).to.be.exist);
+        it("should have a filled updated_at field", () => expect(response.user.updated_at).to.be.exist);
+        it("should not init with an avatar", () => expect(response.user.avatar).to.be.undefined);
+        it("should not init with a biography", () => expect(response.user.biography).to.be.undefined);
       });
       describe("given an invalid password", () =>
         it("should return a message saying 'password doesn't meet complexity requirements'", async () => {
