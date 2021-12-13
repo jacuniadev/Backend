@@ -4,7 +4,6 @@ import { expect } from "chai";
 import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src/services/user.service";
 import { UserDocument } from "../src/types/user";
 import mongoose from "mongoose";
-import { string } from "joi";
 import { UserInput } from "../src/types/user";
 
 before(async () => {
@@ -78,6 +77,13 @@ describe("📔 User Database Functions & Methods", () => {
       describe("given an invalid password", () =>
         it("should return false", async () =>
           expect(await loginUser({ email: userPayload.email, password: "wrong" })).to.be.false));
+
+      describe("given a non-existent email", () => {
+        it("should return an error saying 'User doesn't exist'", async () =>
+          loginUser({ email: "random bullshit", password: "wrong" }).catch((error) =>
+            expect(error.message).to.be.equal("User doesn't exist")
+          ));
+      });
     });
 
     describe("deleteAllUsers()", () => {
@@ -91,6 +97,17 @@ describe("📔 User Database Functions & Methods", () => {
   });
 
   describe("📔 Methods", () => {
+    describe("user.comparePassword()", () => {
+      it("should return true if the password is correct", async () => {
+        const user: UserDocument = await createUser(userPayload);
+        expect(await user.comparePassword(userPayload.password)).to.be.true;
+      });
+      it("should return false if the password is not correct", async () => {
+        const user: UserDocument = await createUser(userPayload);
+        expect(await user.comparePassword("incorrectPassword")).to.be.false;
+      });
+    });
+
     describe("user.updatePassword()", () => {
       it("should get rehashed & different", async () => {
         const user: UserDocument = await createUser(userPayload);
