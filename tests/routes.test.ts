@@ -7,7 +7,7 @@ import request from "supertest";
 import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
-import { userPayload } from "./user.test";
+import { userPayload } from "./constants";
 
 const { server } = new Server(3001);
 

@@ -4,8 +4,8 @@ import { expect } from "chai";
 import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src/services/user.service";
 import { UserDocument } from "../src/types/user";
 import mongoose from "mongoose";
-import { UserSignupInput } from "../src/types/user";
 import { describe } from "./utils";
+import { userPayload } from "./constants";
 
 before(async () => {
   const MONGO_URI: string = "mongodb://localhost/xornet-testing";
@@ -18,13 +18,6 @@ after(async () => {
 });
 
 afterEach(async () => await deleteAllUsers());
-
-// Create the most beautiful classes you can
-export const userPayload: UserSignupInput = {
-  username: "foobar",
-  password: "FooBar2000",
-  email: "foobar@foobar.com",
-};
 
 describe("User Database Functions & Methods", () => {
   describe("Statics", () => {
