@@ -1,9 +1,11 @@
 import chalk from "chalk";
+import { describe as desc } from "mocha";
+import "ts-mocha";
 
 /**
  * Describe route
  */
-export const d = (string: string): string => {
+export const colorizeKeywords = (string: string): string => {
   if (string.includes("()")) return chalk.hex("#82AAFF")(string);
 
   return string
@@ -13,3 +15,8 @@ export const d = (string: string): string => {
     .replace("PATCH", chalk.hex("#AE9602")("PATCH"))
     .replace("DELETE", chalk.hex("#D04444")("DELETE"));
 };
+
+/**
+ * Custom describe that simply adds colors to the title
+ */
+export const describe = (title: string, fn: (this: Mocha.Suite) => void) => desc(colorizeKeywords(title), fn);

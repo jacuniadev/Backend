@@ -7,7 +7,7 @@ import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserInput, UserObject } from "../src/types/user";
 import { userPayload } from "./user.test";
-import { d } from "./utils";
+import { describe } from "./utils";
 
 const { server } = new Server(3001);
 
@@ -24,7 +24,7 @@ async function signup(payload: UserInput = userPayload) {
 }
 
 describe("🚀 Test Server Endpoints", () => {
-  describe(d("GET /"), () => {
+  describe("GET /", () => {
     it("message should be Hello World", async () => {
       const response = await request(server).get("/");
       expect(response.body.message).to.be.equal("Hello World");
@@ -36,8 +36,8 @@ describe("🚀 Test Server Endpoints", () => {
     });
   });
 
-  describe(d("/users"), () => {
-    describe(d("POST /@signup"), () => {
+  describe("/users", () => {
+    describe("POST /@signup", () => {
       describe("given valid input", () => {
         it("should have status of 201", async () => {
           const { status } = await signup();
@@ -103,7 +103,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe(d("GET /@all"), () => {
+    describe("GET /@all", () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should have status of 200", async () => {
@@ -117,7 +117,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe(d("DELETE /@all"), () => {
+    describe("DELETE /@all", () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should return a json message saying success", async () => {
@@ -137,7 +137,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe(d("GET /@search/:by/:query"), () => {
+    describe("GET /@search/:by/:query", () => {
       describe("with valid inputs", () => {
         beforeEach(async () => await createUser(userPayload));
 

@@ -5,7 +5,7 @@ import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src
 import { UserDocument } from "../src/types/user";
 import mongoose from "mongoose";
 import { UserInput } from "../src/types/user";
-import { d } from "./utils";
+import { describe } from "./utils";
 
 before(async () => {
   const MONGO_URI: string = "mongodb://localhost/xornet-testing";
@@ -28,7 +28,7 @@ export const userPayload: UserInput = {
 
 describe("User Database Functions & Methods", () => {
   describe("Statics", () => {
-    describe(d("createUser()"), () => {
+    describe("createUser()", () => {
       describe("given valid input", () => {
         it("should have a hash password of length 60", async () => {
           const user: UserDocument = await createUser(userPayload);
@@ -61,7 +61,7 @@ describe("User Database Functions & Methods", () => {
       });
     });
 
-    describe(d("getUser()"), () => {
+    describe("getUser()", () => {
       describe("given valid input", () => {
         beforeEach(async () => await createUser(userPayload));
         it("should find a user by username", async () => expect(await getUser({ username: userPayload.username })).to.exist);
@@ -69,7 +69,7 @@ describe("User Database Functions & Methods", () => {
       });
     });
 
-    describe(d("loginUser()"), () => {
+    describe("loginUser()", () => {
       beforeEach(async () => await createUser(userPayload));
       describe("given a valid password", () =>
         it("should return true", async () =>
@@ -87,7 +87,7 @@ describe("User Database Functions & Methods", () => {
       });
     });
 
-    describe(d("deleteAllUsers()"), () => {
+    describe("deleteAllUsers()", () => {
       it("should leave the database empty", async () => {
         await createUser(userPayload);
         await deleteAllUsers();
@@ -98,7 +98,7 @@ describe("User Database Functions & Methods", () => {
   });
 
   describe("Methods", () => {
-    describe(d("user.comparePassword()"), () => {
+    describe("user.comarePassword()", () => {
       it("should return true if the password is correct", async () => {
         const user: UserDocument = await createUser(userPayload);
         expect(await user.comparePassword(userPayload.password)).to.be.true;
@@ -109,7 +109,7 @@ describe("User Database Functions & Methods", () => {
       });
     });
 
-    describe(d("user.updatePassword()"), () => {
+    describe("user.updtePassword()", () => {
       it("should get rehashed & different", async () => {
         const user: UserDocument = await createUser(userPayload);
         const oldPasswordHash = user.password;
@@ -120,7 +120,7 @@ describe("User Database Functions & Methods", () => {
     });
 
     for (const method of ["updateEmail", "updateAvatar", "updateUsername", "updateBiography"]) {
-      describe(d(`user.${method}()`), () => {
+      describe(`user.${method}()`, () => {
         it("should be different", async () => {
           const user: UserDocument = await createUser(userPayload);
           const oldValue = user[method.toLowerCase().substring(6)];
