@@ -36,6 +36,6 @@ users.post<{}, { user: UserObject; token: string } | { message: string }, UserLo
 
 users.get("/@search/:by/:query", async (req, res) =>
   getUser({ [req.params.by]: req.params.query })
-    .then((user) => (user !== null ? res.json(user) : res.status(404).json({ message: "User not found" })))
+    .then((user) => (user !== null ? res.json(user) : res.status(404).json({ message: "user not found" })))
     .catch(() => res.status(500).send())
 );

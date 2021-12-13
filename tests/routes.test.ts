@@ -236,10 +236,10 @@ describe("🚀 Test Server Endpoints", () => {
             expect(response.status).to.be.equal(404);
           });
 
-          it(`searching by ${entry} should return a message saying 'User not found'`, async () => {
+          it(`searching by ${entry} should return a message saying 'user not found'`, async () => {
             const response = await request(server).get(`/users/@search/${entry}/wrongvalue891351@@`);
             const body: { message: string } = response.body;
-            expect(body.message).to.be.deep.equal("User not found");
+            expect(body.message).to.be.deep.equal("user not found");
           });
         }
       });
