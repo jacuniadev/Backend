@@ -5,7 +5,7 @@ import request from "supertest";
 
 import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
-import { UserSignupInput, UserObject } from "../src/types/user";
+import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./user.test";
 import { describe } from "./utils";
 
@@ -14,8 +14,20 @@ const { server } = new Server(3001);
 after(() => server.close());
 
 async function signup(payload: UserSignupInput = userPayload) {
+  // Cheating with the types here for simplicity
   const { body, status }: { body: { user: UserObject; message: string }; status: number } = await request(server)
     .post("/users/@signup")
+    .send(payload);
+  return {
+    status,
+    body,
+  };
+}
+
+async function login(payload: UserLoginInput = userPayload) {
+  // Cheating with the types here for simplicity
+  const { body, status }: { body: { user: UserObject; token: string; message: string }; status: number } = await request(server)
+    .post("/users/@login")
     .send(payload);
   return {
     status,
@@ -98,6 +110,68 @@ describe("🚀 Test Server Endpoints", () => {
         });
         it("should have a status of 400", async () => {
           const { status } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
+          expect(status).to.be.equal(400);
+        });
+      });
+    });
+
+    describe("POST /@login", () => {
+      beforeEach(async () => await signup());
+      describe("given valid input", () => {
+        it("should have status of 200", async () => {
+          const { status } = await login();
+          expect(status).to.be.equal(200);
+        });
+        it("user object should exist", async () => {
+          const { body } = await login();
+          expect(body.user).to.exist;
+        });
+        it("token should exist", async () => {
+          const { body } = await login();
+          expect(body.token).to.exist;
+        });
+      });
+
+      describe("given invalid password", () => {
+        it("should say 'password doesn't meet complexity requirements'", async () => {
+          const { body } = await login({ username: "bobby", password: "" });
+          expect(body.message).to.be.equal("password doesn't meet complexity requirements");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await login({ username: "bobby", password: "" });
+          expect(status).to.be.equal(400);
+        });
+      });
+
+      describe("given invalid username", () => {
+        it("should say 'username doesn't meet complexity requirements'", async () => {
+          const { body } = await login({ username: "", password: "bobby" });
+          expect(body.message).to.be.equal("username doesn't meet complexity requirements");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await login({ username: "", password: "bobby" });
+          expect(status).to.be.equal(400);
+        });
+      });
+
+      describe("given a username that doesn't exist", () => {
+        it("should say 'invalid credentials'", async () => {
+          const { body } = await login({ username: "bobbyjohn", password: "bobby92835H" });
+          expect(body.message).to.be.equal("invalid credentials");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await login({ username: "bobbyjohn", password: "bobby92835H" });
+          expect(status).to.be.equal(400);
+        });
+      });
+
+      describe("given a valid username but wrong password", () => {
+        it("should say 'invalid credentials'", async () => {
+          const { body } = await login({ username: userPayload.username, password: "bobby92835H" });
+          expect(body.message).to.be.equal("invalid credentials");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await login({ username: userPayload.username, password: "bobby92835H" });
           expect(status).to.be.equal(400);
         });
       });

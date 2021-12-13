@@ -39,18 +39,18 @@ export const loginUser = async ({
   username: string;
   password: string;
 }): Promise<{ user: UserObject; token: string }> => {
-  const user = await getUser({ username });
-  if (!user) return Promise.reject("user doesn't exist");
-
   if (!isPasswordValid(password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
+
+  const user = await getUser({ username });
+  if (!user) return Promise.reject("invalid credentials");
 
   if (await user.comparePassword(password)) {
     const token = jwt.sign(user.toObject(), "asscheeks26");
     return { user, token };
   }
 
-  return Promise.reject("user doesn't exist");
+  return Promise.reject("invalid credentials");
 };
 
 /**
