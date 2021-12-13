@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import mongoose, { FilterQuery } from "mongoose";
+import mongoose from "mongoose";
 import { UserDocument } from "../types/user";
 
 const userSchema = new mongoose.Schema({

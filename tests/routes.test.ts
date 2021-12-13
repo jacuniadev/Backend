@@ -1,13 +1,13 @@
 import "mocha";
 import "ts-mocha";
 import { expect } from "chai";
+import { describe } from "./utils";
 import request from "supertest";
 
 import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./user.test";
-import { describe } from "./utils";
 
 const { server } = new Server(3001);
 
