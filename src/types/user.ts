@@ -1,17 +1,31 @@
 import mongoose from "mongoose";
 
+/**
+ * What the user signs up with
+ */
 export interface UserInput {
-  email: string;
   password: string;
+  email: string;
   username: string;
 }
 
-// prettier-ignore
-export interface UserDocument extends UserInput, mongoose.Document {
+/**
+ * This is the safe object that will be sent through the API endpoints
+ */
+export interface UserObject {
   created_at: number;
   updated_at: number;
-  avatar?:    string;
+  avatar?: string;
   biography?: string;
+  email: string;
+  username: string;
+}
+
+/**
+ * The backend user containing methods
+ */
+// prettier-ignore
+export interface UserDocument extends UserInput, UserObject, mongoose.Document {
   comparePassword: (candidatePassword: string) => Promise<boolean>;
   updateAvatar:    (newValue: string)          => Promise<UserDocument>;
   updatePassword:  (newValue: string)          => Promise<UserDocument>;
