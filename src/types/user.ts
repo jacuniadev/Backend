@@ -28,6 +28,18 @@ export interface UserObject {
 }
 
 /**
+ * The object the login/signup database statics return
+ */
+export type UserLoginResult = { user: UserDocument; token: string };
+export type UserSignupResult = UserLoginResult;
+
+/**
+ * The object the login/signup routes return
+ */
+export type UserLoginResultSafe = { user: UserObject; token: string };
+export type UserSignupResultSafe = UserLoginResultSafe;
+
+/**
  * The backend user containing methods
  */
 // prettier-ignore

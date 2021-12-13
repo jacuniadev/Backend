@@ -3,7 +3,7 @@
 // for modularity
 
 import User from "../models/user.model";
-import { UserDocument, UserObject, UserSignupInput } from "../types/user";
+import { UserDocument, UserLoginResult, UserSignupInput, UserSignupResult } from "../types/user";
 import { FilterQuery } from "mongoose";
 import { isEmailValid, isPasswordValid, isUsernameValid } from "./validators.service";
 import jwt from "jsonwebtoken";
@@ -11,7 +11,7 @@ import jwt from "jsonwebtoken";
 /**
  * Creates a new user in the database
  */
-export const createUser = async (input: UserSignupInput): Promise<{ user: UserDocument; token: string }> => {
+export const createUser = async (input: UserSignupInput): Promise<UserSignupResult> => {
   if (!isEmailValid(input.email)) return Promise.reject("email doesn't meet complexity requirements");
   if (!isPasswordValid(input.password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(input.username)) return Promise.reject("username doesn't meet complexity requirements");
@@ -36,13 +36,7 @@ export const getUsers = () => User.find();
 /**
  * Attempts to login a user
  */
-export const loginUser = async ({
-  username,
-  password,
-}: {
-  username: string;
-  password: string;
-}): Promise<{ user: UserDocument; token: string }> => {
+export const loginUser = async ({ username, password }: { username: string; password: string }): Promise<UserLoginResult> => {
   if (!isPasswordValid(password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
 
