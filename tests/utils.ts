@@ -6,7 +6,7 @@ import "ts-mocha";
  * Describe route
  */
 export const colorizeKeywords = (string: string): string => {
-  if (string.includes("()")) return chalk.hex("#82AAFF")(string);
+  if (string.includes("()")) return chalk.cyan(string);
 
   return string
     .replace("GET", chalk.hex("#7D69CB")("GET"))
