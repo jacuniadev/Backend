@@ -25,38 +25,58 @@ export const userPayload = {
 };
 
 describe("📔 User Database Functions & Methods", () => {
-  describe("create user", () => {
+  describe("createUser()", () => {
     describe("given valid input", () => {
-      it("should create a new user", async () => {
+      it("should have a hash password of length 60", async () => {
         const user: UserDocument = await createUser(userPayload);
         expect(user.password).to.have.lengthOf(60);
+      });
+      it("username should match the payload username", async () => {
+        const user: UserDocument = await createUser(userPayload);
         expect(user.username).to.be.equals(userPayload.username);
+      });
+      it("email should match the payload email", async () => {
+        const user: UserDocument = await createUser(userPayload);
         expect(user.email).to.be.equals(userPayload.email);
+      });
+      it("should have a filled created_at field", async () => {
+        const user: UserDocument = await createUser(userPayload);
         expect(user.created_at).to.be.exist;
+      });
+      it("should have a filled updated_at field", async () => {
+        const user: UserDocument = await createUser(userPayload);
+        expect(user.updated_at).to.be.exist;
+      });
+      it("should not init with an avatar", async () => {
+        const user: UserDocument = await createUser(userPayload);
+        expect(user.avatar).to.be.undefined;
+      });
+      it("should not init with a biography", async () => {
+        const user: UserDocument = await createUser(userPayload);
+        expect(user.biography).to.be.undefined;
       });
     });
   });
 
-  describe("find user", () => {
+  describe("getUser()", () => {
     describe("given valid input", () => {
+      beforeEach(async () => await createUser(userPayload));
       it("should find a user by username", async () => {
-        await createUser(userPayload);
         const user = await getUser({ username: userPayload.username });
         expect(user).to.exist;
       });
 
       it("should find a user by email", async () => {
-        await createUser(userPayload);
         const user = await getUser({ email: userPayload.email });
         expect(user).to.exist;
       });
     });
   });
 
-  describe("login user", () => {
+  describe("loginUser()", () => {
+    beforeEach(async () => await createUser(userPayload));
     describe("given a valid password", () => {
       it("should return true", async () => {
-        await createUser(userPayload);
         const isValid = await loginUser({ email: userPayload.email, password: userPayload.password });
         expect(isValid).to.be.true;
       });
@@ -64,14 +84,13 @@ describe("📔 User Database Functions & Methods", () => {
 
     describe("given an invalid password", () => {
       it("should return false", async () => {
-        await createUser(userPayload);
         const isValid = await loginUser({ email: userPayload.email, password: "wrong" });
         expect(isValid).to.be.false;
       });
     });
   });
 
-  describe("delete all users", () => {
+  describe("deleteAllUsers()", () => {
     it("should leave the database empty", async () => {
       await createUser(userPayload);
       await deleteAllUsers();
