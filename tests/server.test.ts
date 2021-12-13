@@ -7,8 +7,21 @@ import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserInput, UserObject } from "../src/types/user";
 import { userPayload } from "./user.test";
+import chalk from "chalk";
 
-const { server } = new Server();
+/**
+ * Describe route
+ */
+const dr = (string: string): string => {
+  return string
+    .replace("GET", chalk.hex("#7D69CB")("GET"))
+    .replace("POST", chalk.hex("#59A210")("POST"))
+    .replace("PUT", chalk.hex("#D07502")("PUT"))
+    .replace("PATCH", chalk.hex("#AE9602")("PATCH"))
+    .replace("DELETE", chalk.hex("#D04444")("DELETE"));
+};
+
+const { server } = new Server(3001);
 
 after(() => server.close());
 
@@ -23,7 +36,7 @@ async function signup(payload: UserInput = userPayload) {
 }
 
 describe("🚀 Test Server Endpoints", () => {
-  describe("GET /", () => {
+  describe(dr("GET /"), () => {
     it("message should be Hello World", async () => {
       const response = await request(server).get("/");
       expect(response.body.message).to.be.equal("Hello World");
@@ -35,8 +48,8 @@ describe("🚀 Test Server Endpoints", () => {
     });
   });
 
-  describe("/users", () => {
-    describe("POST /@signup", () => {
+  describe(dr("/users"), () => {
+    describe(dr("POST /@signup"), () => {
       describe("given valid input", () => {
         it("should have status of 201", async () => {
           const { status } = await signup();
@@ -102,7 +115,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe("GET /@all", () => {
+    describe(dr("GET /@all"), () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should have status of 200", async () => {
@@ -116,7 +129,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe("DELETE /@all", () => {
+    describe(dr("DELETE /@all"), () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should return a json message saying success", async () => {
@@ -136,7 +149,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe("GET /@search/:by/:query", () => {
+    describe(dr("GET /@search/:by/:query"), () => {
       describe("with valid inputs", () => {
         beforeEach(async () => await createUser(userPayload));
 

@@ -5,7 +5,8 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
-    "test": "nyc ts-mocha --colors -p ./tsconfig.json ./tests/**/*.test.ts"
+    "test": "nyc ts-mocha --colors -p ./tsconfig.json ./tests/**/*.test.ts",
+    "constant-test": "nodemon --ext ts --exec npm run test"
   },
   "repository": {
     "type": "git",
@@ -38,6 +39,7 @@
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "chalk": "^4.1.2",
     "express": "^4.17.1",
     "joi": "^17.5.0",
     "mongoose": "^6.1.1"
