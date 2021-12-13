@@ -10,20 +10,7 @@ import { userPayload } from "./user.test";
 
 const { server } = new Server();
 
-after(async () => {
-  server.close();
-});
-
-function validateUser(body: UserObject, user: UserObject) {
-  expect(body.created_at).to.be.deep.equal(user.created_at);
-  expect(body.updated_at).to.be.deep.equal(user.updated_at);
-  expect(body.username).to.be.deep.equal(user.username);
-  expect(body.email).to.be.deep.equal(user.email);
-  expect(body.avatar).to.be.undefined;
-  expect(body.biography).to.be.undefined;
-  // @ts-ignore
-  // expect(body.password).to.be.undefined;
-}
+after(() => server.close());
 
 function checkUserNotFound(response: request.Response) {
   const body: { message: string } = response.body;
@@ -32,42 +19,79 @@ function checkUserNotFound(response: request.Response) {
 }
 
 describe("🚀 Test Server Endpoints", () => {
-  describe("/", () => {
-    it("GET / => message should be 'Hello World'", async () => {
+  describe("GET /", () => {
+    it("message should be Hello World", async () => {
+      const response = await request(server).get("/");
+      expect(response.body.message).to.be.equal("Hello World");
+    });
+
+    it("should have status 200", async () => {
       const response = await request(server).get("/");
       expect(response.status).to.be.equal(200);
-      expect(response.body.message).to.be.equal("Hello World");
     });
   });
 
   describe("/users", () => {
-    it("POST /@signup => should return the new user", async () => {
-      const response = await request(server).post("/users/@signup").send(userPayload);
-      const body = response.body as UserObject;
-      expect(response.status).to.be.equal(201);
-      expect(body.created_at).to.exist;
-      expect(body.updated_at).to.exist;
-      expect(body.username).to.be.deep.equal(userPayload.username);
-      expect(body.email).to.be.deep.equal(userPayload.email);
+    describe("POST /@signup", () => {
+      it("should have status of 201", async () => {
+        const response = await request(server).post("/users/@signup").send(userPayload);
+        expect(response.status).to.be.equal(201);
+      });
+      it("created_at should exist", async () => {
+        const { body }: { body: UserObject } = await request(server).post("/users/@signup").send(userPayload);
+        expect(body.created_at).to.exist;
+      });
+      it("updated_at should exist", async () => {
+        const { body }: { body: UserObject } = await request(server).post("/users/@signup").send(userPayload);
+        expect(body.updated_at).to.exist;
+      });
+      it("username should be equal to the payload", async () => {
+        const { body }: { body: UserObject } = await request(server).post("/users/@signup").send(userPayload);
+        expect(body.username).to.be.deep.equal(userPayload.username);
+      });
+      it("email should be equal to the payload", async () => {
+        const { body }: { body: UserObject } = await request(server).post("/users/@signup").send(userPayload);
+        expect(body.email).to.be.deep.equal(userPayload.email);
+      });
+      it("avatar should be undefined", async () => {
+        const { body }: { body: UserObject } = await request(server).post("/users/@signup").send(userPayload);
+        expect(body.avatar).to.be.undefined;
+      });
+      it("biography should be undefined", async () => {
+        const { body }: { body: UserObject } = await request(server).post("/users/@signup").send(userPayload);
+        expect(body.biography).to.be.undefined;
+      });
     });
 
-    it("GET /@all => should contain an array of users", async () => {
-      const user: UserObject = (await createUser(userPayload)).toObject();
-      const response = await request(server).get("/users/@all");
-      const body = response.body[0] as UserObject;
-      expect(response.status).to.be.equal(200);
-      validateUser(body, user);
+    describe("GET /@all", () => {
+      it("should have status of 200", async () => {
+        await createUser(userPayload);
+        const response = await request(server).get("/users/@all");
+        expect(response.status).to.be.equal(200);
+      });
+
+      it("should be an array of users", async () => {
+        await createUser(userPayload);
+        const response = await request(server).get("/users/@all");
+        expect(response.body).to.be.not.empty;
+      });
     });
 
-    it("DELETE /@all => should return a json message saying 'success' and there shouldn't be any users left", async () => {
-      await createUser(userPayload);
-      const response = await request(server).delete("/users/@all");
-      expect(response.status).to.be.equal(200);
-      expect(response.body).to.be.deep.equal({ message: "success" });
+    describe("DELETE /@all", () => {
+      it("should return a json message saying success", async () => {
+        await createUser(userPayload);
+        const response = await request(server).delete("/users/@all");
+        expect(response.status).to.be.equal(200);
+        expect(response.body).to.be.deep.equal({ message: "success" });
+      });
 
-      const response1 = await request(server).get("/users/@all");
-      expect(response1.status).to.be.equal(200);
-      expect(response1.body).to.be.deep.equal([]);
+      it("shouldnt be any users left", async () => {
+        await createUser(userPayload);
+        await request(server).delete("/users/@all");
+        const response1 = await request(server).get("/users/@all");
+        expect(response1.status).to.be.equal(200);
+        expect(response1.body).to.be.deep.equal([]);
+      });
     });
 
     describe("GET /@search/:by/:query =>", () => {
@@ -82,7 +106,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
 
       describe("given invalid email input", () => {
-        it("should return 404 and message 'user not found'", async () => {
+        it("should return 404 and message user not found", async () => {
           const response = await request(server).get(`/users/@search/email/wrong@email.com`);
           checkUserNotFound(response);
         });
@@ -99,7 +123,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
 
       describe("given invalid username input", () => {
-        it("should return 404 and message 'user not found'", async () => {
+        it("should return 404 and message user not found", async () => {
           const response = await request(server).get(`/users/@search/username/wrongUsernameBro224`);
           checkUserNotFound(response);
         });
