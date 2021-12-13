@@ -1,13 +1,17 @@
 import mongoose from "mongoose";
 
+export interface UserLoginInput {
+  [key: string]: any;
+  password: string;
+  username: string;
+}
+
 /**
  * What the user signs up with
  */
-export interface UserInput {
+export interface UserSignupInput extends UserLoginInput {
   [key: string]: any;
-  password: string;
   email: string;
-  username: string;
 }
 
 /**
@@ -27,7 +31,7 @@ export interface UserObject {
  * The backend user containing methods
  */
 // prettier-ignore
-export interface UserDocument extends UserInput, UserObject, mongoose.Document {
+export interface UserDocument extends UserSignupInput, UserObject, mongoose.Document {
   comparePassword: (candidatePassword: string) => Promise<boolean>;
   updateAvatar:    (newValue: string)          => Promise<UserDocument>;
   updatePassword:  (newValue: string)          => Promise<UserDocument>;

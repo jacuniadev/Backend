@@ -5,7 +5,7 @@ import request from "supertest";
 
 import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
-import { UserInput, UserObject } from "../src/types/user";
+import { UserSignupInput, UserObject } from "../src/types/user";
 import { userPayload } from "./user.test";
 import { describe } from "./utils";
 
@@ -13,7 +13,7 @@ const { server } = new Server(3001);
 
 after(() => server.close());
 
-async function signup(payload: UserInput = userPayload) {
+async function signup(payload: UserSignupInput = userPayload) {
   const { body, status }: { body: { user: UserObject; message: string }; status: number } = await request(server)
     .post("/users/@signup")
     .send(payload);
@@ -70,9 +70,9 @@ describe("🚀 Test Server Endpoints", () => {
       });
 
       describe("given invalid email", () => {
-        it("should say 'invalid email provided'", async () => {
+        it("should say 'email doesn't meet complexity requirements'", async () => {
           const { body } = await signup({ username: "bobby", email: "", password: "bobby" });
-          expect(body.message).to.be.equal("invalid email provided");
+          expect(body.message).to.be.equal("email doesn't meet complexity requirements");
         });
         it("should have a status of 400", async () => {
           const { status } = await signup({ username: "bobby", email: "", password: "bobby" });
@@ -81,9 +81,9 @@ describe("🚀 Test Server Endpoints", () => {
       });
 
       describe("given invalid password", () => {
-        it("should say 'invalid password provided'", async () => {
+        it("should say 'password doesn't meet complexity requirements'", async () => {
           const { body } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
-          expect(body.message).to.be.equal("invalid password provided");
+          expect(body.message).to.be.equal("password doesn't meet complexity requirements");
         });
         it("should have a status of 400", async () => {
           const { status } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
@@ -92,9 +92,9 @@ describe("🚀 Test Server Endpoints", () => {
       });
 
       describe("given invalid username", () => {
-        it("should say 'invalid username provided'", async () => {
+        it("should say 'username doesn't meet complexity requirements'", async () => {
           const { body } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
-          expect(body.message).to.be.equal("invalid username provided");
+          expect(body.message).to.be.equal("username doesn't meet complexity requirements");
         });
         it("should have a status of 400", async () => {
           const { status } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });

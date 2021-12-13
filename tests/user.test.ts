@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src/services/user.service";
 import { UserDocument } from "../src/types/user";
 import mongoose from "mongoose";
-import { UserInput } from "../src/types/user";
+import { UserSignupInput } from "../src/types/user";
 import { describe } from "./utils";
 
 before(async () => {
@@ -20,7 +20,7 @@ after(async () => {
 afterEach(async () => await deleteAllUsers());
 
 // Create the most beautiful classes you can
-export const userPayload: UserInput = {
+export const userPayload: UserSignupInput = {
   username: "foobar",
   password: "FooBar2000",
   email: "foobar@foobar.com",
@@ -59,6 +59,25 @@ describe("User Database Functions & Methods", () => {
           expect(user.biography).to.be.undefined;
         });
       });
+      describe("given an invalid password", () =>
+        it("should return a message saying 'password doesn't meet complexity requirements'", async () => {
+          createUser({ username: userPayload.username, email: userPayload.email, password: "a" }).catch((reason) => {
+            expect(reason).to.be.equal("password doesn't meet complexity requirements");
+          });
+        }));
+      describe("given an invalid email", () =>
+        it("should return a message saying 'email doesn't meet complexity requirements'", async () => {
+          createUser({ username: userPayload.username, email: "ass", password: "nicepassaword124" }).catch((reason) => {
+            expect(reason).to.be.equal("email doesn't meet complexity requirements");
+          });
+        }));
+
+      describe("given an invalid username", () =>
+        it("should return a message saying 'username doesn't meet complexity requirements'", async () => {
+          createUser({ username: "t", email: "ass@gmail.com", password: "nicepassaword124" }).catch((reason) => {
+            expect(reason).to.be.equal("username doesn't meet complexity requirements");
+          });
+        }));
     });
 
     describe("getUser()", () => {
@@ -71,20 +90,37 @@ describe("User Database Functions & Methods", () => {
 
     describe("loginUser()", () => {
       beforeEach(async () => await createUser(userPayload));
-      describe("given a valid password", () =>
-        it("should return true", async () =>
-          expect(await loginUser({ email: userPayload.email, password: userPayload.password })).to.be.true));
+      describe("given a valid password", () => {
+        it("should return the user", async () => {
+          const body = await loginUser({ username: userPayload.username, password: userPayload.password });
+          expect(body.user).to.exist;
+        });
+        it("should have a token", async () => {
+          const body = await loginUser({ username: userPayload.username, password: userPayload.password });
+          expect(body.token).to.exist;
+        });
+      });
 
       describe("given an invalid password", () =>
-        it("should return false", async () =>
-          expect(await loginUser({ email: userPayload.email, password: "wrong" })).to.be.false));
+        it("should return a message saying 'password doesn't meet complexity requirements'", async () => {
+          loginUser({ username: userPayload.username, password: "wrong" }).catch((reason) => {
+            expect(reason).to.be.equal("password doesn't meet complexity requirements");
+          });
+        }));
 
-      describe("given a non-existent email", () => {
-        it("should return an error saying 'User doesn't exist'", async () =>
-          loginUser({ email: "random bullshit", password: "wrong" }).catch((error) =>
-            expect(error.message).to.be.equal("User doesn't exist")
-          ));
-      });
+      describe("given an invalid username", () =>
+        it("should return a message saying 'username doesn't meet complexity requirements'", async () => {
+          loginUser({ username: "e", password: userPayload.password }).catch((reason) => {
+            expect(reason).to.be.equal("username doesn't meet complexity requirements");
+          });
+        }));
+
+      describe("given a non-existent username", () =>
+        it("should return a message saying 'user doesn't exist'", async () => {
+          loginUser({ username: "random bullshit", password: "wrong" }).catch((reason) => {
+            expect(reason).to.be.equal("user doesn't exist");
+          });
+        }));
     });
 
     describe("deleteAllUsers()", () => {

@@ -1,6 +1,6 @@
 import express, { Router } from "express";
-import { createUser, deleteAllUsers, getUser, getUsers } from "../../services/user.service";
-import { UserInput, UserObject } from "../../types/user";
+import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../../services/user.service";
+import { UserSignupInput, UserObject, UserLoginInput } from "../../types/user";
 
 export const users: Router = express.Router();
 
@@ -16,10 +16,19 @@ users.delete<{}, { message: string }>("/@all", async (req, res) =>
     .catch(() => res.status(500).send())
 );
 
-users.post<{}, { user: UserObject } | { message: string }, UserInput>("/@signup", async (req, res) =>
+users.post<{}, { user: UserObject } | { message: string }, UserSignupInput>("/@signup", async (req, res) =>
   createUser(req.body)
     .then(
       (user) => res.status(201).json({ user }),
+      (reason) => res.status(400).json({ message: reason })
+    )
+    .catch(() => res.status(500).send())
+);
+
+users.post<{}, { token: string } | { message: string }, UserLoginInput>("/@login", async (req, res) =>
+  loginUser(req.body)
+    .then(
+      (data) => res.status(201).json(data),
       (reason) => res.status(400).json({ message: reason })
     )
     .catch(() => res.status(500).send())
