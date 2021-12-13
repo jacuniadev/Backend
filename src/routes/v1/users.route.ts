@@ -10,9 +10,9 @@ users.delete<{}, { message: string }>("/@all", async (req, res) =>
   deleteAllUsers().then(() => res.json({ message: "success" }))
 );
 
-users.post<{}, { user: UserObject } | { message: string }, UserSignupInput>("/@signup", async (req, res) =>
+users.post<{}, { user: UserObject; token: string } | { message: string }, UserSignupInput>("/@signup", async (req, res) =>
   createUser(req.body).then(
-    (user) => res.status(201).json({ user }),
+    (data) => res.status(201).json(data),
     (reason) => res.status(400).json({ message: reason })
   )
 );

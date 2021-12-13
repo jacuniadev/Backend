@@ -2,7 +2,7 @@ import "mocha";
 import "ts-mocha";
 import { expect } from "chai";
 import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src/services/user.service";
-import { UserDocument } from "../src/types/user";
+import { UserDocument, UserObject } from "../src/types/user";
 import mongoose from "mongoose";
 import { describe } from "./utils";
 import { userPayload } from "./constants";
@@ -24,31 +24,31 @@ describe("User Database Functions & Methods", () => {
     describe("createUser()", () => {
       describe("given valid input", () => {
         it("should have a hash password of length 60", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.password).to.have.lengthOf(60);
         });
         it("username should match the payload username", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.username).to.be.equals(userPayload.username);
         });
         it("email should match the payload email", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.email).to.be.equals(userPayload.email);
         });
         it("should have a filled created_at field", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.created_at).to.be.exist;
         });
         it("should have a filled updated_at field", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.updated_at).to.be.exist;
         });
         it("should not init with an avatar", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.avatar).to.be.undefined;
         });
         it("should not init with a biography", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           expect(user.biography).to.be.undefined;
         });
       });
@@ -129,18 +129,18 @@ describe("User Database Functions & Methods", () => {
   describe("Methods", () => {
     describe("user.comparePassword()", () => {
       it("should return true if the password is correct", async () => {
-        const user: UserDocument = await createUser(userPayload);
+        const { user } = await createUser(userPayload);
         expect(await user.comparePassword(userPayload.password)).to.be.true;
       });
       it("should return false if the password is not correct", async () => {
-        const user: UserDocument = await createUser(userPayload);
+        const { user } = await createUser(userPayload);
         expect(await user.comparePassword("incorrectPassword")).to.be.false;
       });
     });
 
     describe("user.updatePassword()", () => {
       it("should get rehashed & different", async () => {
-        const user: UserDocument = await createUser(userPayload);
+        const { user } = await createUser(userPayload);
         const oldPasswordHash = user.password;
         await user.updatePassword("newCoolPassword241");
         expect(user.password).to.not.be.equal(oldPasswordHash);
@@ -151,7 +151,7 @@ describe("User Database Functions & Methods", () => {
     for (const method of ["updateEmail", "updateAvatar", "updateUsername", "updateBiography"]) {
       describe(`user.${method}()`, () => {
         it("should be different", async () => {
-          const user: UserDocument = await createUser(userPayload);
+          const { user } = await createUser(userPayload);
           const oldValue = user[method.toLowerCase().substring(6)];
           await user[method]("coolnewValue");
           expect(user[method.toLowerCase().substring(6)]).to.not.be.equal(oldValue);

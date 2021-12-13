@@ -11,12 +11,16 @@ import jwt from "jsonwebtoken";
 /**
  * Creates a new user in the database
  */
-export const createUser = async (input: UserSignupInput): Promise<UserDocument> => {
+export const createUser = async (input: UserSignupInput): Promise<{ user: UserDocument; token: string }> => {
   if (!isEmailValid(input.email)) return Promise.reject("email doesn't meet complexity requirements");
   if (!isPasswordValid(input.password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(input.username)) return Promise.reject("username doesn't meet complexity requirements");
 
-  return User.create<UserSignupInput>(input);
+  const user = await User.create<UserSignupInput>(input);
+
+  const token = jwt.sign(user.toObject(), "asscheeks26");
+
+  return { user, token };
 };
 
 /**
@@ -38,7 +42,7 @@ export const loginUser = async ({
 }: {
   username: string;
   password: string;
-}): Promise<{ user: UserObject; token: string }> => {
+}): Promise<{ user: UserDocument; token: string }> => {
   if (!isPasswordValid(password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
 

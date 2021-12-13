@@ -8,6 +8,7 @@ import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./constants";
+import { sign } from "jsonwebtoken";
 
 const { server } = new Server(3001);
 
@@ -15,7 +16,7 @@ after(() => server.close());
 
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: { body: { user: UserObject; message: string }; status: number } = await request(server)
+  const { body, status }: { body: { user: UserObject; token: string; message: string }; status: number } = await request(server)
     .post("/users/@signup")
     .send(payload);
   return {
@@ -54,6 +55,10 @@ describe("🚀 Test Server Endpoints", () => {
         it("should have status of 201", async () => {
           const { status } = await signup();
           expect(status).to.be.equal(201);
+        });
+        it("token should exist", async () => {
+          const { body } = await signup();
+          expect(body.token).to.exist;
         });
         it("created_at should exist", async () => {
           const { body } = await signup();
