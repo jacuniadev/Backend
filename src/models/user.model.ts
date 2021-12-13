@@ -38,7 +38,7 @@ userSchema.pre("save", async function (this: UserDocument, next) {
 
   // Intercept the password save and hash it
   if (this.isModified("password")) {
-    const salt = await bcrypt.genSalt(10);
+    const salt = await bcrypt.genSalt(process.env.TESTING ? 1 : 10);
     const hash = await bcrypt.hash(this.password, salt);
     this.password = hash;
   }
