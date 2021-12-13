@@ -7,6 +7,7 @@ import { UserDocument, UserLoginResult, UserSignupInput, UserSignupResult } from
 import { FilterQuery } from "mongoose";
 import { isEmailValid, isPasswordValid, isUsernameValid } from "./validators.service";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../constants";
 
 /**
  * Creates a new user in the database
@@ -18,7 +19,7 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
 
   const user = await User.create<UserSignupInput>(input);
 
-  const token = jwt.sign(user.toObject(), "asscheeks26");
+  const token = jwt.sign(user.toObject(), JWT_SECRET);
 
   return { user, token };
 };
@@ -44,7 +45,7 @@ export const loginUser = async ({ username, password }: { username: string; pass
   if (!user) return Promise.reject("invalid credentials");
 
   if (await user.comparePassword(password)) {
-    const token = jwt.sign(user.toObject(), "asscheeks26");
+    const token = jwt.sign(user.toObject(), JWT_SECRET);
     return { user, token };
   }
 

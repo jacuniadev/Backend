@@ -2,7 +2,6 @@ import "mocha";
 import "ts-mocha";
 import { expect } from "chai";
 import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../src/services/user.service";
-import { UserDocument, UserObject } from "../src/types/user";
 import mongoose from "mongoose";
 import { describe } from "./utils";
 import { userPayload } from "./constants";

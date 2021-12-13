@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { Request } from "express";
 
 export interface UserLoginInput {
   [key: string]: any;
@@ -50,4 +51,11 @@ export interface UserDocument extends UserSignupInput, UserObject, mongoose.Docu
   updateEmail:     (newValue: string)          => Promise<UserDocument>;
   updateUsername:  (newValue: string)          => Promise<UserDocument>;
   updateBiography: (newValue: string)          => Promise<UserDocument>;
+}
+
+/**
+ * Logged in requests that implement the user in the request
+ */
+export interface LoggedInRequest extends Request {
+  me?: UserDocument;
 }

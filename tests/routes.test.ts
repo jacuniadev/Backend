@@ -8,7 +8,6 @@ import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./constants";
-import { sign } from "jsonwebtoken";
 
 const { server } = new Server(3001);
 
@@ -52,7 +51,7 @@ describe("🚀 Test Server Endpoints", () => {
   describe("/users", () => {
     describe("POST /@signup", () => {
       describe("given valid input", () => {
-        it("should have status of 201", async () => {
+        it("status code 201", async () => {
           const { status } = await signup();
           expect(status).to.be.equal(201);
         });
@@ -91,7 +90,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await signup({ username: "bobby", email: "", password: "bobby" });
           expect(body.message).to.be.equal("email doesn't meet complexity requirements");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await signup({ username: "bobby", email: "", password: "bobby" });
           expect(status).to.be.equal(400);
         });
@@ -102,7 +101,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
           expect(body.message).to.be.equal("password doesn't meet complexity requirements");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
           expect(status).to.be.equal(400);
         });
@@ -113,7 +112,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
           expect(body.message).to.be.equal("username doesn't meet complexity requirements");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
           expect(status).to.be.equal(400);
         });
@@ -123,7 +122,7 @@ describe("🚀 Test Server Endpoints", () => {
     describe("POST /@login", () => {
       beforeEach(async () => await signup());
       describe("given valid input", () => {
-        it("should have status of 200", async () => {
+        it("status code 200", async () => {
           const { status } = await login();
           expect(status).to.be.equal(200);
         });
@@ -142,7 +141,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await login({ username: "bobby", password: "" });
           expect(body.message).to.be.equal("password doesn't meet complexity requirements");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await login({ username: "bobby", password: "" });
           expect(status).to.be.equal(400);
         });
@@ -153,7 +152,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await login({ username: "", password: "bobby" });
           expect(body.message).to.be.equal("username doesn't meet complexity requirements");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await login({ username: "", password: "bobby" });
           expect(status).to.be.equal(400);
         });
@@ -164,7 +163,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await login({ username: "bobbyjohn", password: "bobby92835H" });
           expect(body.message).to.be.equal("invalid credentials");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await login({ username: "bobbyjohn", password: "bobby92835H" });
           expect(status).to.be.equal(400);
         });
@@ -175,7 +174,7 @@ describe("🚀 Test Server Endpoints", () => {
           const { body } = await login({ username: userPayload.username, password: "bobby92835H" });
           expect(body.message).to.be.equal("invalid credentials");
         });
-        it("should have a status of 400", async () => {
+        it("status code 400", async () => {
           const { status } = await login({ username: userPayload.username, password: "bobby92835H" });
           expect(status).to.be.equal(400);
         });
@@ -204,7 +203,7 @@ describe("🚀 Test Server Endpoints", () => {
         expect(response.body).to.be.deep.equal({ message: "success" });
       });
 
-      it("should have a status of 200", async () => {
+      it("status code 200", async () => {
         const response = await request(server).delete("/users/@all");
         expect(response.status).to.be.equal(200);
       });
@@ -221,7 +220,7 @@ describe("🚀 Test Server Endpoints", () => {
         beforeEach(async () => await createUser(userPayload));
 
         for (const entry of ["email", "username"]) {
-          it(`searching by ${entry} should have a status of 200`, async () => {
+          it(`searching by ${entry} status code 200`, async () => {
             const response = await request(server).get(`/users/@search/${entry}/${userPayload[entry]}`);
             expect(response.status).to.be.equal(200);
           });
@@ -236,7 +235,7 @@ describe("🚀 Test Server Endpoints", () => {
 
       describe("with invalid inputs", () => {
         for (const entry of ["email", "username"]) {
-          it(`searching by ${entry} should have a status of 404`, async () => {
+          it(`searching by ${entry} status code 404`, async () => {
             const response = await request(server).get(`/users/@search/${entry}/wrongvalue891351@@`);
             expect(response.status).to.be.equal(404);
           });
@@ -247,6 +246,24 @@ describe("🚀 Test Server Endpoints", () => {
             expect(body.message).to.be.deep.equal("user not found");
           });
         }
+      });
+    });
+  });
+
+  // We are starting to enter the weeds of complexity here
+  describe("/me", () => {
+    beforeEach(async () => await createUser(userPayload));
+
+    describe("GET /", () => {
+      it("should return a user object", async () => {
+        const { body } = await login();
+        const response = await request(server).get("/@me").set("Authorization", body.token);
+        expect(response.body).to.be.not.empty;
+      });
+      it("status code 200", async () => {
+        const { body } = await login();
+        const response = await request(server).get("/@me").set("Authorization", body.token);
+        expect(response.status).to.be.equal(200);
       });
     });
   });
