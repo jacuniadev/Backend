@@ -12,8 +12,6 @@ const { server } = new Server();
 
 after(() => server.close());
 
-function checkUserNotFound(response: request.Response) {}
-
 async function signup(payload: UserInput = userPayload) {
   const { body, status }: { body: { user: UserObject; message: string }; status: number } = await request(server)
     .post("/users/@signup")
