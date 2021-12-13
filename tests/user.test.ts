@@ -61,33 +61,20 @@ describe("📔 User Database Functions & Methods", () => {
   describe("getUser()", () => {
     describe("given valid input", () => {
       beforeEach(async () => await createUser(userPayload));
-      it("should find a user by username", async () => {
-        const user = await getUser({ username: userPayload.username });
-        expect(user).to.exist;
-      });
-
-      it("should find a user by email", async () => {
-        const user = await getUser({ email: userPayload.email });
-        expect(user).to.exist;
-      });
+      it("should find a user by username", async () => expect(await getUser({ username: userPayload.username })).to.exist);
+      it("should find a user by email", async () => expect(await getUser({ username: userPayload.username })).to.exist);
     });
   });
 
   describe("loginUser()", () => {
     beforeEach(async () => await createUser(userPayload));
-    describe("given a valid password", () => {
-      it("should return true", async () => {
-        const isValid = await loginUser({ email: userPayload.email, password: userPayload.password });
-        expect(isValid).to.be.true;
-      });
-    });
+    describe("given a valid password", () =>
+      it("should return true", async () =>
+        expect(await loginUser({ email: userPayload.email, password: userPayload.password })).to.be.true));
 
-    describe("given an invalid password", () => {
-      it("should return false", async () => {
-        const isValid = await loginUser({ email: userPayload.email, password: "wrong" });
-        expect(isValid).to.be.false;
-      });
-    });
+    describe("given an invalid password", () =>
+      it("should return false", async () =>
+        expect(await loginUser({ email: userPayload.email, password: "wrong" })).to.be.false));
   });
 
   describe("deleteAllUsers()", () => {

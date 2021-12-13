@@ -5,7 +5,7 @@ import request from "supertest";
 
 import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
-import { UserObject } from "../src/types/user";
+import { UserInput, UserObject } from "../src/types/user";
 import { userPayload } from "./user.test";
 
 const { server } = new Server();
@@ -18,8 +18,10 @@ function checkUserNotFound(response: request.Response) {
   expect(body.message).to.be.deep.equal("User not found");
 }
 
-async function signup() {
-  const { body, status }: { body: UserObject; status: number } = await request(server).post("/users/@signup").send(userPayload);
+async function signup(payload: UserInput = userPayload) {
+  const { body, status }: { body: { user: UserObject; message: string }; status: number } = await request(server)
+    .post("/users/@signup")
+    .send(payload);
   return {
     status,
     body,
@@ -41,33 +43,68 @@ describe("🚀 Test Server Endpoints", () => {
 
   describe("/users", () => {
     describe("POST /@signup", () => {
-      it("should have status of 201", async () => {
-        const { status } = await signup();
-        expect(status).to.be.equal(201);
+      describe("given valid input", () => {
+        it("should have status of 201", async () => {
+          const { status } = await signup();
+          expect(status).to.be.equal(201);
+        });
+        it("created_at should exist", async () => {
+          const { body } = await signup();
+          expect(body.user.created_at!).to.exist;
+        });
+        it("updated_at should exist", async () => {
+          const { body } = await signup();
+          expect(body.user.updated_at!).to.exist;
+        });
+        it("username should be equal to the payload", async () => {
+          const { body } = await signup();
+          expect(body.user.username!).to.be.deep.equal(userPayload.username);
+        });
+        it("email should be equal to the payload", async () => {
+          const { body } = await signup();
+          expect(body.user.email!).to.be.deep.equal(userPayload.email);
+        });
+        it("avatar should be undefined", async () => {
+          const { body } = await signup();
+          expect(body.user.avatar!).to.be.undefined;
+        });
+        it("biography should be undefined", async () => {
+          const { body } = await signup();
+          expect(body.user.biography!).to.be.undefined;
+        });
       });
-      it("created_at should exist", async () => {
-        const { body } = await signup();
-        expect(body.created_at).to.exist;
+
+      describe("given invalid email", () => {
+        it("should say 'invalid email provided'", async () => {
+          const { body } = await signup({ username: "bobby", email: "", password: "bobby" });
+          expect(body.message).to.be.equal("invalid email provided");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await signup({ username: "bobby", email: "", password: "bobby" });
+          expect(status).to.be.equal(400);
+        });
       });
-      it("updated_at should exist", async () => {
-        const { body } = await signup();
-        expect(body.updated_at).to.exist;
+
+      describe("given invalid password", () => {
+        it("should say 'invalid password provided'", async () => {
+          const { body } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
+          expect(body.message).to.be.equal("invalid password provided");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" });
+          expect(status).to.be.equal(400);
+        });
       });
-      it("username should be equal to the payload", async () => {
-        const { body } = await signup();
-        expect(body.username).to.be.deep.equal(userPayload.username);
-      });
-      it("email should be equal to the payload", async () => {
-        const { body } = await signup();
-        expect(body.email).to.be.deep.equal(userPayload.email);
-      });
-      it("avatar should be undefined", async () => {
-        const { body } = await signup();
-        expect(body.avatar).to.be.undefined;
-      });
-      it("biography should be undefined", async () => {
-        const { body } = await signup();
-        expect(body.biography).to.be.undefined;
+
+      describe("given invalid username", () => {
+        it("should say 'invalid username provided'", async () => {
+          const { body } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
+          expect(body.message).to.be.equal("invalid username provided");
+        });
+        it("should have a status of 400", async () => {
+          const { status } = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" });
+          expect(status).to.be.equal(400);
+        });
       });
     });
 

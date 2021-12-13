@@ -5,11 +5,21 @@
 import User from "../models/user.model";
 import { UserDocument, UserInput } from "../types/user";
 import { FilterQuery } from "mongoose";
+import Joi from "joi";
 
 /**
  * Creates a new user in the database
  */
-export const createUser = (input: UserInput): Promise<UserDocument> => User.create<UserInput>(input);
+export const createUser = async (input: UserInput): Promise<UserDocument> => {
+  if (Joi.string().email().not().empty().required().validate(input.email).error)
+    return Promise.reject("invalid email provided");
+  if (Joi.string().required().min(4).max(64).not().empty().validate(input.password).error)
+    return Promise.reject("invalid password provided");
+  if (Joi.string().required().min(4).max(32).alphanum().not().empty().validate(input.username).error)
+    return Promise.reject("invalid username provided");
+
+  return User.create<UserInput>(input);
+};
 
 /**
  * Searches for a user in the database
