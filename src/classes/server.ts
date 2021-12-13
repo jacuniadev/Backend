@@ -1,7 +1,6 @@
 import express, { Express, Router, Response, Request } from "express";
 import http from "http";
 import { v1 } from "../routes/v1";
-import { getUsers } from "../services/user.service";
 
 export class Server {
   public express: Express = express().use(express.json()).use(v1);

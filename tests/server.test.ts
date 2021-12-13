@@ -7,19 +7,7 @@ import { Server } from "../src/classes/server";
 import { createUser } from "../src/services/user.service";
 import { UserInput, UserObject } from "../src/types/user";
 import { userPayload } from "./user.test";
-import chalk from "chalk";
-
-/**
- * Describe route
- */
-const dr = (string: string): string => {
-  return string
-    .replace("GET", chalk.hex("#7D69CB")("GET"))
-    .replace("POST", chalk.hex("#59A210")("POST"))
-    .replace("PUT", chalk.hex("#D07502")("PUT"))
-    .replace("PATCH", chalk.hex("#AE9602")("PATCH"))
-    .replace("DELETE", chalk.hex("#D04444")("DELETE"));
-};
+import { d } from "./utils";
 
 const { server } = new Server(3001);
 
@@ -36,7 +24,7 @@ async function signup(payload: UserInput = userPayload) {
 }
 
 describe("🚀 Test Server Endpoints", () => {
-  describe(dr("GET /"), () => {
+  describe(d("GET /"), () => {
     it("message should be Hello World", async () => {
       const response = await request(server).get("/");
       expect(response.body.message).to.be.equal("Hello World");
@@ -48,8 +36,8 @@ describe("🚀 Test Server Endpoints", () => {
     });
   });
 
-  describe(dr("/users"), () => {
-    describe(dr("POST /@signup"), () => {
+  describe(d("/users"), () => {
+    describe(d("POST /@signup"), () => {
       describe("given valid input", () => {
         it("should have status of 201", async () => {
           const { status } = await signup();
@@ -115,7 +103,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe(dr("GET /@all"), () => {
+    describe(d("GET /@all"), () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should have status of 200", async () => {
@@ -129,7 +117,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe(dr("DELETE /@all"), () => {
+    describe(d("DELETE /@all"), () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should return a json message saying success", async () => {
@@ -149,7 +137,7 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
-    describe(dr("GET /@search/:by/:query"), () => {
+    describe(d("GET /@search/:by/:query"), () => {
       describe("with valid inputs", () => {
         beforeEach(async () => await createUser(userPayload));
 
