@@ -98,7 +98,7 @@ describe("User Database Functions & Methods", () => {
   });
 
   describe("Methods", () => {
-    describe("user.comarePassword()", () => {
+    describe("user.comparePassword()", () => {
       it("should return true if the password is correct", async () => {
         const user: UserDocument = await createUser(userPayload);
         expect(await user.comparePassword(userPayload.password)).to.be.true;
@@ -109,7 +109,7 @@ describe("User Database Functions & Methods", () => {
       });
     });
 
-    describe("user.updtePassword()", () => {
+    describe("user.updatePassword()", () => {
       it("should get rehashed & different", async () => {
         const user: UserDocument = await createUser(userPayload);
         const oldPasswordHash = user.password;
