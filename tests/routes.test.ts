@@ -4,21 +4,21 @@ import { expect } from "chai";
 import { describe } from "./utils";
 import request from "supertest";
 
-import { Server } from "../src/classes/server";
+import { Backend } from "../src/classes/backend";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./constants";
 
-const { server } = new Server(3001);
-
-after(() => server.close());
+let backend: Backend;
+before(async () => (backend = await Backend.create(3001)));
+after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { message: string } };
 type SignupLoginResponse = { status: number; body: { user: UserObject; token: string; message: string } };
 
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: SignupLoginResponse = await request(server).post("/users/@signup").send(payload);
+  const { body, status }: SignupLoginResponse = await request(backend.server).post("/users/@signup").send(payload);
   return {
     status,
     body,
@@ -27,7 +27,7 @@ async function signup(payload: UserSignupInput = userPayload) {
 
 async function login(payload: UserLoginInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: SignupLoginResponse = await request(server).post("/users/@login").send(payload);
+  const { body, status }: SignupLoginResponse = await request(backend.server).post("/users/@login").send(payload);
   return {
     status,
     body,
@@ -37,7 +37,7 @@ async function login(payload: UserLoginInput = userPayload) {
 describe("🚀 Test Server Endpoints", () => {
   let response: BasicResponse;
   describe("GET /", () => {
-    before(async () => (response = await request(server).get("/")));
+    before(async () => (response = await request(backend.server).get("/")));
     it("message should be Hello World", () => expect(response.body.message).to.be.equal("Hello World"));
     it("should have status 200", () => expect(response.status).to.be.equal(200));
   });
@@ -127,12 +127,12 @@ describe("🚀 Test Server Endpoints", () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should have status of 200", async () => {
-        const response = await request(server).get("/users/@all");
+        const response = await request(backend.server).get("/users/@all");
         expect(response.status).to.be.equal(200);
       });
 
       it("should be an array of users", async () => {
-        const response = await request(server).get("/users/@all");
+        const response = await request(backend.server).get("/users/@all");
         expect(response.body).to.be.not.empty;
       });
     });
@@ -141,18 +141,18 @@ describe("🚀 Test Server Endpoints", () => {
       beforeEach(async () => await createUser(userPayload));
 
       it("should return a json message saying success", async () => {
-        const response = await request(server).delete("/users/@all");
+        const response = await request(backend.server).delete("/users/@all");
         expect(response.body).to.be.deep.equal({ message: "success" });
       });
 
       it("status code 200", async () => {
-        const response = await request(server).delete("/users/@all");
+        const response = await request(backend.server).delete("/users/@all");
         expect(response.status).to.be.equal(200);
       });
 
       it("shouldnt be any users left", async () => {
-        await request(server).delete("/users/@all");
-        const response = await request(server).get("/users/@all");
+        await request(backend.server).delete("/users/@all");
+        const response = await request(backend.server).get("/users/@all");
         expect(response.body).to.be.deep.equal([]);
       });
     });
@@ -163,12 +163,12 @@ describe("🚀 Test Server Endpoints", () => {
 
         for (const entry of ["email", "username"]) {
           it(`searching by ${entry} status code 200`, async () => {
-            const response = await request(server).get(`/users/@search/${entry}/${userPayload[entry]}`);
+            const response = await request(backend.server).get(`/users/@search/${entry}/${userPayload[entry]}`);
             expect(response.status).to.be.equal(200);
           });
 
           it(`searching by ${entry} should be the same user that signed up`, async () => {
-            const response = await request(server).get(`/users/@search/${entry}/${userPayload[entry]}`);
+            const response = await request(backend.server).get(`/users/@search/${entry}/${userPayload[entry]}`);
             const body = response.body as UserObject;
             expect(body[entry]).to.be.equal(userPayload[entry]);
           });
@@ -179,7 +179,7 @@ describe("🚀 Test Server Endpoints", () => {
 
       describe("with invalid inputs", () => {
         for (const entry of ["email", "username"]) {
-          before(async () => (response = await request(server).get(`/users/@search/${entry}/wrongvalue891351@@`)));
+          before(async () => (response = await request(backend.server).get(`/users/@search/${entry}/wrongvalue891351@@`)));
           it(`searching by ${entry} status code 404`, async () => {
             expect(response.status).to.be.equal(404);
           });
@@ -200,12 +200,12 @@ describe("🚀 Test Server Endpoints", () => {
     describe("GET /", () => {
       it("should return a user object", async () => {
         const { body } = await login();
-        const response = await request(server).get("/@me").set("Authorization", body.token);
+        const response = await request(backend.server).get("/@me").set("Authorization", body.token);
         expect(response.body).to.be.not.empty;
       });
       it("status code 200", async () => {
         const { body } = await login();
-        const response = await request(server).get("/@me").set("Authorization", body.token);
+        const response = await request(backend.server).get("/@me").set("Authorization", body.token);
         expect(response.status).to.be.equal(200);
       });
     });

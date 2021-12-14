@@ -1,8 +1,8 @@
-import { Server } from "./classes/server";
+import { Backend } from "./classes/backend";
 
 async function main() {
   console.clear();
-  const server = new Server(8000);
+  const backend = Backend.create(8000);
 }
 
 main();
