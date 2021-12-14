@@ -4,4 +4,4 @@ import { LoggedInRequest, UserObject } from "../../types/user";
 
 export const me: Router = express.Router();
 
-me.get<{}, UserObject>("/", auth, (req: LoggedInRequest, res) => res.json(req.me!));
+me.get<{}, UserObject>("/", auth, (req: LoggedInRequest, res) => res.json(req.me));
