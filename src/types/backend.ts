@@ -1,4 +1,5 @@
 export interface BackendSettings {
-  port?: number;
+  port: number;
   verbose: boolean;
+  mongoUrl: string;
 }

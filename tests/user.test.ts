@@ -6,11 +6,9 @@ import mongoose from "mongoose";
 import { describe } from "./utils";
 import { userPayload } from "./constants";
 import { UserLoginResult } from "../src/types/user";
+import { MONGO_TESTING_URL } from "../src/constants";
 
-before(async () => {
-  const MONGO_URI: string = "mongodb://localhost/xornet-testing";
-  mongoose.connect(MONGO_URI, { appName: "Xornet Backend Test Suite" });
-});
+before(async () => mongoose.connect(MONGO_TESTING_URL, { appName: "Xornet Backend Test Suite" }));
 
 after(async () => {
   await mongoose.disconnect();

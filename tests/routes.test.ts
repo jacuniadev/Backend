@@ -8,9 +8,10 @@ import { Backend } from "../src/classes/backend";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./constants";
+import { MONGO_TESTING_URL } from "../src/constants";
 
 let backend: Backend;
-before(async () => (backend = await Backend.create({ port: 3001, verbose: false })));
+before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: MONGO_TESTING_URL })));
 after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { error: string; message: string } };
