@@ -10,7 +10,7 @@ import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./constants";
 
 let backend: Backend;
-before(async () => (backend = await Backend.create(3001)));
+before(async () => (backend = await Backend.create({ port: 3001, verbose: false })));
 after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { message: string } };

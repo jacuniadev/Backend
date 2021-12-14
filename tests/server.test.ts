@@ -10,13 +10,13 @@ describe("🔰 Test Server Class", () => {
     afterEach(() => backend.server.close());
 
     it("setting the port to 3007 should run it on 3007", async () => {
-      backend = await Backend.create(3007);
-      expect(backend.PORT).to.equal(3007);
+      backend = await Backend.create({ port: 3007, verbose: false });
+      expect(backend.port).to.equal(3007);
     });
 
     it("should default to port 8081 when no port is given", async () => {
-      backend = await Backend.create();
-      expect(backend.PORT).to.equal(8081);
+      backend = await Backend.create({ verbose: false });
+      expect(backend.port).to.equal(8081);
     });
   });
 });
