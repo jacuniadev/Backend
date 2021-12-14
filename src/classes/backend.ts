@@ -3,11 +3,7 @@ import http from "http";
 import cors from "cors";
 import { v1 } from "../routes/v1";
 import mongoose from "mongoose";
-
-export interface BackendSettings {
-  port?: number;
-  verbose: boolean;
-}
+import { BackendSettings } from "../types/backend";
 
 const MONGO_DEFAULT_URI: string = "mongodb://localhost/xornet";
 
