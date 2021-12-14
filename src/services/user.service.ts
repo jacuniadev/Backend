@@ -8,6 +8,7 @@ import { FilterQuery } from "mongoose";
 import { isEmailValid, isPasswordValid, isUsernameValid } from "./validators.service";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
+import { MongoServerError } from "mongodb";
 
 /**
  * Creates a new user in the database
@@ -17,11 +18,19 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
   if (!isPasswordValid(input.password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(input.username)) return Promise.reject("username doesn't meet complexity requirements");
 
-  const user = await User.create<UserSignupInput>(input);
-
-  const token = jwt.sign(user.toObject(), JWT_SECRET);
-
-  return { user, token };
+  try {
+    const user = await User.create<UserSignupInput>(input);
+    const token = jwt.sign(user.toObject(), JWT_SECRET);
+    return { user, token };
+  } catch (error) {
+    if (error instanceof MongoServerError) {
+      switch (error.code) {
+        case 11000:
+          return Promise.reject(`a user with this ${Object.keys(error.keyValue)[0].toLowerCase()} already exists`);
+      }
+    }
+    return Promise.reject(error);
+  }
 };
 
 /**

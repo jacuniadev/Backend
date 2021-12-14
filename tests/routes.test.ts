@@ -13,8 +13,8 @@ let backend: Backend;
 before(async () => (backend = await Backend.create({ port: 3001, verbose: false })));
 after(() => backend.server.close());
 
-type BasicResponse = { status: number; body: { message: string } };
-type SignupLoginResponse = { status: number; body: { user: UserObject; token: string; message: string } };
+type BasicResponse = { status: number; body: { error: string; message: string } };
+type SignupLoginResponse = { status: number; body: { user: UserObject; token: string; error: string; message: string } };
 
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
@@ -58,11 +58,28 @@ describe("🚀 Test Server Endpoints", () => {
         it("biography should be undefined", () => expect(response.body.user.biography!).to.be.undefined);
       });
 
+      describe("if the username already exists", () => {
+        before(async () => (response = await signup({ ...userPayload, username: "test" })));
+        before(async () => (response = await signup({ ...userPayload, username: "test" })));
+        it("should send an error saying 'a user with this username already exists'", () => {
+          expect(response.body.error).to.be.equal("a user with this username already exists");
+        });
+        it("status code 400", () => expect(response.status).to.be.equal(400));
+      });
+
+      describe("if the email already exists", () => {
+        before(async () => (response = await signup({ ...userPayload, email: "test@test.com" })));
+        before(async () => (response = await signup({ ...userPayload, username: "other", email: "test@test.com" })));
+        it("should send an error saying 'a user with this email already exists'", () =>
+          expect(response.body.error).to.be.equal("a user with this email already exists"));
+        it("status code 400", () => expect(response.status).to.be.equal(400));
+      });
+
       describe("given invalid email", () => {
         before(async () => (response = await signup({ username: "bobby", email: "", password: "bobby" })));
 
         it("should say 'email doesn't meet complexity requirements'", () =>
-          expect(response.body.message).to.be.equal("email doesn't meet complexity requirements"));
+          expect(response.body.error).to.be.equal("email doesn't meet complexity requirements"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
@@ -70,7 +87,7 @@ describe("🚀 Test Server Endpoints", () => {
         before(async () => (response = await signup({ username: "bobby", email: "bobby@gmail.com", password: "" })));
 
         it("should say 'password doesn't meet complexity requirements'", () =>
-          expect(response.body.message).to.be.equal("password doesn't meet complexity requirements"));
+          expect(response.body.error).to.be.equal("password doesn't meet complexity requirements"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
@@ -78,7 +95,7 @@ describe("🚀 Test Server Endpoints", () => {
         before(async () => (response = await signup({ username: "", email: "bobby@gmail.com", password: "bobby" })));
 
         it("should say 'username doesn't meet complexity requirements'", () =>
-          expect(response.body.message).to.be.equal("username doesn't meet complexity requirements"));
+          expect(response.body.error).to.be.equal("username doesn't meet complexity requirements"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
     });
@@ -99,26 +116,26 @@ describe("🚀 Test Server Endpoints", () => {
       describe("given invalid password", () => {
         before(async () => (response = await login({ username: "bobby", password: "" })));
         it("should say 'password doesn't meet complexity requirements'", () =>
-          expect(response.body.message).to.be.equal("password doesn't meet complexity requirements"));
+          expect(response.body.error).to.be.equal("password doesn't meet complexity requirements"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given invalid username", () => {
         before(async () => (response = await login({ username: "", password: "bobby" })));
         it("should say 'username doesn't meet complexity requirements'", () =>
-          expect(response.body.message).to.be.equal("username doesn't meet complexity requirements"));
+          expect(response.body.error).to.be.equal("username doesn't meet complexity requirements"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a username that doesn't exist", () => {
         before(async () => (response = await login({ username: "bobbyjohn", password: "bobby92835H" })));
-        it("should say 'invalid credentials'", () => expect(response.body.message).to.be.equal("invalid credentials"));
+        it("should say 'invalid credentials'", () => expect(response.body.error).to.be.equal("invalid credentials"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a valid username but wrong password", () => {
         before(async () => (response = await login({ username: userPayload.username, password: "bobby92835H" })));
-        it("should say 'invalid credentials'", () => expect(response.body.message).to.be.equal("invalid credentials"));
+        it("should say 'invalid credentials'", () => expect(response.body.error).to.be.equal("invalid credentials"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
     });
@@ -199,9 +216,9 @@ describe("🚀 Test Server Endpoints", () => {
             expect(response.status).to.be.equal(404);
           });
 
-          it(`searching by ${entry} should return a message saying 'user not found'`, async () => {
-            const body: { message: string } = response.body;
-            expect(body.message).to.be.deep.equal("user not found");
+          it(`searching by ${entry} should return an error saying 'user not found'`, async () => {
+            const body: { error: string } = response.body;
+            expect(body.error).to.be.deep.equal("user not found");
           });
         }
       });

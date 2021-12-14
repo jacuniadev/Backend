@@ -7,7 +7,7 @@ import { LoggedInRequest, UserObject } from "../types/user";
 export default async (req: LoggedInRequest, res: Response, next: NextFunction) => {
   if (req.headers.authorization) {
     try {
-      const payloadUser = jwt.verify(req.headers.authorization, JWT_SECRET) as UserObject;
+      const payloadUser = jwt.verify(req.headers.authorization.replace("Bearer ", ""), JWT_SECRET) as UserObject;
       const user = await getUser({ _id: payloadUser._id });
 
       if (!user) return res.status(403).json({ message: "user not found" });

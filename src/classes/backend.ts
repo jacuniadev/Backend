@@ -28,14 +28,14 @@ export class Backend implements BackendSettings {
   private async connectDatabase(mongoUrl: string = MONGO_DEFAULT_URI) {
     return mongoose
       .connect(mongoUrl, { appName: "Xornet Backend" })
-      .then(() => console.log("MongoDB Connected"))
+      .then(() => this.verbose && console.log("MongoDB Connected"))
       .catch((reason) => {
-        console.log("MongoDB failed to connect, reason: ", reason);
+        this.verbose && console.log("MongoDB failed to connect, reason: ", reason);
         process.exit(1);
       });
   }
 
   private listen() {
-    this.server.listen(this.port, () => console.log(`[INDEX] Started on port ${this.port.toString()}`));
+    this.server.listen(this.port, () => this.verbose && console.log(`[INDEX] Started on port ${this.port.toString()}`));
   }
 }
