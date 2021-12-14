@@ -123,6 +123,21 @@ describe("🚀 Test Server Endpoints", () => {
       });
     });
 
+    describe("GET /@me", () => {
+      beforeEach(async () => await createUser(userPayload));
+
+      it("should return a user object", async () => {
+        const { body } = await login();
+        const response = await request(backend.server).get("/users/@me").set("Authorization", body.token);
+        expect(response.body).to.be.not.empty;
+      });
+      it("status code 200", async () => {
+        const { body } = await login();
+        const response = await request(backend.server).get("/users/@me").set("Authorization", body.token);
+        expect(response.status).to.be.equal(200);
+      });
+    });
+
     describe("GET /@all", () => {
       beforeEach(async () => await createUser(userPayload));
 
@@ -189,24 +204,6 @@ describe("🚀 Test Server Endpoints", () => {
             expect(body.message).to.be.deep.equal("user not found");
           });
         }
-      });
-    });
-  });
-
-  // We are starting to enter the weeds of complexity here
-  describe("/me", () => {
-    beforeEach(async () => await createUser(userPayload));
-
-    describe("GET /", () => {
-      it("should return a user object", async () => {
-        const { body } = await login();
-        const response = await request(backend.server).get("/@me").set("Authorization", body.token);
-        expect(response.body).to.be.not.empty;
-      });
-      it("status code 200", async () => {
-        const { body } = await login();
-        const response = await request(backend.server).get("/@me").set("Authorization", body.token);
-        expect(response.status).to.be.equal(200);
       });
     });
   });

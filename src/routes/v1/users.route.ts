@@ -1,8 +1,18 @@
 import express, { Router } from "express";
 import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../../services/user.service";
-import { UserSignupInput, UserObject, UserLoginInput, UserLoginResultSafe, UserSignupResultSafe } from "../../types/user";
+import {
+  UserSignupInput,
+  LoggedInRequest,
+  UserObject,
+  UserLoginInput,
+  UserLoginResultSafe,
+  UserSignupResultSafe,
+} from "../../types/user";
+import auth from "../../middleware/auth";
 
 export const users: Router = express.Router();
+
+users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(req.me));
 
 users.get<{}, UserObject[]>("/@all", async (req, res) => getUsers().then((users) => res.json(users)));
 
