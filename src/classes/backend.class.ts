@@ -21,8 +21,11 @@ export class Backend implements BackendSettings {
 
     this.ws.on("connection", (socket) => {
       console.log("Reporter Connected");
+      let hostname = "Unknown";
       socket.on("message", (message) => {
-        console.log(JSON.parse(message.toString()));
+        const data = JSON.parse(message.toString());
+        if (data?.statics?.hostname) hostname = data.statics.hostname;
+        console.log(`${hostname}: ${message.toString().length} bytes`);
       });
     });
 
