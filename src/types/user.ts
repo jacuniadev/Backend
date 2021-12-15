@@ -20,6 +20,7 @@ export interface UserSignupInput extends UserLoginInput {
  */
 export interface UserObject {
   [key: string]: any;
+  uuid: string;
   created_at: number;
   updated_at: number;
   avatar?: string;

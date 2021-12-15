@@ -1,8 +1,14 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { UserDocument } from "../types/user";
+import { v4 as uuidv4 } from "uuid";
 
 const userSchema = new mongoose.Schema({
+  uuid: {
+    type: String,
+    unique: true,
+    index: true,
+  },
   username: {
     type: String,
     unique: true,
@@ -34,7 +40,10 @@ const userSchema = new mongoose.Schema({
 });
 
 userSchema.pre("save", async function (this: UserDocument, next) {
-  if (this.isNew) this.created_at = Date.now();
+  if (this.isNew) {
+    this.created_at = Date.now();
+    this.uuid = uuidv4();
+  }
 
   // Intercept the password save and hash it
   if (this.isModified("password")) {
