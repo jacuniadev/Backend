@@ -2,7 +2,7 @@ import "mocha";
 import "ts-mocha";
 import { expect } from "chai";
 import { describe } from "./utils";
-import { Backend } from "../src/classes/backend";
+import { Backend } from "../src/classes/backend.class";
 import { MONGO_TESTING_URL } from "../src/constants";
 
 describe("🔰 Test Server Class", () => {

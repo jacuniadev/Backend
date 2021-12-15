@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { Request } from "express";
+import { DatabaseObject } from "./database";
 
 export interface UserLoginInput {
   [key: string]: any;
@@ -18,11 +19,8 @@ export interface UserSignupInput extends UserLoginInput {
 /**
  * This is the safe object that will be sent through the API endpoints
  */
-export interface UserObject {
+export interface UserObject extends DatabaseObject {
   [key: string]: any;
-  uuid: string;
-  created_at: number;
-  updated_at: number;
   avatar?: string;
   biography?: string;
   email: string;

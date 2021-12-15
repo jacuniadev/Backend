@@ -4,7 +4,7 @@ import { expect } from "chai";
 import { describe } from "./utils";
 import request from "supertest";
 
-import { Backend } from "../src/classes/backend";
+import { Backend } from "../src/classes/backend.class";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { userPayload } from "./constants";

@@ -1,4 +1,4 @@
-import { Time } from "./time";
+import { Time } from "./time.class";
 
 export class TokenManager extends Map<string, { token: number; timer: NodeJS.Timeout }> {
   public constructor(public expiration: number = 5 * Time.Minute) {

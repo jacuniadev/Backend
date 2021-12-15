@@ -1,4 +1,4 @@
-import { Backend } from "./classes/backend";
+import { Backend } from "./classes/backend.class";
 import { MONGO_URL } from "./constants";
 
 async function main() {
