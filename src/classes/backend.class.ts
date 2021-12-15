@@ -5,6 +5,7 @@ import cors from "cors";
 import { v1 } from "../routes/v1";
 import mongoose from "mongoose";
 import { BackendSettings } from "../types/backend";
+import { DynamicData } from "../types/reporter";
 
 export class Backend implements BackendSettings {
   public express: Express = express().use(express.json()).use(v1);
@@ -23,9 +24,14 @@ export class Backend implements BackendSettings {
       console.log("Reporter Connected");
       let hostname = "Unknown";
       socket.on("message", (message) => {
-        const data = JSON.parse(message.toString());
-        if (data?.statics?.hostname) hostname = data.statics.hostname;
-        console.log(`${hostname}: ${message.toString().length} bytes`);
+        const data = JSON.parse(message.toString()) as DynamicData;
+        // if (data?.statics?.hostname) hostname = data.statics.hostname;
+        console.log(
+          `${hostname}: ${message.toString().length} bytes CPU: ${
+            data.cpu?.usage.reduce((a, b) => a + b, 0) / data.cpu?.usage.length
+          }`
+        );
+        console.log(data);
       });
     });
 
