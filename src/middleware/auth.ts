@@ -11,7 +11,7 @@ export default async (req: LoggedInRequest, res: Response, next: NextFunction) =
       const user = await getUser({ _id: payloadUser._id });
 
       if (!user) return res.status(403).json({ message: "user not found" });
-      req.me = user;
+      req.user = user;
       return next();
     } catch (error) {
       return res.status(403).json({ message: "invalid authentication token" });

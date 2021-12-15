@@ -41,6 +41,13 @@ export type UserLoginResultSafe = { user: UserObject; token: string };
 export type UserSignupResultSafe = UserLoginResultSafe;
 
 /**
+ * Logged in requests that implement the user in the request
+ */
+export interface LoggedInRequest extends Request {
+  user?: UserDocument;
+}
+
+/**
  * The backend user containing methods
  */
 // prettier-ignore
@@ -51,11 +58,4 @@ export interface UserDocument extends UserSignupInput, UserObject, mongoose.Docu
   updateEmail:     (newValue: string)          => Promise<UserDocument>;
   updateUsername:  (newValue: string)          => Promise<UserDocument>;
   updateBiography: (newValue: string)          => Promise<UserDocument>;
-}
-
-/**
- * Logged in requests that implement the user in the request
- */
-export interface LoggedInRequest extends Request {
-  me?: UserDocument;
 }

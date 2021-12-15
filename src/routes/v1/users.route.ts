@@ -12,7 +12,7 @@ import auth from "../../middleware/auth";
 
 export const users: Router = express.Router();
 
-users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(req.me));
+users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(req.user));
 
 users.get<{}, UserObject[]>("/@all", async (req, res) => getUsers().then((users) => res.json(users)));
 
