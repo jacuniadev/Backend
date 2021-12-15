@@ -18,7 +18,7 @@ export interface MachineStaticData {
 }
 
 /**
- * Actual stonks
+ * Actual stonks 🥵
  */
 export const enum MachineStatus {
   Unknown,
