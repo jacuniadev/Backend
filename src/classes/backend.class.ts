@@ -5,12 +5,12 @@ import cors from "cors";
 import { v1 } from "../routes/v1";
 import mongoose from "mongoose";
 import { BackendSettings } from "../types/backend";
-import { DynamicData } from "../types/reporter";
+import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
   public express: Express = express().use(express.json()).use(v1);
   public server = http.createServer(this.express);
-  public ws = new ws.Server({ server: this.server });
+  public websocketManager = new WebsocketManager(new ws.Server({ server: this.server }));
   public port: number;
   public verbose: boolean;
   public mongoUrl: string;
@@ -19,25 +19,6 @@ export class Backend implements BackendSettings {
     this.port = settings.port;
     this.verbose = settings.verbose;
     this.mongoUrl = settings.mongoUrl;
-
-    this.ws.on("connection", (socket) => {
-      console.log("Reporter Connected");
-      let hostname = "Unknown";
-      socket.on("message", (message) => {
-        const data = JSON.parse(message.toString()) as DynamicData;
-        // if (data?.statics?.hostname) hostname = data.statics.hostname;
-        console.log(
-          `${hostname}: ${message.toString().length} bytes CPU: ${
-            data.cpu?.usage.reduce((a, b) => a + b, 0) / data.cpu?.usage.length
-          }`
-        );
-        console.log(data);
-      });
-    });
-
-    this.ws.on("close", () => {
-      console.log("Reporter Disconnected");
-    });
   }
 
   public static async create(settings: BackendSettings) {
