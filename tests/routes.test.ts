@@ -130,13 +130,13 @@ describe("🚀 Test Server Endpoints", () => {
 
       describe("given a username that doesn't exist", () => {
         before(async () => (response = await login({ username: "bobbyjohn", password: "bobby92835H" })));
-        it("should say 'invalid credentials'", () => expect(response.body.error).to.be.equal("invalid credentials"));
+        it("should say 'user not found'", () => expect(response.body.error).to.be.equal("user not found"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
 
       describe("given a valid username but wrong password", () => {
         before(async () => (response = await login({ username: userPayload.username, password: "bobby92835H" })));
-        it("should say 'invalid credentials'", () => expect(response.body.error).to.be.equal("invalid credentials"));
+        it("should say 'user not found'", () => expect(response.body.error).to.be.equal("user not found"));
         it("status code 400", () => expect(response.status).to.be.equal(400));
       });
     });

@@ -1,5 +1,5 @@
 import { TokenManager } from "../classes/tokenManager.class";
-import Machine, { DOCUMENT_EXCLUSIONS } from "../models/machine.model";
+import Machine from "../models/machine.model";
 import { UserObject } from "../types/user";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
@@ -8,8 +8,7 @@ import { CreateMachineInput, MachineDocument } from "../types/machine";
 
 const tokenManager = new TokenManager();
 
-export const getMachines = (query: FilterQuery<MachineDocument> = {}) =>
-  Machine.find(query, { access_token: 0, ...DOCUMENT_EXCLUSIONS });
+export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query);
 
 export const createMachine = async (input: CreateMachineInput) => {
   const access_token = jwt.sign(input.hardware_uuid, JWT_SECRET);

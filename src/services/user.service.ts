@@ -9,7 +9,6 @@ import { isEmailValid, isPasswordValid, isUsernameValid } from "./validators.ser
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
 import { MongoServerError } from "mongodb";
-import { DOCUMENT_EXCLUSIONS } from "../models/machine.model";
 
 /**
  * Creates a new user in the database
@@ -38,14 +37,14 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
  * Searches for a user in the database
  */
 export const getUser = async (query: FilterQuery<UserDocument>) => {
-  const user = await User.findOne(query, { password: 0, ...DOCUMENT_EXCLUSIONS });
+  const user = await User.findOne(query);
   return user ? user : Promise.reject("user not found");
 };
 
 /**
  * Returns all the users in the database
  */
-export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(query, { password: 0, ...DOCUMENT_EXCLUSIONS });
+export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(query);
 
 /**
  * Attempts to login a user
@@ -55,9 +54,8 @@ export const loginUser = async ({ username, password }: { username: string; pass
   if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
 
   const user = await getUser({ username });
-  if (!user) return Promise.reject("invalid credentials");
 
-  if (await user.comparePassword(password)) {
+  if (user && (await user.comparePassword(password))) {
     const token = jwt.sign(user.toObject(), JWT_SECRET);
     return { user, token };
   }

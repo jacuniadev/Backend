@@ -48,7 +48,7 @@ users.post<{}, UserLoginResultSafe | { error: string }, UserLoginInput>("/@login
 );
 
 users.get("/@search/:by/:query", async (req, res) =>
-  getUser({ [req.params.by]: req.params.query }).then((user) =>
-    user !== null ? res.json(user) : res.status(404).json({ error: "user not found" })
-  )
+  getUser({ [req.params.by]: req.params.query })
+    .then((user) => res.json(user))
+    .catch(() => res.status(404).json({ error: "user not found" }))
 );
