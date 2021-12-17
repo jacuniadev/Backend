@@ -5,7 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
-    "test": "cross-env TESTING=true ts-mocha --colors -p ./tsconfig.json ./tests/**/*.test.ts",
+    "test": "cross-env TESTING=true nyc ts-mocha --colors -p ./tsconfig.json ./tests/**/*.test.ts",
     "constant-test": "nodemon --ext ts --exec npm run test"
   },
   "repository": {
