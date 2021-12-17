@@ -17,22 +17,19 @@ machines.post<{}, {}, MachineSignupInput>("/@signup", async (req, res) => {
   const userUuid = check2FAKey(two_factor_key);
   if (!userUuid) return res.status(404).json({ error: "the 2fa token you provided has expired" });
   getUser({ uuid: userUuid })
-    .then(
-      (user) => {
-        createMachine({ owner_uuid: user.uuid, hardware_uuid, hostname })
-          .then((machine) => res.json({ access_token: machine.access_token }))
-          .catch((error: MongoAPIError) => {
-            switch (error.code) {
-              case 11000:
-                res.status(400).json({ error: "this machine is already registered in the database" });
-                break;
-              default:
-                res.status(500).json({ error });
-                break;
-            }
-          });
-      },
-      (noUser) => res.status(404).json({ error: noUser })
-    )
-    .catch((reason) => res.status(400).json({ error: reason }));
+    .then((user) => {
+      createMachine({ owner_uuid: user.uuid, hardware_uuid, hostname })
+        .then((machine) => res.json({ access_token: machine.access_token }))
+        .catch((error: MongoAPIError) => {
+          switch (error.code) {
+            case 11000:
+              res.status(400).json({ error: "this machine is already registered in the database" });
+              break;
+            default:
+              res.status(500).json({ error });
+              break;
+          }
+        });
+    })
+    .catch((noUser) => res.status(404).json({ error: noUser }));
 });
