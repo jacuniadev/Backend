@@ -9,7 +9,6 @@ import { createUser, deleteAllUsers } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { machinePayload, userPayload } from "./constants";
 import { MONGO_TESTING_URL } from "../src/constants";
-import { MachineSignupInput } from "../src/types/machine";
 import { deleteAllMachines } from "../src/services/machine.service";
 
 let backend: Backend;
@@ -18,7 +17,6 @@ after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { error: string; message: string } };
 type UserSignupResponse = { status: number; body: { user: UserObject; token: string; error: string; message: string } };
-type MachineSignupResponse = { status: number; body: { access_token: string; error: string; message: string } };
 
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
