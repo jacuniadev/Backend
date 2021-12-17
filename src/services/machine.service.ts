@@ -32,3 +32,5 @@ export const create2FAKey = (user: UserObject): { key: string } => {
 };
 
 export const check2FAKey = (key: string) => keyManager.validate(key);
+
+export const deleteAllMachines = () => Machine.deleteMany({});

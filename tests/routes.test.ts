@@ -5,11 +5,12 @@ import { describe } from "./utils";
 import request from "supertest";
 
 import { Backend } from "../src/classes/backend.class";
-import { createUser } from "../src/services/user.service";
+import { createUser, deleteAllUsers } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { machinePayload, userPayload } from "./constants";
 import { MONGO_TESTING_URL } from "../src/constants";
 import { MachineSignupInput } from "../src/types/machine";
+import { deleteAllMachines } from "../src/services/machine.service";
 
 let backend: Backend;
 before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: MONGO_TESTING_URL })));
@@ -37,10 +38,10 @@ async function login(payload: UserLoginInput = userPayload) {
   };
 }
 
-async function signupMachine(key: string, payload: MachineSignupInput = machinePayload) {
+async function signupMachine(payload: { two_factor_key?: string; hardware_uuid?: string; hostname?: string }) {
   const { body, status } = await request(backend.server)
     .post("/machines/@signup")
-    .send({ ...payload, two_factor_key: key });
+    .send({ ...machinePayload, payload });
   return {
     status,
     body,
@@ -48,8 +49,8 @@ async function signupMachine(key: string, payload: MachineSignupInput = machineP
 }
 
 describe("🚀 Test Server Endpoints", () => {
-  let response: BasicResponse;
   describe("GET /", () => {
+    let response: BasicResponse;
     before(async () => (response = await request(backend.server).get("/")));
     it("message should be Hello World", () => expect(response.body.message).to.be.equal("Hello World"));
     it("should have status 200", () => expect(response.status).to.be.equal(200));
@@ -240,19 +241,76 @@ describe("🚀 Test Server Endpoints", () => {
 
   describe("/machines", () => {
     describe("GET /@newkey", () => {
-      let response: { body: { key: string } } & BasicResponse;
-      let token: string;
-      before(async () => {
+      it("should return an access_token", async () => {
         await createUser(userPayload);
         const { body } = await login();
-        token = body.token;
-      });
-
-      it("should return an access_token", async () => {
-        response = await request(backend.server).get("/machines/@newkey").set("Authorization", token);
+        const response = await request(backend.server).get("/machines/@newkey").set("Authorization", body.token);
         expect(response.body.key).to.exist;
       });
-      it("status code 200", async () => expect(response.status).to.be.equal(200));
+    });
+
+    let two_factor_key: string;
+    let response: BasicResponse;
+
+    describe("GET /@signup", () => {
+      beforeEach(async () => {
+        await createUser(userPayload);
+        await deleteAllMachines();
+        const { body } = await login();
+        two_factor_key = (await request(backend.server).get("/machines/@newkey").set("Authorization", body.token)).body.key;
+      });
+
+      describe("with valid data", () => {
+        it("should return an access_token", async () => {
+          const response = await request(backend.server)
+            .post("/machines/@signup")
+            .send({
+              ...machinePayload,
+              two_factor_key,
+            });
+
+          expect(response.body.access_token).to.exist;
+        });
+      });
+      describe("if the machine already exists", () => {
+        it("should return a message saying 'this machine is already registered in the database'", async () => {
+          for (let i = 0; i < 2; i++) {
+            response = await request(backend.server)
+              .post("/machines/@signup")
+              .send({
+                ...machinePayload,
+                two_factor_key,
+              });
+          }
+
+          expect(response!.body.error).to.be.equal("this machine is already registered in the database");
+        });
+      });
+      describe("given an invalid 'two_factor_key'", () => {
+        it("should return an error saying 'two_factor_key is invalid'", async () => {
+          signupMachine({
+            two_factor_key: "",
+          }).catch((error) => {
+            expect(error).to.be.equal("two_factor_key is invalid");
+          });
+        });
+      });
+      describe("given an invalid 'hardware_uuid'", () => {
+        it("should return an error saying 'hardware_uuid is invalid'", async () => {
+          signupMachine({
+            two_factor_key,
+            hardware_uuid: "",
+          }).catch((error) => expect(error).to.be.equal("hardware_uuid is invalid"));
+        });
+      });
+      describe("given an invalid 'hostname'", () => {
+        it("should return an error saying 'hostname is invalid'", async () => {
+          signupMachine({
+            two_factor_key,
+            hostname: "",
+          }).catch((error) => expect(error).to.be.equal("hostname is invalid"));
+        });
+      });
     });
   });
 });
