@@ -9,6 +9,7 @@ import { isEmailValid, isPasswordValid, isUsernameValid } from "./validators.ser
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
 import { MongoServerError } from "mongodb";
+import { DOCUMENT_EXCLUSIONS } from "../models/machine.model";
 
 /**
  * Creates a new user in the database
@@ -37,14 +38,14 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
  * Searches for a user in the database
  */
 export const getUser = async (query: FilterQuery<UserDocument>) => {
-  const user = await User.findOne(query);
+  const user = await User.findOne(query, { password: 0, ...DOCUMENT_EXCLUSIONS });
   return user ? user : Promise.reject("user not found");
 };
 
 /**
  * Returns all the users in the database
  */
-export const getUsers = () => User.find();
+export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(query, { password: 0, ...DOCUMENT_EXCLUSIONS });
 
 /**
  * Attempts to login a user

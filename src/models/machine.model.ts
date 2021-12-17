@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import { MachineDocument, MachineStatus } from "../types/machine";
 
+export const DOCUMENT_EXCLUSIONS = { __v: 0, _id: 0 };
+
 const machineSchema = new mongoose.Schema({
   uuid: {
     type: String,

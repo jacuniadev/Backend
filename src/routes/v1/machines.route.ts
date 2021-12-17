@@ -3,6 +3,7 @@ import { MongoAPIError } from "mongodb";
 import auth from "../../middleware/auth";
 import { check2FAToken, create2FAToken, createMachine } from "../../services/machine.service";
 import { getUser } from "../../services/user.service";
+import { MachineSignupInput } from "../../types/machine";
 import { LoggedInRequest, UserObject } from "../../types/user";
 
 export const machines: Router = express.Router();
@@ -11,7 +12,7 @@ machines.get<{}, { token: number } | { error: string }>("/@create", auth, (req: 
   res.json(create2FAToken(req.user!))
 );
 
-machines.post<{}, {}, { two_factor_key: string; hardware_uuid: string; hostname: string }>("/@create", async (req, res) => {
+machines.post<{}, {}, MachineSignupInput>("/@create", async (req, res) => {
   const { two_factor_key, hardware_uuid, hostname } = req.body;
   const userUuid = check2FAToken(two_factor_key);
   if (!userUuid) return res.status(404).json({ error: "the 2fa token you provided has expired" });

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { Request } from "express";
 import { DatabaseObject } from "./database";
 
 export interface StaticData {
@@ -43,9 +42,6 @@ export interface GPU {
   power_usage: number;
 }
 
-/**
- * Actual stonks 🥵
- */
 export const enum MachineStatus {
   Unknown,
   Offline,
@@ -78,4 +74,16 @@ export interface MachineObject extends DatabaseObject {
 // prettier-ignore
 export interface MachineDocument extends MachineObject, mongoose.Document {
   access_token: string;
+}
+
+export interface MachineSignupInput {
+  two_factor_key: string;
+  hardware_uuid: string;
+  hostname: string;
+}
+
+export interface CreateMachineInput {
+  hardware_uuid: string;
+  owner_uuid: string;
+  hostname: string;
 }

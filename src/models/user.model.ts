@@ -2,6 +2,8 @@ import bcrypt from "bcrypt";
 import mongoose from "mongoose";
 import { UserDocument } from "../types/user";
 import { v4 as uuidv4 } from "uuid";
+import { MachineDocument } from "../types/machine";
+import { getMachines } from "../services/machine.service";
 
 const userSchema = new mongoose.Schema({
   uuid: {
@@ -84,6 +86,10 @@ userSchema.methods.updateUsername = async function (this: UserDocument, newValue
 userSchema.methods.updateBiography = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
   this.biography = newValue;
   return this.save();
+};
+
+userSchema.methods.getMachines = async function (this: UserDocument): Promise<MachineDocument[]> {
+  return getMachines({ owner_uuid: this.uuid });
 };
 
 export default mongoose.model<UserDocument>("User", userSchema);

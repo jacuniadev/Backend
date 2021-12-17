@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { Request } from "express";
 import { DatabaseObject } from "./database";
+import { MachineDocument } from "./machine";
 
 export interface UserLoginInput {
   [key: string]: any;
@@ -58,4 +59,8 @@ export interface UserDocument extends UserSignupInput, UserObject, mongoose.Docu
   updateEmail:       (newValue: string)          => Promise<UserDocument>;
   updateUsername:    (newValue: string)          => Promise<UserDocument>;
   updateBiography:   (newValue: string)          => Promise<UserDocument>;
+
+  // Machine related stuff
+  getMachines:       ()                          => Promise<MachineDocument[]>;
+
 }

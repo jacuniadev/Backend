@@ -9,6 +9,7 @@ import {
   UserSignupResultSafe,
 } from "../../types/user";
 import auth from "../../middleware/auth";
+import { MachineObject } from "../../types/machine";
 
 export const users: Router = express.Router();
 
@@ -21,6 +22,10 @@ export const users: Router = express.Router();
  * @description Articles REST API resource end-point
  */
 users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(req.user));
+
+users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>
+  req.user!.getMachines().then((machines) => res.json(machines))
+);
 
 users.get<{}, UserObject[]>("/@all", async (req, res) => getUsers().then((users) => res.json(users)));
 
