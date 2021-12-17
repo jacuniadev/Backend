@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { DatabaseObject } from "./database";
+import { DatabaseObject } from ".";
 
 export interface StaticData {
   hostname: string;

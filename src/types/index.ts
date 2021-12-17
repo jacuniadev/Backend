@@ -9,3 +9,15 @@ export const enum Time {
 }
 
 export const enum WebsocketEvents {}
+
+export interface DatabaseObject {
+  uuid: string;
+  created_at: number;
+  updated_at: number;
+}
+
+export interface BackendSettings {
+  port: number;
+  verbose: boolean;
+  mongoUrl: string;
+}

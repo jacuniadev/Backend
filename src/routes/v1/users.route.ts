@@ -13,14 +13,6 @@ import { MachineObject } from "../../types/machine";
 
 export const users: Router = express.Router();
 
-/**
- * Articles REST API resource end-point
- * @endpoint /api/articles
- * @name getMe
- * @version v1
- * @since v1
- * @description Articles REST API resource end-point
- */
 users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(req.user));
 
 users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>

@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 import { Request } from "express";
-import { DatabaseObject } from "./database";
 import { MachineDocument } from "./machine";
+import { DatabaseObject } from ".";
 
 export interface UserLoginInput {
   [key: string]: any;
