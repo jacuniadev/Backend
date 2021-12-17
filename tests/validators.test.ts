@@ -33,11 +33,7 @@ describe("✔ Validators", () => {
     it("should be true with a valid hostname", () => expect(isHostnameValid("testing-5235.yourmom.com")).to.be.true);
     it("should allow capitalization", () => expect(isHostnameValid("tEsTiNg-5235.yOuRmOm.cOm")).to.be.true);
     it("should be false if the hostname is longer than 253 characters long", () =>
-      expect(
-        isHostnameValid(
-          "testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.testing-5235.yourmom.com"
-        )
-      ).to.be.false);
+      expect(isHostnameValid(`${"testing-5235.".repeat(24)}com`)).to.be.false);
     it("should be false with an invalid hostname", () => expect(isHostnameValid("&*@D2nd2niq")).to.be.false);
     it("should be false if the hostname starts with a '-'", () =>
       expect(isHostnameValid("-testing-5235.yourmom.com")).to.be.false);
