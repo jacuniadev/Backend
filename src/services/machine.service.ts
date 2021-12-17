@@ -5,12 +5,17 @@ import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
 import { FilterQuery } from "mongoose";
 import { CreateMachineInput, MachineDocument } from "../types/machine";
+import { isHostnameValid, isUUIDValid } from "../utils/validators";
 
 const tokenManager = new TokenManager();
 
 export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query);
 
 export const createMachine = async (input: CreateMachineInput) => {
+  if (!isUUIDValid(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
+  if (!isUUIDValid(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
+  if (!isHostnameValid(input.hostname)) return Promise.reject("hostname is invalid");
+
   const access_token = jwt.sign(input.hardware_uuid, JWT_SECRET);
   return Machine.create({
     access_token,

@@ -5,7 +5,7 @@
 import User from "../models/user.model";
 import { UserDocument, UserLoginResult, UserSignupInput, UserSignupResult } from "../types/user";
 import { FilterQuery } from "mongoose";
-import { isEmailValid, isPasswordValid, isUsernameValid } from "./validators.service";
+import { isEmailValid, isPasswordValid, isUsernameValid } from "../utils/validators";
 import jwt from "jsonwebtoken";
 import { JWT_SECRET } from "../constants";
 import { MongoServerError } from "mongodb";
