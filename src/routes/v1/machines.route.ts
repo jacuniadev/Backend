@@ -4,7 +4,7 @@ import auth from "../../middleware/auth";
 import { check2FAKey, create2FAKey, createMachine } from "../../services/machine.service";
 import { getUser } from "../../services/user.service";
 import { MachineSignupInput } from "../../types/machine";
-import { LoggedInRequest, UserObject } from "../../types/user";
+import { LoggedInRequest } from "../../types/user";
 
 export const machines: Router = express.Router();
 
