@@ -53,7 +53,6 @@ export interface LoggedInRequest extends Request {
 // prettier-ignore
 export interface UserDocument extends UserSignupInput, UserObject, mongoose.Document {
   comparePassword:   (candidatePassword: string) => Promise<boolean>;
-  createAccessToken: (hardwareUUID: string)      => Promise<string>;
   updateAvatar:      (newValue: string)          => Promise<UserDocument>;
   updatePassword:    (newValue: string)          => Promise<UserDocument>;
   updateEmail:       (newValue: string)          => Promise<UserDocument>;
@@ -61,6 +60,7 @@ export interface UserDocument extends UserSignupInput, UserObject, mongoose.Docu
   updateBiography:   (newValue: string)          => Promise<UserDocument>;
 
   // Machine related stuff
+  createAccessToken: (hardwareUUID: string)      => Promise<string>;
   getMachines:       ()                          => Promise<MachineDocument[]>;
 
 }
