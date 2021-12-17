@@ -11,6 +11,7 @@ export class TokenManager extends Map<string, { token: number; timer: NodeJS.Tim
     this.set(userUuid, { token, timer });
   }
 
+  // TODO: user something more secure than just 6 random numbers
   public static generateToken() {
     return ~~(100000 + Math.random() * 900000);
   }

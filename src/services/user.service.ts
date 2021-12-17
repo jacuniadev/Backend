@@ -36,7 +36,10 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
 /**
  * Searches for a user in the database
  */
-export const getUser = (query: FilterQuery<UserDocument>) => User.findOne(query);
+export const getUser = async (query: FilterQuery<UserDocument>) => {
+  const user = await User.findOne(query);
+  return user ? user : Promise.reject("user not found");
+};
 
 /**
  * Returns all the users in the database

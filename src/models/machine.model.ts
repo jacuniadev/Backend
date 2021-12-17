@@ -8,6 +8,23 @@ const machineSchema = new mongoose.Schema({
     unique: true,
     index: true,
   },
+  owner_uuid: {
+    type: String,
+    required: true,
+    index: true,
+  },
+  access_token: {
+    index: true,
+    unique: true,
+    required: true,
+    type: String,
+  },
+  hardware_uuid: {
+    index: true,
+    unique: true,
+    required: true,
+    type: String,
+  },
   created_at: {
     type: Number,
   },

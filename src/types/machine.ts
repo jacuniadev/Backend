@@ -60,6 +60,8 @@ export type MachineStatusStrings = keyof typeof MachineStatus;
 export interface MachineObject extends DatabaseObject {
   [key: string]: any;
   uuid: string;
+  owner_uuid: string;
+  hardware_uuid: string;
   created_at: number;
   updated_at: number;
   name: string;
@@ -75,5 +77,5 @@ export interface MachineObject extends DatabaseObject {
  */
 // prettier-ignore
 export interface MachineDocument extends MachineObject, mongoose.Document {
-  
+  access_token: string;
 }

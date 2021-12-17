@@ -51,10 +51,11 @@ export interface LoggedInRequest extends Request {
  */
 // prettier-ignore
 export interface UserDocument extends UserSignupInput, UserObject, mongoose.Document {
-  comparePassword: (candidatePassword: string) => Promise<boolean>;
-  updateAvatar:    (newValue: string)          => Promise<UserDocument>;
-  updatePassword:  (newValue: string)          => Promise<UserDocument>;
-  updateEmail:     (newValue: string)          => Promise<UserDocument>;
-  updateUsername:  (newValue: string)          => Promise<UserDocument>;
-  updateBiography: (newValue: string)          => Promise<UserDocument>;
+  comparePassword:   (candidatePassword: string) => Promise<boolean>;
+  createAccessToken: (hardwareUUID: string)      => Promise<string>;
+  updateAvatar:      (newValue: string)          => Promise<UserDocument>;
+  updatePassword:    (newValue: string)          => Promise<UserDocument>;
+  updateEmail:       (newValue: string)          => Promise<UserDocument>;
+  updateUsername:    (newValue: string)          => Promise<UserDocument>;
+  updateBiography:   (newValue: string)          => Promise<UserDocument>;
 }
