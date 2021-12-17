@@ -7,19 +7,21 @@ import request from "supertest";
 import { Backend } from "../src/classes/backend.class";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
-import { userPayload } from "./constants";
+import { machinePayload, userPayload } from "./constants";
 import { MONGO_TESTING_URL } from "../src/constants";
+import { MachineSignupInput } from "../src/types/machine";
 
 let backend: Backend;
 before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: MONGO_TESTING_URL })));
 after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { error: string; message: string } };
-type SignupLoginResponse = { status: number; body: { user: UserObject; token: string; error: string; message: string } };
+type UserSignupResponse = { status: number; body: { user: UserObject; token: string; error: string; message: string } };
+type MachineSignupResponse = { status: number; body: { access_token: string; error: string; message: string } };
 
 async function signup(payload: UserSignupInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: SignupLoginResponse = await request(backend.server).post("/users/@signup").send(payload);
+  const { body, status }: UserSignupResponse = await request(backend.server).post("/users/@signup").send(payload);
   return {
     status,
     body,
@@ -28,7 +30,17 @@ async function signup(payload: UserSignupInput = userPayload) {
 
 async function login(payload: UserLoginInput = userPayload) {
   // Cheating with the types here for simplicity
-  const { body, status }: SignupLoginResponse = await request(backend.server).post("/users/@login").send(payload);
+  const { body, status }: UserSignupResponse = await request(backend.server).post("/users/@login").send(payload);
+  return {
+    status,
+    body,
+  };
+}
+
+async function signupMachine(key: string, payload: MachineSignupInput = machinePayload) {
+  const { body, status } = await request(backend.server)
+    .post("/machines/@signup")
+    .send({ ...payload, two_factor_key: key });
   return {
     status,
     body,
@@ -45,7 +57,7 @@ describe("🚀 Test Server Endpoints", () => {
 
   describe("/users", () => {
     describe("POST /@signup", () => {
-      let response: SignupLoginResponse;
+      let response: UserSignupResponse;
       describe("given valid input", () => {
         before(async () => (response = await signup()));
         it("status code 201", () => expect(response.status).to.be.equal(201));
@@ -102,7 +114,7 @@ describe("🚀 Test Server Endpoints", () => {
     });
 
     describe("POST /@login", () => {
-      let response: SignupLoginResponse;
+      let response: UserSignupResponse;
       before(async () => {
         await signup();
         response = await login();
@@ -223,6 +235,24 @@ describe("🚀 Test Server Endpoints", () => {
           });
         }
       });
+    });
+  });
+
+  describe("/machines", () => {
+    describe("GET /@newkey", () => {
+      let response: { body: { key: string } } & BasicResponse;
+      let token: string;
+      before(async () => {
+        await createUser(userPayload);
+        const { body } = await login();
+        token = body.token;
+      });
+
+      it("should return an access_token", async () => {
+        response = await request(backend.server).get("/machines/@newkey").set("Authorization", token);
+        expect(response.body.key).to.exist;
+      });
+      it("status code 200", async () => expect(response.status).to.be.equal(200));
     });
   });
 });
