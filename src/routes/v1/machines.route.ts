@@ -31,5 +31,5 @@ machines.post<{}, {}, MachineSignupInput>("/@signup", async (req, res) => {
           }
         });
     })
-    .catch((noUser) => res.status(404).json({ error: noUser }));
+    .catch((error) => res.status(404).json({ error }));
 });
