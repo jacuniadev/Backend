@@ -5,7 +5,7 @@ import { describe } from "./utils";
 import request from "supertest";
 
 import { Backend } from "../src/classes/backend.class";
-import { createUser, deleteAllUsers } from "../src/services/user.service";
+import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { machinePayload, userPayload } from "./constants";
 import { MONGO_TESTING_URL } from "../src/constants";
@@ -19,7 +19,6 @@ type BasicResponse = { status: number; body: { error: string; message: string } 
 type UserSignupResponse = { status: number; body: { user: UserObject; token: string; error: string; message: string } };
 
 async function signup(payload: UserSignupInput = userPayload) {
-  // Cheating with the types here for simplicity
   const { body, status }: UserSignupResponse = await request(backend.server).post("/users/@signup").send(payload);
   return {
     status,
@@ -28,7 +27,6 @@ async function signup(payload: UserSignupInput = userPayload) {
 }
 
 async function login(payload: UserLoginInput = userPayload) {
-  // Cheating with the types here for simplicity
   const { body, status }: UserSignupResponse = await request(backend.server).post("/users/@login").send(payload);
   return {
     status,
@@ -238,6 +236,9 @@ describe("🚀 Test Server Endpoints", () => {
   });
 
   describe("/machines", () => {
+    let two_factor_key: string;
+    let response: BasicResponse;
+
     describe("GET /@newkey", () => {
       it("should return an access_token", async () => {
         await createUser(userPayload);
@@ -246,9 +247,6 @@ describe("🚀 Test Server Endpoints", () => {
         expect(response.body.key).to.exist;
       });
     });
-
-    let two_factor_key: string;
-    let response: BasicResponse;
 
     describe("GET /@signup", () => {
       beforeEach(async () => {
