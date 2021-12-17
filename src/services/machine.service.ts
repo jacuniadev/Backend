@@ -1,4 +1,4 @@
-import { TokenManager } from "../classes/tokenManager.class";
+import { KeyManager } from "../classes/keyManager.class";
 import Machine from "../models/machine.model";
 import { UserObject } from "../types/user";
 import jwt from "jsonwebtoken";
@@ -7,7 +7,7 @@ import { FilterQuery } from "mongoose";
 import { CreateMachineInput, MachineDocument } from "../types/machine";
 import { isHostnameValid, isUUIDValid } from "../utils/validators";
 
-const tokenManager = new TokenManager();
+const keyManager = new KeyManager();
 
 export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query);
 
@@ -25,11 +25,10 @@ export const createMachine = async (input: CreateMachineInput) => {
   });
 };
 
-export const create2FAToken = (user: UserObject): { token: number } => {
-  const token = TokenManager.generateToken();
-  tokenManager.add(user.uuid, token);
-  return { token };
+export const create2FAKey = (user: UserObject): { key: string } => {
+  const key = keyManager.generateKey();
+  keyManager.add(user.uuid, key);
+  return { key };
 };
 
-export const check2FAToken = (token: string | number) =>
-  tokenManager.validate(typeof token === "string" ? parseFloat(token) : token);
+export const check2FAKey = (key: string) => keyManager.validate(key);
