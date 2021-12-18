@@ -10,20 +10,18 @@ export interface WebsocketEvent<ID extends EventID, T> {
 
 export enum EventID {
   login = 0x01,
-  statics = 0x04,
+  staticData = 0x04,
   dynamicData = 0x05,
 }
 
 export interface Events {
   login: WebsocketEvent<EventID.login, { access_token: string }>;
-  statics: WebsocketEvent<EventID.statics, StaticData>;
-  dynamicData: WebsocketEvent<EventID.statics, DynamicData>;
+  staticData: WebsocketEvent<EventID.staticData, StaticData>;
+  dynamicData: WebsocketEvent<EventID.staticData, DynamicData>;
 }
 
 export class WebsocketConnection {
-  public mitt = mitt<{
-    [k in keyof Events]: Events[k]["data"];
-  }>();
+  public mitt = mitt<{ [k in keyof Events]: Events[k]["data"] }>();
   public is_authenticated = false;
 
   constructor(public socket: ws) {
@@ -48,10 +46,21 @@ export class WebsocketManager {
     this.server.on("connection", (socket) => {
       const ws = new WebsocketConnection(socket);
       ws.mitt.on("login", async (data) => {
-        if (await loginMachine(data.access_token)) {
-          ws.is_authenticated = true;
-          console.log("the bitch is authed");
-        }
+        loginMachine(data.access_token)
+          .then(() => {
+            ws.is_authenticated = true;
+            console.log("the bitch is authed");
+          })
+          .catch(() => {
+            console.log("Failed to auth reporter");
+            socket.close();
+          });
+      });
+      ws.mitt.on("dynamicData", async (data) => {
+        console.log(data);
+      });
+      ws.mitt.on("staticData", async (data) => {
+        console.log(data);
       });
     });
   }
