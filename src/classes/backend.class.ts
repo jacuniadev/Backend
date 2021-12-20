@@ -29,6 +29,7 @@ export class Backend implements BackendSettings {
   }
 
   private async connectDatabase() {
+    console.log(`Connecting to MongoDB...`);
     return mongoose
       .connect(this.mongoUrl, { appName: "Xornet Backend" })
       .then(() => this.verbose && console.log("MongoDB Connected"))

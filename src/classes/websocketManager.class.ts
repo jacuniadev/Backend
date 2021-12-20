@@ -57,7 +57,7 @@ export class WebsocketManager {
           });
       });
       ws.mitt.on("dynamicData", async (data) => {
-        // console.log(data);
+        console.log(data);
       });
       ws.mitt.on("staticData", async (data) => {
         console.log(data);
