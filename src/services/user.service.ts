@@ -2,13 +2,13 @@
 // Instaed of defining them as a mongoose.static they are here
 // for modularity
 
+import jwt from "jsonwebtoken";
+import { MongoServerError } from "mongodb";
+import { FilterQuery } from "mongoose";
+import { JWT_SECRET } from "../constants";
 import User from "../models/user.model";
 import { UserDocument, UserLoginResult, UserSignupInput, UserSignupResult } from "../types/user";
-import { FilterQuery } from "mongoose";
 import { isEmailValid, isPasswordValid, isUsernameValid } from "../utils/validators";
-import jwt from "jsonwebtoken";
-import { JWT_SECRET } from "../constants";
-import { MongoServerError } from "mongodb";
 
 /**
  * Creates a new user in the database
@@ -50,6 +50,7 @@ export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(que
  * Attempts to login a user
  */
 export const loginUser = async ({ username, password }: { username: string; password: string }): Promise<UserLoginResult> => {
+  console.log({ username });
   if (!isPasswordValid(password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
 

@@ -1,14 +1,15 @@
+import cors from "cors";
 import express, { Express } from "express";
 import http from "http";
-import ws from "ws";
-import cors from "cors";
-import { v1 } from "../routes/v1";
 import mongoose from "mongoose";
+import morgan from "morgan";
+import ws from "ws";
+import { v1 } from "../routes/v1";
 import { BackendSettings } from "../types/backend";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
-  public express: Express = express().use(express.json()).use(v1);
+  public express: Express = express().use(cors()).use(morgan("dev")).use(express.json()).use(v1);
   public server = http.createServer(this.express);
   public websocketManager = new WebsocketManager(new ws.Server({ server: this.server }));
   public port: number;
