@@ -7,6 +7,7 @@ import { describe } from "./utils";
 import { userPayload } from "./constants";
 import { UserObject } from "../src/types/user";
 import { MONGO_TESTING_URL } from "../src/constants";
+
 import { MachineObject } from "../src/types/machine";
 import { createUser, loginUser } from "../src/services/user.service";
 
