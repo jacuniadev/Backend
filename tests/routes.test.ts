@@ -1,3 +1,4 @@
+require("dotenv").config();
 import "mocha";
 import "ts-mocha";
 import { expect } from "chai";
@@ -8,11 +9,10 @@ import { Backend } from "../src/classes/backend.class";
 import { createUser } from "../src/services/user.service";
 import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
 import { machinePayload, userPayload } from "./constants";
-import { MONGO_TESTING_URL } from "../src/constants";
 import { deleteAllMachines } from "../src/services/machine.service";
 
 let backend: Backend;
-before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: MONGO_TESTING_URL })));
+before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: process.env.MONGO_TESTING_URL! })));
 after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { error: string; message: string } };

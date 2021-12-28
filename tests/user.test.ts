@@ -1,3 +1,4 @@
+require("dotenv").config();
 import "mocha";
 import "ts-mocha";
 import { expect } from "chai";
@@ -6,9 +7,8 @@ import mongoose from "mongoose";
 import { describe } from "./utils";
 import { userPayload } from "./constants";
 import { UserLoginResult } from "../src/types/user";
-import { MONGO_TESTING_URL } from "../src/constants";
 
-before(async () => mongoose.connect(MONGO_TESTING_URL, { appName: "Xornet Backend Test Suite" }));
+before(async () => mongoose.connect(process.env.MONGO_TESTING_URL!, { appName: "Xornet Backend Test Suite" }));
 
 after(async () => {
   await mongoose.disconnect();

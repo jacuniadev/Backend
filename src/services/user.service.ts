@@ -5,7 +5,6 @@
 import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import { FilterQuery } from "mongoose";
-import { JWT_SECRET } from "../constants";
 import User from "../models/user.model";
 import { UserDocument, UserLoginResult, UserSignupInput, UserSignupResult } from "../types/user";
 import { isEmailValid, isPasswordValid, isUsernameValid } from "../utils/validators";
@@ -20,7 +19,7 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
 
   try {
     const user = await User.create<UserSignupInput>(input);
-    const token = jwt.sign(user.toObject(), JWT_SECRET);
+    const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
     return { user, token };
   } catch (error) {
     if (error instanceof MongoServerError) {
@@ -57,7 +56,7 @@ export const loginUser = async ({ username, password }: { username: string; pass
   const user = await getUser({ username });
 
   if (user && (await user.comparePassword(password))) {
-    const token = jwt.sign(user.toObject(), JWT_SECRET);
+    const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
     return { user, token };
   }
 

@@ -1,9 +1,13 @@
+require("dotenv").config();
 import { Backend } from "./classes/backend.class";
-import { MONGO_URL } from "./constants";
 
 async function main() {
   console.clear();
-  const backend = await Backend.create({ port: 8085, verbose: true, mongoUrl: MONGO_URL });
+  const backend = await Backend.create({
+    port: 8085,
+    verbose: true,
+    mongoUrl: process.env.MONGO_URL || "mongodb://127.0.0.1/xornet",
+  });
   // express().use(express.json()).use(v1).listen(8080);
 }
 
