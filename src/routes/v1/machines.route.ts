@@ -8,7 +8,7 @@ import { LoggedInRequest } from "../../types/user";
 
 export const machines: Router = express.Router();
 
-machines.get<{}, { key: string } | { error: string }>("/@newkey", auth, (req: LoggedInRequest, res) =>
+machines.get<{}, { key: string; expiration: number } | { error: string }>("/@newkey", auth, (req: LoggedInRequest, res) =>
   res.json(create2FAKey(req.user!))
 );
 

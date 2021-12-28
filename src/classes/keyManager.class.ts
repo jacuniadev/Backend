@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from "uuid";
  * A manager that creates temporary keys for people to signup their machines with
  */
 export class KeyManager extends Map<string, { key: string; timer: NodeJS.Timeout }> {
-  public constructor(public expiration: number = 5 * Time.Minute) {
+  public constructor(public expiration: number = Time.Minute) {
     super();
   }
 

@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import { FilterQuery } from "mongoose";
 import { CreateMachineInput, MachineDocument } from "../types/machine";
 import { isHostnameValid, isUUIDValid } from "../utils/validators";
+import { Time } from "../types";
 
 const keyManager = new KeyManager();
 
@@ -24,10 +25,10 @@ export const createMachine = async (input: CreateMachineInput) => {
   });
 };
 
-export const create2FAKey = (user: UserObject): { key: string } => {
+export const create2FAKey = (user: UserObject): { key: string; expiration: number } => {
   const key = keyManager.generateKey();
   keyManager.add(user.uuid, key);
-  return { key };
+  return { key, expiration: Date.now() + Time.Minute };
 };
 
 export const check2FAKey = (key: string) => keyManager.validate(key);
