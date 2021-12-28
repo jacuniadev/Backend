@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 import morgan from "morgan";
 import ws from "ws";
 import { v1 } from "../routes/v1";
-import { BackendSettings } from "../types/backend";
+import { BackendSettings } from "../types";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {

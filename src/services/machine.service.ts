@@ -38,12 +38,12 @@ export const deleteAllMachines = () => Machine.deleteMany({});
 /**
  * Attempts to login a machine
  */
-export const loginMachine = async (access_token: string): Promise<boolean> => {
+export const loginMachine = async (access_token: string) => {
   try {
     const { hardware_uuid, owner_uuid, hostname } = jwt.verify(access_token, process.env.JWT_SECRET!) as CreateMachineInput;
     const machine = await Machine.findOne({ hardware_uuid, owner_uuid, hostname, access_token });
     if (!machine) return Promise.reject("invalid credentials");
-    return true;
+    return machine;
   } catch (error) {
     return Promise.reject("invalid credentials");
   }

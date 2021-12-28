@@ -6,7 +6,7 @@ import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import { FilterQuery } from "mongoose";
 import User from "../models/user.model";
-import { UserDocument, UserLoginResult, UserSignupInput, UserSignupResult } from "../types/user";
+import { UserDocument, UserLoginResult, UserObject, UserSignupInput, UserSignupResult } from "../types/user";
 import { isEmailValid, isPasswordValid, isUsernameValid } from "../utils/validators";
 
 /**
@@ -30,6 +30,10 @@ export const createUser = async (input: UserSignupInput): Promise<UserSignupResu
     }
     return Promise.reject(error);
   }
+};
+
+export const loginWebsocketUser = async (access_token: string) => {
+  return jwt.verify(access_token, process.env.JWT_SECRET!) as UserObject;
 };
 
 /**
