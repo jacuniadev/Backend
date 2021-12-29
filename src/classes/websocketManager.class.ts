@@ -52,15 +52,20 @@ export class WebsocketManager {
     const [_reporterSocketServer, reporterSocket] = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
 
     reporterSocket.on("connection", (socket) => {
+      let machineUUID: string | undefined = undefined;
       socket.on("login", async (data) => {
         const machine = await loginMachine(data.auth_token);
         this.reporterConnections[machine.uuid] = socket;
+        machineUUID = machine.uuid;
       });
       socket.on("staticData", (data) => {
-        // console.log(data);
+        console.log(data);
       });
       socket.on("dynamicData", (data) => {
-        // console.log(data);
+        console.log(data);
+        Object.values(this.userConnections).forEach((user) => {
+          user.emit("machineData", { ...data, uuid: machineUUID });
+        });
       });
     });
   }

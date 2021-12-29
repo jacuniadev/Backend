@@ -9,13 +9,21 @@ export interface WebsocketMessage<T extends string, D extends object> {
 }
 
 export class WebsocketConnection<T extends MittEvent> extends Mitt<T> {
-  constructor(socket: ws) {
+  constructor(public socket: ws) {
     super();
     socket.on("message", (message) => {
       const { e: event, d: data } = parseData(message);
-      console.log(event, data);
       this.emit(event, data);
     });
+
+    this.on("*", (name, event) =>
+      socket.send(
+        JSON.stringify({
+          e: name,
+          d: event,
+        })
+      )
+    );
   }
 }
 
