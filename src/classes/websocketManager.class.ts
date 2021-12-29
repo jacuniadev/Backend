@@ -1,69 +1,79 @@
-import ws, { RawData } from "ws";
-import mitt from "mitt";
-import { DynamicData, StaticData } from "../types/machine";
+import http from "http";
 import { loginMachine } from "../services/machine.service";
+import { loginWebsocketUser } from "../services/user.service";
+import { DynamicData, MachineObject, StaticData } from "../types/machine";
+import { MittEvent } from "../utils/mitt";
+import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
 
-export interface WebsocketMessage<T extends WebsocketEventType, D> {
-  e: T;
-  data: D;
+export interface ClientToBackendEvents extends MittEvent {
+  login: { auth_token: string };
 }
 
-export enum WebsocketEventType {
-  reporterLogin = 0x01,
-  staticData = 0x04,
-  dynamicData = 0x05,
+export interface BackendToClientEvents extends MittEvent {
+  machineData: { machines: MachineObject[] };
 }
 
-export interface WebsocketEvents {
-  reporterLogin: WebsocketMessage<WebsocketEventType.reporterLogin, { access_token: string }>;
-  staticData: WebsocketMessage<WebsocketEventType.staticData, StaticData>;
-  dynamicData: WebsocketMessage<WebsocketEventType.staticData, DynamicData>;
+export interface ReporterToBackendEvents extends MittEvent {
+  login: { auth_token: string };
+  staticData: StaticData;
+  dynamicData: DynamicData;
 }
 
-export class WebsocketConnection {
-  public mitt = mitt<{ [k in keyof WebsocketEvents]: WebsocketEvents[k]["data"] }>();
-  public isAuthenticated = false;
-
-  constructor(public socket: ws) {
-    socket.on("message", (message) => {
-      const { e, data } = this.parseData(message);
-      const eventName = WebsocketEventType[e];
-
-      if (!this.isAuthenticated && e !== WebsocketEventType.reporterLogin) return socket.close();
-
-      this.mitt.emit(eventName as keyof typeof WebsocketEventType, data);
-    });
-  }
-
-  private parseData(data: RawData) {
-    return JSON.parse(data.toString()) as WebsocketMessage<WebsocketEventType, any>;
-  }
+export interface BackendToReporterEvents extends MittEvent {
+  /** { imaginary events } */
+  /** 🤖 imagine a place  */
+  /** "Your robot is different :0!" - Bluskript 2022 */
 }
 
+/**
+ * Welcome to the troll-zone :trollface:
+ */
 export class WebsocketManager {
-  public reporters: Record<string, WebsocketConnection> = {};
-  public clients: Record<string, WebsocketConnection> = {};
+  public userConnections: {
+    [userID: string]: WebsocketConnection<ClientToBackendEvents>;
+  } = {};
 
-  constructor(public server: ws.Server) {
-    this.server.on("connection", (socket) => {
-      const ws = new WebsocketConnection(socket);
-      ws.mitt.on("reporterLogin", async (data) => {
-        loginMachine(data.access_token)
-          .then((machine) => {
-            ws.isAuthenticated = true;
-            this.reporters[machine.uuid] = ws;
-          })
-          .catch(() => {
-            console.log("Failed to auth reporter");
-            socket.close();
-          });
+  public reporterConnections: {
+    [machineID: string]: WebsocketConnection<ReporterToBackendEvents>;
+  } = {};
+
+  constructor(server: http.Server) {
+    // I will trollcrazy you :trollface:
+    const [_userSocketServer, userSocket] = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
+
+    userSocket.on("connection", (socket) => {
+      socket.on("login", async (data) => {
+        const user = await loginWebsocketUser(data.auth_token);
+        this.userConnections[user.uuid] = socket;
       });
-      ws.mitt.on("dynamicData", async (data) => {
-        console.log(data);
+    });
+
+    // I will trollcrazy you again :trollface:
+    const [_reporterSocketServer, reporterSocket] = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
+
+    reporterSocket.on("connection", (socket) => {
+      socket.on("login", async (data) => {
+        const machine = await loginMachine(data.auth_token);
+        this.reporterConnections[machine.uuid] = socket;
       });
-      ws.mitt.on("staticData", async (data) => {
-        console.log(data);
+      socket.on("staticData", (data) => {
+        // console.log(data);
+      });
+      socket.on("dynamicData", (data) => {
+        // console.log(data);
       });
     });
   }
 }
+
+// the backend totally doesnt start up without this!
+const trolls = [
+  "discord.gg/trollcrazy",
+  "discord.gg/trolley",
+  "discord.gg/trollface",
+  "discord.gg/trollely",
+  "discord.gg/trolleycrazy",
+];
+
+// cALCULATE THE CURRENT TROLL RATIO
+const currentTroll = ~~trolls[Math.random() * trolls.length - 1];

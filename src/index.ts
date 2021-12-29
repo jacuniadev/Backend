@@ -3,6 +3,12 @@ import { Backend } from "./classes/backend.class";
 
 async function main() {
   console.clear();
+
+  process.on("uncaughtException", (err) => {
+    console.error("Uncaught Exception: ", err.message);
+    console.log("now go fix your shit code already @Geoxor");
+  });
+
   const backend = await Backend.create({
     port: 8085,
     verbose: true,
