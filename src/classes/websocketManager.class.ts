@@ -58,11 +58,8 @@ export class WebsocketManager {
         this.reporterConnections[machine.uuid] = socket;
         machineUUID = machine.uuid;
       });
-      socket.on("staticData", (data) => {
-        console.log(data);
-      });
+      socket.on("staticData", (data) => {});
       socket.on("dynamicData", (data) => {
-        console.log(data);
         Object.values(this.userConnections).forEach((user) => {
           user.emit("machineData", { ...data, uuid: machineUUID });
         });
