@@ -12,7 +12,7 @@ export class Backend implements BackendSettings {
   public express: Express = express()
     .use(function (req, res, next) {
       // Website you wish to allow to connect
-      res.setHeader("Access-Control-Allow-Origin", "https://xornet.cloud");
+      res.setHeader("Access-Control-Allow-Origin", "https://beta.xornet.cloud");
 
       console.log("we did some trolling");
 
