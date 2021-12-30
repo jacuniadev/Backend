@@ -11,16 +11,7 @@ import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
   public express: Express = express()
-    .use(
-      cors({
-        origin: function (origin, callback) {
-          // db.loadOrigins is an example call to load
-          // a list of origins from a backing database
-          console.log(origin);
-          callback(null);
-        },
-      })
-    )
+    .use(cors({ origin: "*", allowedHeaders: ["Content-Type", "Authorization"] }))
     .use(morgan("dev"))
     .use(express.json())
     .use(v1);
