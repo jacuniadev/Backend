@@ -7,15 +7,15 @@ import { MongoServerError } from "mongodb";
 import { FilterQuery } from "mongoose";
 import User from "../models/user.model";
 import { UserDocument, UserLoginResult, UserObject, UserSignupInput, UserSignupResult } from "../types/user";
-import { isValidEmail, isValidPassword, isValidUsername } from "../utils/validators";
+import { Validators } from "../utils/validators";
 
 /**
  * Creates a new user in the database
  */
 export const createUser = async (input: UserSignupInput): Promise<UserSignupResult> => {
-  if (!isValidEmail(input.email)) return Promise.reject("email doesn't meet complexity requirements");
-  if (!isValidPassword(input.password)) return Promise.reject("password doesn't meet complexity requirements");
-  if (!isValidUsername(input.username)) return Promise.reject("username doesn't meet complexity requirements");
+  if (!Validators.validateEmail(input.email)) return Promise.reject("email doesn't meet complexity requirements");
+  if (!Validators.validatePassword(input.password)) return Promise.reject("password doesn't meet complexity requirements");
+  if (!Validators.validateUsername(input.username)) return Promise.reject("username doesn't meet complexity requirements");
 
   try {
     const user = await User.create<UserSignupInput>(input);
@@ -53,8 +53,8 @@ export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(que
  * Attempts to login a user
  */
 export const loginUser = async ({ username, password }: { username: string; password: string }): Promise<UserLoginResult> => {
-  if (!isValidPassword(password)) return Promise.reject("password doesn't meet complexity requirements");
-  if (!isValidUsername(username)) return Promise.reject("username doesn't meet complexity requirements");
+  if (!Validators.validatePassword(password)) return Promise.reject("password doesn't meet complexity requirements");
+  if (!Validators.validateUsername(username)) return Promise.reject("username doesn't meet complexity requirements");
 
   const user = await getUser({ username });
 

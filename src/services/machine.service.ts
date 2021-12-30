@@ -5,16 +5,16 @@ import Machine from "../models/machine.model";
 import { Time } from "../types";
 import { CreateMachineInput, MachineDocument } from "../types/machine";
 import { UserObject } from "../types/user";
-import { isValidHostname, isValidUUID } from "../utils/validators";
+import { Validators } from "../utils/validators";
 
 const keyManager = new KeyManager();
 
 export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query, { _id: 0 });
 
 export const createMachine = async (input: CreateMachineInput) => {
-  if (!isValidUUID(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
-  if (!isValidUUID(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
-  if (!isValidHostname(input.hostname)) return Promise.reject("hostname is invalid");
+  if (!Validators.validateUUID(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
+  if (!Validators.validateUUID(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
+  if (!Validators.validateHostname(input.hostname)) return Promise.reject("hostname is invalid");
 
   const access_token = jwt.sign(input, process.env.JWT_SECRET!);
 
@@ -41,7 +41,7 @@ export const deleteAllMachines = () => Machine.deleteMany({});
  */
 export const loginMachine = async (access_token: string) => {
   try {
-    const { hardware_uuid, owner_uuid, hostname } = jwt.verify(access_token, process.env.JWT_SECRET!) as CreateMachineInput;
+    const { hardware_uuid, owner_uuid } = jwt.verify(access_token, process.env.JWT_SECRET!) as CreateMachineInput;
     const machine = await Machine.findOne({ hardware_uuid, owner_uuid });
     if (!machine) return Promise.reject("invalid credentials");
     return machine;
