@@ -11,6 +11,7 @@ async function main() {
 
   const backend = await Backend.create({
     port: 8085,
+    secure: true,
     verbose: true,
     mongoUrl: process.env.MONGO_URL!,
   });

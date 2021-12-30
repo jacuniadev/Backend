@@ -1,6 +1,8 @@
 import cors from "cors";
 import express, { Express } from "express";
+import fs from "fs";
 import http from "http";
+import https from "https";
 import mongoose from "mongoose";
 import morgan from "morgan";
 import { v1 } from "../routes/v1";
@@ -9,16 +11,28 @@ import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
   public express: Express = express().use(cors()).use(morgan("dev")).use(express.json()).use(v1);
-  public server = http.createServer(this.express);
-  public websocketManager = new WebsocketManager(this.server);
   public port: number;
   public verbose: boolean;
+  public secure: boolean;
   public mongoUrl: string;
+  public server: http.Server | https.Server;
+  public websocketManager: WebsocketManager;
 
   private constructor(settings: BackendSettings) {
     this.port = settings.port;
     this.verbose = settings.verbose;
     this.mongoUrl = settings.mongoUrl;
+    this.secure = settings.secure;
+    this.server = this.secure
+      ? https.createServer(
+          {
+            key: fs.readFileSync("./key.pem"),
+            cert: fs.readFileSync("./cert.pem"),
+          },
+          this.express
+        )
+      : http.createServer(this.express);
+    this.websocketManager = new WebsocketManager(this.server);
   }
 
   public static async create(settings: BackendSettings) {
