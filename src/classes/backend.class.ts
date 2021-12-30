@@ -11,7 +11,7 @@ import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
   public express: Express = express()
-    .use(cors({ allowedHeaders: ["Content-Type", "Authorization"] }))
+    .use(cors({ origin: "*", allowedHeaders: ["Content-Type", "Authorization"] }))
     .use(morgan("dev"))
     .use(express.json())
     .use(v1);
