@@ -1,15 +1,14 @@
 require("dotenv").config();
-import "mocha";
-import "ts-mocha";
 import { expect } from "chai";
-import { describe } from "./utils";
+import "mocha";
 import request from "supertest";
-
+import "ts-mocha";
 import { Backend } from "../src/classes/backend.class";
-import { createUser } from "../src/services/user.service";
-import { UserSignupInput, UserObject, UserLoginInput } from "../src/types/user";
-import { machinePayload, userPayload } from "./constants";
 import { deleteAllMachines } from "../src/services/machine.service";
+import { createUser } from "../src/services/user.service";
+import { UserLoginInput, UserObject, UserSignupInput } from "../src/types/user";
+import { machinePayload, userPayload } from "./constants";
+import { describe } from "./utils";
 
 let backend: Backend;
 before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: process.env.MONGO_TESTING_URL! })));
@@ -196,41 +195,6 @@ describe("🚀 Test Server Endpoints", () => {
         await request(backend.server).delete("/users/@all");
         const response = await request(backend.server).get("/users/@all");
         expect(response.body).to.be.deep.equal([]);
-      });
-    });
-
-    describe("GET /@search/:by/:query", () => {
-      describe("with valid inputs", () => {
-        beforeEach(async () => await createUser(userPayload));
-
-        for (const entry of ["email", "username"]) {
-          it(`searching by ${entry} status code 200`, async () => {
-            const response = await request(backend.server).get(`/users/@search/${entry}/${userPayload[entry]}`);
-            expect(response.status).to.be.equal(200);
-          });
-
-          it(`searching by ${entry} should be the same user that signed up`, async () => {
-            const response = await request(backend.server).get(`/users/@search/${entry}/${userPayload[entry]}`);
-            const body = response.body as UserObject;
-            expect(body[entry]).to.be.equal(userPayload[entry]);
-          });
-        }
-      });
-
-      let response: request.Response;
-
-      describe("with invalid inputs", () => {
-        for (const entry of ["email", "username"]) {
-          before(async () => (response = await request(backend.server).get(`/users/@search/${entry}/wrongvalue891351@@`)));
-          it(`searching by ${entry} status code 404`, async () => {
-            expect(response.status).to.be.equal(404);
-          });
-
-          it(`searching by ${entry} should return an error saying 'user not found'`, async () => {
-            const body: { error: string } = response.body;
-            expect(body.error).to.be.deep.equal("user not found");
-          });
-        }
       });
     });
   });

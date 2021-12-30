@@ -36,6 +36,14 @@ export function newUserBackend(): Router {
 
   users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(cleanUser(req.user!)));
 
+  users.get<{}, UserObject[]>("/@all", async (req, res) =>
+    getUsers().then((users) => res.json(users.map((user) => cleanUser(user))))
+  );
+
+  users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>
+    req.user!.getMachines().then((machines) => res.json(machines.map((machine) => cleanMachine(machine))))
+  );
+
   users.get<{ uuid: string }, UserObject>("/:uuid", auth, async (req: LoggedInRequest, res) =>
     res.json(cleanUser(await getUser({ uuid: req.params.uuid })))
   );
@@ -44,14 +52,6 @@ export function newUserBackend(): Router {
     Validators.validateAvatarUrl(req.body.url)
       ? req.user!.updateAvatar(req.body.url).then((user) => res.json(cleanUser(user)))
       : res.status(400).json({ error: "invalid url" })
-  );
-
-  users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>
-    req.user!.getMachines().then((machines) => res.json(machines.map((machine) => cleanMachine(machine))))
-  );
-
-  users.get<{}, UserObject[]>("/@all", async (req, res) =>
-    getUsers().then((users) => res.json(users.map((user) => cleanUser(user))))
   );
 
   users.delete<{}, { message: string }>("/@all", async (req, res) =>
@@ -69,13 +69,6 @@ export function newUserBackend(): Router {
     loginUser(req.body).then(
       ({ user, token }) => res.status(200).json({ user: cleanUser(user), token }),
       (reason) => res.status(400).json({ error: reason })
-    )
-  );
-
-  users.get("/@search/:by/:query", async (req, res) =>
-    getUser({ [req.params.by]: req.params.query }).then(
-      (user) => res.json(cleanUser(user)),
-      (reason) => res.status(404).json({ error: "user not found" })
     )
   );
 

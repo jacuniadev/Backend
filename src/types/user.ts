@@ -62,5 +62,4 @@ export interface UserDocument extends UserSignupInput, UserObject, mongoose.Docu
   // Machine related stuff
   createAccessToken: (hardwareUUID: string)      => Promise<string>;
   getMachines:       ()                          => Promise<MachineDocument[]>;
-
 }
