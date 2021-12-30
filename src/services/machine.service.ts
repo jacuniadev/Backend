@@ -1,15 +1,15 @@
-import { KeyManager } from "../classes/keyManager.class";
-import Machine from "../models/machine.model";
-import { UserObject } from "../types/user";
 import jwt from "jsonwebtoken";
 import { FilterQuery } from "mongoose";
-import { CreateMachineInput, MachineDocument } from "../types/machine";
-import { isHostnameValid, isUUIDValid } from "../utils/validators";
+import { KeyManager } from "../classes/keyManager.class";
+import Machine from "../models/machine.model";
 import { Time } from "../types";
+import { CreateMachineInput, MachineDocument } from "../types/machine";
+import { UserObject } from "../types/user";
+import { isHostnameValid, isUUIDValid } from "../utils/validators";
 
 const keyManager = new KeyManager();
 
-export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query);
+export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query, { _id: 0 });
 
 export const createMachine = async (input: CreateMachineInput) => {
   if (!isUUIDValid(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
@@ -17,6 +17,7 @@ export const createMachine = async (input: CreateMachineInput) => {
   if (!isHostnameValid(input.hostname)) return Promise.reject("hostname is invalid");
 
   const access_token = jwt.sign(input, process.env.JWT_SECRET!);
+
   return Machine.create({
     access_token,
     hardware_uuid: input.hardware_uuid,
@@ -41,7 +42,7 @@ export const deleteAllMachines = () => Machine.deleteMany({});
 export const loginMachine = async (access_token: string) => {
   try {
     const { hardware_uuid, owner_uuid, hostname } = jwt.verify(access_token, process.env.JWT_SECRET!) as CreateMachineInput;
-    const machine = await Machine.findOne({ hardware_uuid, owner_uuid, hostname, access_token });
+    const machine = await Machine.findOne({ hardware_uuid, owner_uuid });
     if (!machine) return Promise.reject("invalid credentials");
     return machine;
   } catch (error) {

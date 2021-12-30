@@ -47,13 +47,12 @@ export const getUser = async (query: FilterQuery<UserDocument>) => {
 /**
  * Returns all the users in the database
  */
-export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(query);
+export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(query, { _id: 0 });
 
 /**
  * Attempts to login a user
  */
 export const loginUser = async ({ username, password }: { username: string; password: string }): Promise<UserLoginResult> => {
-  console.log({ username });
   if (!isPasswordValid(password)) return Promise.reject("password doesn't meet complexity requirements");
   if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
 

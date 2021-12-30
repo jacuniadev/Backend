@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import mongoose from "mongoose";
-import { UserDocument } from "../types/user";
 import { v4 as uuidv4 } from "uuid";
-import { MachineDocument } from "../types/machine";
 import { getMachines } from "../services/machine.service";
+import { MachineDocument } from "../types/machine";
+import { UserDocument } from "../types/user";
 
 const userSchema = new mongoose.Schema({
   uuid: {
