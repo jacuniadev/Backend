@@ -7,15 +7,15 @@ import { MongoServerError } from "mongodb";
 import { FilterQuery } from "mongoose";
 import User from "../models/user.model";
 import { UserDocument, UserLoginResult, UserObject, UserSignupInput, UserSignupResult } from "../types/user";
-import { isEmailValid, isPasswordValid, isUsernameValid } from "../utils/validators";
+import { isValidEmail, isValidPassword, isValidUsername } from "../utils/validators";
 
 /**
  * Creates a new user in the database
  */
 export const createUser = async (input: UserSignupInput): Promise<UserSignupResult> => {
-  if (!isEmailValid(input.email)) return Promise.reject("email doesn't meet complexity requirements");
-  if (!isPasswordValid(input.password)) return Promise.reject("password doesn't meet complexity requirements");
-  if (!isUsernameValid(input.username)) return Promise.reject("username doesn't meet complexity requirements");
+  if (!isValidEmail(input.email)) return Promise.reject("email doesn't meet complexity requirements");
+  if (!isValidPassword(input.password)) return Promise.reject("password doesn't meet complexity requirements");
+  if (!isValidUsername(input.username)) return Promise.reject("username doesn't meet complexity requirements");
 
   try {
     const user = await User.create<UserSignupInput>(input);
@@ -53,8 +53,8 @@ export const getUsers = (query: FilterQuery<UserDocument> = {}) => User.find(que
  * Attempts to login a user
  */
 export const loginUser = async ({ username, password }: { username: string; password: string }): Promise<UserLoginResult> => {
-  if (!isPasswordValid(password)) return Promise.reject("password doesn't meet complexity requirements");
-  if (!isUsernameValid(username)) return Promise.reject("username doesn't meet complexity requirements");
+  if (!isValidPassword(password)) return Promise.reject("password doesn't meet complexity requirements");
+  if (!isValidUsername(username)) return Promise.reject("username doesn't meet complexity requirements");
 
   const user = await getUser({ username });
 

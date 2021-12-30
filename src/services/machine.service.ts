@@ -5,16 +5,16 @@ import Machine from "../models/machine.model";
 import { Time } from "../types";
 import { CreateMachineInput, MachineDocument } from "../types/machine";
 import { UserObject } from "../types/user";
-import { isHostnameValid, isUUIDValid } from "../utils/validators";
+import { isValidHostname, isValidUUID } from "../utils/validators";
 
 const keyManager = new KeyManager();
 
 export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query, { _id: 0 });
 
 export const createMachine = async (input: CreateMachineInput) => {
-  if (!isUUIDValid(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
-  if (!isUUIDValid(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
-  if (!isHostnameValid(input.hostname)) return Promise.reject("hostname is invalid");
+  if (!isValidUUID(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
+  if (!isValidUUID(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
+  if (!isValidHostname(input.hostname)) return Promise.reject("hostname is invalid");
 
   const access_token = jwt.sign(input, process.env.JWT_SECRET!);
 
