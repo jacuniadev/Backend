@@ -1,4 +1,3 @@
-import cors from "cors";
 import express, { Express } from "express";
 import fs from "fs";
 import http from "http";
@@ -11,7 +10,25 @@ import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
   public express: Express = express()
-    .use(cors({ origin: "*", allowedHeaders: ["Content-Type", "Authorization"] }))
+    .use(function (req, res, next) {
+      // Website you wish to allow to connect
+      res.setHeader("Access-Control-Allow-Origin", "https://xornet.cloud");
+
+      console.log("we did some trolling");
+
+      // Request methods you wish to allow
+      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
+
+      // Request headers you wish to allow
+      res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type");
+
+      // Set to true if you need the website to include cookies in the requests sent
+      // to the API (e.g. in case you use sessions)
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+
+      // Pass to next layer of middleware
+      next();
+    })
     .use(morgan("dev"))
     .use(express.json())
     .use(v1);
