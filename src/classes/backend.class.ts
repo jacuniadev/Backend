@@ -10,7 +10,11 @@ import { BackendSettings } from "../types";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
-  public express: Express = express().use(cors()).use(morgan("dev")).use(express.json()).use(v1);
+  public express: Express = express()
+    .use(cors({ origin: "*" }))
+    .use(morgan("dev"))
+    .use(express.json())
+    .use(v1);
   public port: number;
   public verbose: boolean;
   public secure: boolean;
