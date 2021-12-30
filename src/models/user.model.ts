@@ -89,7 +89,8 @@ userSchema.methods.updateBiography = async function (this: UserDocument, newValu
 };
 
 userSchema.methods.getMachines = async function (this: UserDocument): Promise<MachineDocument[]> {
-  return getMachines({ $or: [{ owner_uuid: this.uuid }, { access: this.uuid }] });
+  // return getMachines({ $or: [{ owner_uuid: this.uuid }, { access: this.uuid }] });
+  return getMachines({});
 };
 
 export default mongoose.model<UserDocument>("User", userSchema);
