@@ -11,6 +11,7 @@ import {
   UserSignupInput,
   UserSignupResultSafe,
 } from "../../types/user";
+import { isValidAvatarUrl } from "../../utils/validators";
 
 function cleanUser(user: UserDocument | UserObject): UserObject {
   user = user.toObject();
@@ -37,6 +38,12 @@ export function newUserBackend(): Router {
 
   users.get<{ uuid: string }, UserObject>("/:uuid", auth, async (req: LoggedInRequest, res) =>
     res.json(cleanUser(await getUser({ uuid: req.params.uuid })))
+  );
+
+  users.patch<{}, UserObject | { error: string }, { url: string }>("/@avatar", auth, (req: LoggedInRequest, res) =>
+    isValidAvatarUrl(req.body.url)
+      ? req.user!.updateAvatar(req.body.url).then((user) => res.json(cleanUser(user)))
+      : res.status(400).json({ error: "invalid url" })
   );
 
   users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>

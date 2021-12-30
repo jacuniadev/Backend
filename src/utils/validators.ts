@@ -9,6 +9,15 @@ export const isPasswordValid = (password: string) =>
 export const isUsernameValid = (username: string) =>
   Joi.string().required().min(4).max(32).alphanum().not().empty().validate(username).error ? false : true;
 
+const TRUSTED_HOSTERS = ["https://cdn.discordapp.com", "https://i.imgur.com"];
+const ALLOWED_EXTENSIONS = ["png", "gif", "jpg", "jpeg", "webp"];
+export const isValidAvatarUrl = (url: string) => {
+  if (!TRUSTED_HOSTERS.some((hoster) => url.startsWith(hoster))) return false;
+  if (!ALLOWED_EXTENSIONS.some((ext) => (url.includes("?") ? url.substring(0, url.lastIndexOf("?")) : url).endsWith(ext)))
+    return false;
+  return Joi.string().uri().validate(url).error ? false : true;
+};
+
 export const isUUIDValid = (uuid: string) => (Joi.string().required().uuid().validate(uuid).error ? false : true);
 
 export const isHostnameValid = (hostname: string) =>
