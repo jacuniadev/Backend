@@ -28,7 +28,7 @@ function cleanMachine(machine: MachineDocument | MachineObject): MachineObject {
   machine.access_token = undefined;
   machine.__v = undefined;
   machine._id = undefined;
-  machine.static_data?.public_ip = undefined;
+  machine.static_data && (machine.static_data.public_ip = undefined);
   return machine;
 }
 
