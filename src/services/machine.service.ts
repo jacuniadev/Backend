@@ -3,7 +3,7 @@ import { FilterQuery } from "mongoose";
 import { KeyManager } from "../classes/keyManager.class";
 import Machine from "../models/machine.model";
 import { Time } from "../types";
-import { CreateMachineInput, MachineDocument } from "../types/machine";
+import { CreateMachineInput, MachineDocument, StaticData } from "../types/machine";
 import { UserObject } from "../types/user";
 import { Validators } from "../utils/validators";
 
@@ -24,6 +24,13 @@ export const createMachine = async (input: CreateMachineInput) => {
     owner_uuid: input.owner_uuid,
     name: input.hostname,
   });
+};
+
+export const updateStaticData = async (uuid: string, staticData: StaticData) => {
+  const machine = await Machine.findOne({ uuid });
+  if (!machine) return;
+  machine.static_data = staticData;
+  machine.save();
 };
 
 /**

@@ -1,5 +1,5 @@
 import http from "http";
-import { loginMachine } from "../services/machine.service";
+import { loginMachine, updateStaticData } from "../services/machine.service";
 import { loginWebsocketUser } from "../services/user.service";
 import { DynamicData, MachineObject, StaticData } from "../types/machine";
 import { MittEvent } from "../utils/mitt";
@@ -53,12 +53,20 @@ export class WebsocketManager {
 
     reporterSocket.on("connection", (socket) => {
       let machineUUID: string | undefined = undefined;
+
       socket.on("login", async (data) => {
-        const machine = await loginMachine(data.auth_token);
-        this.reporterConnections[machine.uuid] = socket;
-        machineUUID = machine.uuid;
+        try {
+          const machine = await loginMachine(data.auth_token);
+          this.reporterConnections[machine.uuid] = socket;
+          machineUUID = machine.uuid;
+        } catch (error) {
+          console.log("Closed reporter socket because it failed auth");
+          socket.socket.close();
+        }
       });
-      socket.on("staticData", (data) => {});
+      socket.on("staticData", (data) => {
+        updateStaticData(machineUUID!, data);
+      });
       socket.on("dynamicData", (data) => {
         Object.values(this.userConnections).forEach((user) => {
           user.emit("machineData", { ...data, uuid: machineUUID });
