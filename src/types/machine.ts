@@ -1,4 +1,3 @@
-import { string } from "joi";
 import mongoose from "mongoose";
 import { DatabaseObject } from ".";
 
@@ -25,16 +24,41 @@ export interface StaticData {
 }
 
 export interface DynamicData {
-  cpu: {
-    usage: number[];
-    freq: number[];
-  };
-  disks: Disk[];
-  gpu?: GPU;
+  cpu: ICPU;
+  ram: IRAM;
+  gpu?: IGPU;
+  disks: IDisk[];
   processes: string;
-  ram: { total: number; used: number };
+  temps?: ITemp[];
+  network: INetwork[];
 }
-export interface Disk {
+
+export interface INetwork {
+  [x: string]: any;
+  name: string;
+  tx: number;
+  rx: number;
+}
+
+export interface ICPU {
+  usage: number[];
+  freq: number[];
+}
+
+export interface IRAM {
+  total: number;
+  used: number;
+}
+
+export interface IGPU {
+  brand: string;
+  gpu_usage: number;
+  mem_total: number;
+  mem_used: number;
+  power_usage: number;
+}
+
+export interface IDisk {
   fs: string;
   mount: string;
   total: number;
@@ -42,12 +66,9 @@ export interface Disk {
   used: number;
 }
 
-export interface GPU {
-  brand: string;
-  gpu_usage: number;
-  mem_total: number;
-  mem_used: number;
-  power_usage: number;
+export interface ITemp {
+  label: string;
+  value: number;
 }
 
 export const enum MachineStatus {

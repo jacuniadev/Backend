@@ -16,7 +16,7 @@ export const createMachine = async (input: CreateMachineInput) => {
   if (!Validators.validateUUID(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
   if (!Validators.validateHostname(input.hostname)) return Promise.reject("hostname is invalid");
 
-  const access_token = jwt.sign(input, process.env.JWT_SECRET!);
+  const access_token = jwt.sign(input, process.env.JWT_SECRET!, { expiresIn: "30d" });
 
   return Machine.create({
     access_token,
@@ -25,16 +25,6 @@ export const createMachine = async (input: CreateMachineInput) => {
     name: input.hostname,
   });
 };
-
-export const create2FAKey = (user: UserObject): { key: string; expiration: number } => {
-  const key = keyManager.generateKey();
-  keyManager.add(user.uuid, key);
-  return { key, expiration: Date.now() + Time.Minute };
-};
-
-export const check2FAKey = (key: string) => keyManager.validate(key);
-
-export const deleteAllMachines = () => Machine.deleteMany({});
 
 /**
  * Attempts to login a machine
@@ -49,3 +39,13 @@ export const loginMachine = async (access_token: string) => {
     return Promise.reject("invalid credentials");
   }
 };
+
+export const create2FAKey = (user: UserObject): { key: string; expiration: number } => {
+  const key = keyManager.generateKey();
+  keyManager.add(user.uuid, key);
+  return { key, expiration: Date.now() + Time.Minute };
+};
+
+export const check2FAKey = (key: string) => keyManager.validate(key);
+
+export const deleteAllMachines = () => Machine.deleteMany({});
