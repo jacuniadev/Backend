@@ -2,25 +2,14 @@ import mongoose from "mongoose";
 import { DatabaseObject } from ".";
 
 export interface StaticData {
-  total_mem: number;
-  cpu_cores: number;
-  cpu_threads: number;
+  hostname?: string;
+  os_version?: string;
+  os_name?: string;
+  cpu_cores?: number;
+  public_ip?: string;
   cpu_model: string;
-  hostname: string;
-  public_ip: string;
-  os_version: string;
-  // hostname: string;
-  // public_ip: string;
-  // kernel_version: string;
-  // os_name: string;
-  // os_arch: string;
-  // os_version: string;
-  // cpu_model: string;
-  // cpu_base_frequency: string;
-  // cpu_cores: number;
-  // cpu_threads: number;
-  // total_memory: number;
-  // last_sync: number;
+  cpu_threads: number;
+  total_mem: number;
 }
 
 export interface DynamicData {
