@@ -56,3 +56,11 @@ export const create2FAKey = (user: UserObject): { key: string; expiration: numbe
 export const check2FAKey = (key: string) => keyManager.validate(key);
 
 export const deleteAllMachines = () => Machine.deleteMany({});
+
+export const deleteMachine = async (uuid: string) => {
+  const machine = await Machine.findOne({ uuid });
+  if (!machine) return;
+  await Machine.deleteOne({ uuid });
+};
+
+export const getMachine = (uuid: string) => Machine.findOne({ uuid });

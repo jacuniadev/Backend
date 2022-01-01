@@ -1,10 +1,11 @@
 import express, { Router } from "express";
 import { MongoAPIError } from "mongodb";
 import auth from "../../middleware/auth";
-import { check2FAKey, create2FAKey, createMachine } from "../../services/machine.service";
+import { check2FAKey, create2FAKey, createMachine, deleteMachine, getMachine } from "../../services/machine.service";
 import { getUser } from "../../services/user.service";
 import { MachineSignupInput } from "../../types/machine";
 import { LoggedInRequest } from "../../types/user";
+import { Validators } from "../../utils/validators";
 
 export const machines: Router = express.Router();
 
@@ -33,4 +34,14 @@ machines.post<{}, {}, MachineSignupInput>("/@signup", async (req, res) => {
         });
     })
     .catch((error) => res.status(404).json({ error }));
+});
+
+machines.delete("/:uuid", auth, async (req: LoggedInRequest, res) => {
+  if (!Validators.validateUUID(req.params.uuid)) return res.status(400).json({ error: "uuid is invalid" });
+  const machine = await getMachine(req.params.uuid);
+  if (!machine) return res.status(404).json({ error: "machine not found" });
+  if (machine.owner_uuid !== req.user!.uuid) return res.status(403).json({ error: "you are not the owner of this machine" });
+  deleteMachine(req.params.uuid)
+    .then(() => res.json({ message: "gon" }))
+    .catch((error) => res.status(500).json({ error }));
 });
