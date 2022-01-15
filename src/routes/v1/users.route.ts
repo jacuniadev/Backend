@@ -23,12 +23,12 @@ function cleanUser(user: UserDocument | UserObject): UserObject {
   return user;
 }
 
-function cleanMachine(machine: MachineDocument | MachineObject): MachineObject {
+function cleanMachine(machine: MachineDocument | MachineObject, userID: string): MachineObject {
   machine = machine.toObject();
   machine.access_token = undefined;
   machine.__v = undefined;
   machine._id = undefined;
-  machine.static_data && (machine.static_data.public_ip = undefined);
+  machine.static_data && machine.owner_uuid !== userID && (machine.static_data.public_ip = undefined);
   return machine;
 }
 
@@ -42,7 +42,7 @@ export function newUserBackend(): Router {
   );
 
   users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>
-    req.user!.getMachines().then((machines) => res.json(machines.map((machine) => cleanMachine(machine))))
+    req.user!.getMachines().then((machines) => res.json(machines.map((machine) => cleanMachine(machine, req.user!.uuid))))
   );
 
   users.get<{ uuid: string }, UserObject>("/:uuid", auth, async (req: LoggedInRequest, res) =>
