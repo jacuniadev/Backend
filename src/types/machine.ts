@@ -20,6 +20,8 @@ export interface DynamicData {
   processes: string;
   temps?: ITemp[];
   network: INetwork[];
+  host_uptime: number;
+  reporter_uptime: number;
 }
 
 export interface INetwork {
