@@ -68,8 +68,19 @@ export class WebsocketManager {
         updateStaticData(machineUUID!, data);
       });
       socket.on("dynamicData", (data) => {
+        const computedData = {
+          ...data,
+          uuid: machineUUID,
+          cpu_average: data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
+          cpu_average_speed: data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
+          total_download: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
+          total_upload: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
+          ram_used: data.ram.used / 1024 / 1024,
+          ram_total: data.ram.total / 1024 / 1024,
+        };
+
         Object.values(this.userConnections).forEach((user) => {
-          user.emit("machineData", { ...data, uuid: machineUUID });
+          user.emit("machineData", computedData);
         });
       });
     });
