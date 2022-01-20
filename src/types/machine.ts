@@ -17,7 +17,7 @@ export interface DynamicData {
   ram: IRAM;
   gpu?: IGPU;
   disks: IDisk[];
-  processes: string;
+  process_count: number;
   temps?: ITemp[];
   network: INetwork[];
   host_uptime: number;
