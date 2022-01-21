@@ -71,12 +71,12 @@ export class WebsocketManager {
         const computedData = {
           ...data,
           uuid: machineUUID,
-          cpu_usage: data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
-          cpu_speed: data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
+          cpu_average_usage: data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
+          cpu_average_speed: data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
           total_download: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
           total_upload: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
-          ram_used: data.ram.used / 1024 / 1024,
-          ram_total: data.ram.total / 1024 / 1024,
+          ram_used_gb: data.ram.used / 1024 / 1024,
+          ram_total_gb: data.ram.total / 1024 / 1024,
         };
 
         Object.values(this.userConnections).forEach((user) => {
