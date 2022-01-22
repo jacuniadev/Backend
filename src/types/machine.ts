@@ -10,6 +10,7 @@ export interface StaticData {
   cpu_model: string;
   cpu_threads: number;
   total_mem: number;
+  reporter_version: string;
 }
 
 export interface DynamicData {
