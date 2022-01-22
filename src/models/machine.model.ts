@@ -51,17 +51,14 @@ const machineSchema = new mongoose.Schema({
   access: [String],
   static_data: {
     hostname: String,
-    public_ip: String,
-    kernel_version: String,
-    os_name: String,
-    os_arch: String,
     os_version: String,
-    cpu_model: String,
-    cpu_base_frequency: String,
+    os_name: String,
     cpu_cores: Number,
+    public_ip: String,
+    cpu_model: String,
     cpu_threads: Number,
-    total_memory: Number,
-    last_sync: Number,
+    total_mem: Number,
+    reporter_version: String,
   },
 });
 
