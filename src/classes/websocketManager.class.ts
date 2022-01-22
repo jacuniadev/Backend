@@ -55,7 +55,7 @@ export class WebsocketManager {
       Object.values(this.userConnections).forEach((user) => {
         user.emit("machineData", this.machineDynamicData);
       });
-      // this.machineDynamicData = {};
+      this.machineDynamicData = {};
     }, 1000);
 
     // I will trollcrazy you again :trollface:
