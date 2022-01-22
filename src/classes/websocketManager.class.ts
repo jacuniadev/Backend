@@ -37,6 +37,8 @@ export class WebsocketManager {
     [machineID: string]: WebsocketConnection<ReporterToBackendEvents>;
   } = {};
 
+  public machineDynamicData: Record<string, DynamicData> = {};
+
   constructor(server: http.Server) {
     // I will trollcrazy you :trollface:
     const [_userSocketServer, userSocket] = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
@@ -47,6 +49,14 @@ export class WebsocketManager {
         this.userConnections[user.uuid] = socket;
       });
     });
+
+    setInterval(() => {
+      // Map this later
+      Object.values(this.userConnections).forEach((user) => {
+        user.emit("machineData", this.machineDynamicData);
+      });
+      this.machineDynamicData = {};
+    }, 1000);
 
     // I will trollcrazy you again :trollface:
     const [_reporterSocketServer, reporterSocket] = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
@@ -79,22 +89,8 @@ export class WebsocketManager {
           ram_total_gb: data.ram.total / 1024 / 1024,
         };
 
-        Object.values(this.userConnections).forEach((user) => {
-          user.emit("machineData", computedData);
-        });
+        this.machineDynamicData[machineUUID!] = computedData;
       });
     });
   }
 }
-
-// the backend totally doesnt start up without this!
-const trolls = [
-  "discord.gg/trollcrazy",
-  "discord.gg/trolley",
-  "discord.gg/trollface",
-  "discord.gg/trollely",
-  "discord.gg/trolleycrazy",
-];
-
-// cALCULATE THE CURRENT TROLL RATIO
-const currentTroll = ~~trolls[Math.random() * trolls.length - 1];
