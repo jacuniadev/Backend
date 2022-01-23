@@ -37,8 +37,6 @@ export class WebsocketManager {
     [machineID: string]: WebsocketConnection<ReporterToBackendEvents>;
   } = {};
 
-  public machineDynamicData: Record<string, DynamicData> = {};
-
   constructor(server: http.Server) {
     // I will trollcrazy you :trollface:
     const [_userSocketServer, userSocket] = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
@@ -49,14 +47,6 @@ export class WebsocketManager {
         this.userConnections[user.uuid] = socket;
       });
     });
-
-    setInterval(() => {
-      // Map this later
-      Object.values(this.userConnections).forEach((user) => {
-        user.emit("machineData", this.machineDynamicData);
-      });
-      this.machineDynamicData = {};
-    }, 1000);
 
     // I will trollcrazy you again :trollface:
     const [_reporterSocketServer, reporterSocket] = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
@@ -70,7 +60,6 @@ export class WebsocketManager {
           this.reporterConnections[machine.uuid] = socket;
           machineUUID = machine.uuid;
         } catch (error) {
-          console.log("Closed reporter socket because it failed auth");
           socket.socket.close();
         }
       });
@@ -80,13 +69,15 @@ export class WebsocketManager {
       socket.on("dynamicData", (data) => {
         const computedData = {
           ...data,
+          uuid: machineUUID,
           cpu_average_usage: data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
           cpu_average_speed: data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length,
           total_download: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
           total_upload: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
-
-        this.machineDynamicData[machineUUID!] = computedData;
+        Object.values(this.userConnections).forEach((user) => {
+          user.emit("machineData", computedData);
+        });
       });
     });
   }

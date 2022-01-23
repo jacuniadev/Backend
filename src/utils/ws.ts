@@ -46,8 +46,6 @@ export function newWebSocketHandler<T extends MittEvent>(
   });
 
   server.on("upgrade", function upgrade(request, socket, head) {
-    console.log("got an upgrade request");
-
     if (request.url === path) {
       websocketServer.handleUpgrade(request, socket, head, function done(ws) {
         websocketServer.emit("connection", ws, request);
@@ -57,15 +55,7 @@ export function newWebSocketHandler<T extends MittEvent>(
 
   const emitter = mitt<WebsocketEmitter<T>>();
 
-  websocketServer.on("connection", (socket) => {
-    console.log("got a ws connection");
-
-    emitter.emit("connection", new WebsocketConnection(socket));
-    socket.on("close", (reason) => console.log("closed connection", reason));
-    socket.on("error", (error) => {
-      console.error("nooooo websocket died waaa", error);
-    });
-  });
+  websocketServer.on("connection", (socket) => emitter.emit("connection", new WebsocketConnection(socket)));
 
   return [websocketServer, emitter];
 }

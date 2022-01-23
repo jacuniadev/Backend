@@ -6,7 +6,6 @@ async function main() {
 
   process.on("uncaughtException", (err) => {
     console.error("Uncaught Exception: ", err.message);
-    console.log("now go fix your shit code already @Geoxor");
   });
 
   const backend = await Backend.create({
@@ -15,7 +14,6 @@ async function main() {
     verbose: true,
     mongoUrl: process.env.MONGO_URL!,
   });
-  // express().use(express.json()).use(v1).listen(8080);
 }
 
 main();
