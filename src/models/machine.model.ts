@@ -1,3 +1,4 @@
+import { string } from "joi";
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import { MachineDocument, MachineStatus } from "../types/machine";
@@ -59,6 +60,7 @@ const machineSchema = new mongoose.Schema({
     cpu_threads: Number,
     total_mem: Number,
     reporter_version: String,
+    country: String,
   },
 });
 
