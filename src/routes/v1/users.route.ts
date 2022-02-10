@@ -4,6 +4,7 @@ import { createUser, deleteAllUsers, getUser, getUsers, loginUser } from "../../
 import { MachineDocument, MachineObject } from "../../types/machine";
 import {
   LoggedInRequest,
+  UserClientSettings,
   UserDocument,
   UserLoginInput,
   UserLoginResultSafe,
@@ -36,6 +37,12 @@ export function newUserBackend(): Router {
   const users: Router = express.Router();
 
   users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(cleanUser(req.user!)));
+
+  users.get<{}, UserClientSettings>("/@settings", auth, (req: LoggedInRequest, res) => res.json(req.user!.client_settings));
+
+  users.patch<{}, UserClientSettings, UserClientSettings>("/@settings", auth, async (req: LoggedInRequest, res) =>
+    res.json((await req.user!.updateClientSettings(req.body)).client_settings)
+  );
 
   users.get<{}, UserObject[]>("/@all", async (req, res) =>
     getUsers().then((users) => res.json(users.map((user) => cleanUser(user))))

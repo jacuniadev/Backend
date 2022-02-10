@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import { getMachines } from "../services/machine.service";
 import { MachineDocument } from "../types/machine";
-import { UserDocument } from "../types/user";
+import { UserClientSettings, UserDocument } from "../types/user";
 
 const userSchema = new mongoose.Schema({
   uuid: {
@@ -39,6 +39,38 @@ const userSchema = new mongoose.Schema({
   biography: {
     type: String,
   },
+  client_settings: {
+    general: {
+      opacity: { type: Number },
+      theme: { type: String},
+      enable_bloom: { type: Boolean},
+      enable_rounded_corners: { type: Boolean},
+      enable_sound_effects: { type: Boolean},
+      enable_status_bar: { type: Boolean},
+      show_offline_machines: { type: Boolean},
+      show_owned_machines_only: { type: Boolean},
+    },
+    columns: {
+      hostname: { type: Boolean},
+      cpu_average_usage: { type: Boolean},
+      cpu_average_speed: { type: Boolean},
+      ram_usage: { type: Boolean},
+      gpu_usage: { type: Boolean},
+      gpu_power_usage: { type: Boolean},
+      network_switch: { type: Boolean},
+      download: { type: Boolean},
+      upload: { type: Boolean},
+      temperature: { type: Boolean},
+      country: { type: Boolean},
+      public_ip: { type: Boolean},
+      process_count: { type: Boolean},
+      host_uptime: { type: Boolean},
+      reporter_uptime: { type: Boolean},
+      reporter_version: { type: Boolean},
+      owner: { type: Boolean},
+      action: { type: Boolean},
+    };
+  }
 });
 
 userSchema.pre("save", async function (this: UserDocument, next) {
@@ -87,6 +119,11 @@ userSchema.methods.updateBiography = async function (this: UserDocument, newValu
   this.biography = newValue;
   return this.save();
 };
+
+userSchema.methods.updateClientSettings = async function (this: UserDocument, newValue: UserClientSettings): Promise<UserDocument> {
+  this.client_settings = newValue;
+  return this.save();
+}
 
 userSchema.methods.getMachines = async function (this: UserDocument): Promise<MachineDocument[]> {
   // return getMachines({ $or: [{ owner_uuid: this.uuid }, { access: this.uuid }] });
