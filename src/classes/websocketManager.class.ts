@@ -77,8 +77,9 @@ export class WebsocketManager {
         const computedData = {
           ...data,
           // Beta compatible
-          net: data.network.map((e) => ({
-            ...e,
+          network: data.network.map((e) => ({
+            tx: e.tx,
+            rx: e.rx,
             n: e.name,
             s: e.speed,
           })),
@@ -88,9 +89,8 @@ export class WebsocketManager {
           td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
-        Object.values(this.userConnections).forEach((user) => {
-          user.emit("machineData", computedData);
-        });
+
+        Object.values(this.userConnections).forEach((user) => user.emit("machineData", computedData));
       });
     });
   }
