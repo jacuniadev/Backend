@@ -76,11 +76,17 @@ export class WebsocketManager {
       socket.on("dynamicData", (data) => {
         const computedData = {
           ...data,
+          // Beta compatible
+          net: data.network.map((e) => ({
+            ...e,
+            n: e.name,
+            s: e.speed,
+          })),
           uuid: machineUUID,
-          cpu_average_usage: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
-          cpu_average_speed: ~~(data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
-          total_download: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
-          total_upload: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
+          cau: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
+          cas: ~~(data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
+          td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
+          tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
         Object.values(this.userConnections).forEach((user) => {
           user.emit("machineData", computedData);

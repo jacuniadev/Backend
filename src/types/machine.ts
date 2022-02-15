@@ -28,10 +28,10 @@ export interface DynamicData {
 
 export interface INetwork {
   [x: string]: any;
-  name: string;
+  n: string; // name
   tx: number;
   rx: number;
-  speed: number;
+  s: number; // speed
 }
 
 export interface ICPU {
