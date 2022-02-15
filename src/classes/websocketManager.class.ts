@@ -39,6 +39,12 @@ export class WebsocketManager {
     [machineID: string]: WebsocketConnection<ReporterToBackendEvents>;
   } = {};
 
+  public heartbeat = setInterval(() => this.broadcastClients("heartbeat"), 1000);
+
+  public broadcastClients(event: string, data?: any) {
+    Object.values(this.userConnections).forEach((user) => user.emit(event, data));
+  }
+
   constructor(server: http.Server) {
     // I will trollcrazy you :trollface:
     const [_userSocketServer, userSocket] = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
@@ -90,7 +96,7 @@ export class WebsocketManager {
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
 
-        Object.values(this.userConnections).forEach((user) => user.emit("machineData", computedData));
+        this.broadcastClients("machineData", computedData);
       });
     });
   }
