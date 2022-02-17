@@ -42,19 +42,22 @@ export class WebsocketManager {
 
   public heartbeat = setInterval(() => this.broadcastClients("heartbeat"), 1000);
 
-  public broadcastClients(event: string, data?: any) {
-    Object.values(this.userConnections).forEach((user) => user.emit(event, data));
-  }
+  /**
+   * Sends an event to all the clients or to a specified list of clients by their uuid
+   * @param event The name of the event
+   * @param data The data to send
+   * @param specificClients The list of specific clients to emit to
+   */
+  public broadcastClients(event: keyof BackendToClientEvents, data?: any, specificClients?: string[]) {
+    // If they defined specific client uuids then just emit to those
+    if (specificClients) {
+      return Object.entries(this.userConnections).forEach(
+        ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
+      );
+    }
 
-  public broadcastDynamicDataToClients(event: string, data: DynamicData & { uuid: string }) {
-    Object.entries(this.userConnections).forEach(([userId, socket]) => {
-      machines
-        .find({ uuid: data?.uuid })
-        .then((machine) => {
-          if (machine[0].owner_uuid === userId || machine[0].access.includes(userId)) socket.emit(event, data);
-        })
-        .catch();
-    });
+    // Otherwise emit to all the clients
+    Object.values(this.userConnections).forEach((user) => user.emit(event, data));
   }
 
   constructor(server: http.Server) {
@@ -71,8 +74,15 @@ export class WebsocketManager {
     // I will trollcrazy you again :trollface:
     const [_reporterSocketServer, reporterSocket] = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
 
-    reporterSocket.on("connection", (socket) => {
+    reporterSocket.on("connection", async (socket) => {
       let machineUUID: string | undefined = undefined;
+      // Find the machine in the database
+      const machineInDatabase = await machines.findOne({ uuid: machineUUID }).catch();
+
+      // TODO: Make this disconnect the socket
+      if (!machineInDatabase) return;
+
+      const usersThatHaveAccess = [machineInDatabase.owner_uuid, ...machineInDatabase.access];
 
       socket.on("login", async (data) => {
         try {
@@ -91,7 +101,7 @@ export class WebsocketManager {
         updateStaticData(machineUUID!, data);
       });
 
-      socket.on("dynamicData", (data) => {
+      socket.on("dynamicData", async (data) => {
         const computedData = {
           ...data,
           // Beta compatible
@@ -108,7 +118,7 @@ export class WebsocketManager {
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
 
-        this.broadcastDynamicDataToClients("machineData", computedData as any);
+        this.broadcastClients("machineData", computedData, usersThatHaveAccess);
       });
     });
   }
