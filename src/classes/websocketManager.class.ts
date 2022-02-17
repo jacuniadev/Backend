@@ -50,7 +50,6 @@ export class WebsocketManager {
    */
   public broadcastClients(event: keyof BackendToClientEvents, data?: any, specificClients?: string[]) {
     // If they defined specific client uuids then just emit to those
-    console.log(specificClients);
     if (specificClients) {
       return Object.entries(this.userConnections).forEach(
         ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
@@ -78,8 +77,6 @@ export class WebsocketManager {
     reporterSocket.on("connection", async (socket) => {
       let machineUUID: string | undefined = undefined;
       let usersThatHaveAccess: string[] = [];
-
-      console.log(`usersThatHaveAccess: ${usersThatHaveAccess}`);
 
       socket.on("login", async (data) => {
         try {
@@ -119,8 +116,6 @@ export class WebsocketManager {
           td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
-
-        console.log("sending dynamic data to client");
 
         this.broadcastClients("machineData", computedData, usersThatHaveAccess);
       });
