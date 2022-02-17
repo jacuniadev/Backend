@@ -85,6 +85,8 @@ export class WebsocketManager {
 
       const usersThatHaveAccess = [machineInDatabase.owner_uuid, ...machineInDatabase.access];
 
+      console.log(`usersThatHaveAccess: ${usersThatHaveAccess}`);
+
       socket.on("login", async (data) => {
         try {
           const machine = await loginMachine(data.auth_token);
@@ -118,6 +120,8 @@ export class WebsocketManager {
           td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
+
+        console.log("sending dynamic data to client");
 
         this.broadcastClients("machineData", computedData, usersThatHaveAccess);
       });
