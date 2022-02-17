@@ -97,8 +97,8 @@ userSchema.methods.updateClientSettings = async function (this: UserDocument, ne
 };
 
 userSchema.methods.getMachines = async function (this: UserDocument): Promise<MachineDocument[]> {
-  // return getMachines({ $or: [{ owner_uuid: this.uuid }, { access: this.uuid }] });
-  return getMachines({});
+  return getMachines({ $or: [{ owner_uuid: this.uuid }, { access: this.uuid }] });
+  // return getMachines({});
 };
 
 export default mongoose.model<UserDocument>("User", userSchema);

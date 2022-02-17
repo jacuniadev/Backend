@@ -1,5 +1,6 @@
 import axios from "axios";
 import http from "http";
+import machines from "../models/machine.model";
 import { loginMachine, updateStaticData } from "../services/machine.service";
 import { loginWebsocketUser } from "../services/user.service";
 import { IGeolocation } from "../types";
@@ -45,6 +46,17 @@ export class WebsocketManager {
     Object.values(this.userConnections).forEach((user) => user.emit(event, data));
   }
 
+  public broadcastDynamicDataToClients(event: string, data: DynamicData & { uuid: string }) {
+    Object.entries(this.userConnections).forEach(([userId, socket]) => {
+      machines
+        .find({ uuid: data?.uuid })
+        .then((machine) => {
+          if (machine[0].owner_uuid === userId || machine[0].access.includes(userId)) socket.emit(event, data);
+        })
+        .catch();
+    });
+  }
+
   constructor(server: http.Server) {
     // I will trollcrazy you :trollface:
     const [_userSocketServer, userSocket] = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
@@ -74,8 +86,8 @@ export class WebsocketManager {
 
       socket.on("staticData", async (data) => {
         // Get the country flag from their IP
-        const response = await axios.get<{}, { data: IGeolocation }>(`http://ipwhois.app/json/${data.public_ip}`).catch();
-        response.data && (data.country = response.data.country_code);
+        const response = await axios.get<{}, { data: IGeolocation }>(`https://ipwhois.app/json/${data.public_ip}`).catch();
+        response.data?.country_code && (data.country = response.data.country_code);
         updateStaticData(machineUUID!, data);
       });
 
@@ -96,7 +108,7 @@ export class WebsocketManager {
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
 
-        this.broadcastClients("machineData", computedData);
+        this.broadcastDynamicDataToClients("machineData", computedData as any);
       });
     });
   }
