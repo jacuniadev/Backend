@@ -77,13 +77,7 @@ export class WebsocketManager {
 
     reporterSocket.on("connection", async (socket) => {
       let machineUUID: string | undefined = undefined;
-      // Find the machine in the database
-      const machineInDatabase = await machines.findOne({ uuid: machineUUID }).catch();
-
-      // TODO: Make this disconnect the socket
-      if (!machineInDatabase) return;
-
-      const usersThatHaveAccess = [machineInDatabase.owner_uuid, ...machineInDatabase.access];
+      let usersThatHaveAccess: string[] = [];
 
       console.log(`usersThatHaveAccess: ${usersThatHaveAccess}`);
 
@@ -92,6 +86,11 @@ export class WebsocketManager {
           const machine = await loginMachine(data.auth_token);
           this.reporterConnections[machine.uuid] = socket;
           machineUUID = machine.uuid;
+          // Find the machine in the database
+          const machineInDatabase = await machines.findOne({ uuid: machineUUID }).catch();
+          // TODO: Make this disconnect the socket
+          if (!machineInDatabase) return;
+          usersThatHaveAccess = [machineInDatabase.owner_uuid, ...machineInDatabase.access];
         } catch (error) {
           socket.socket.close();
         }
