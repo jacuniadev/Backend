@@ -1,6 +1,5 @@
 import axios from "axios";
 import http from "http";
-import machines from "../models/machine.model";
 import { loginMachine, updateStaticData } from "../services/machine.service";
 import { loginWebsocketUser } from "../services/user.service";
 import { IGeolocation } from "../types";
@@ -22,11 +21,7 @@ export interface ReporterToBackendEvents extends MittEvent {
   dynamicData: DynamicData;
 }
 
-export interface BackendToReporterEvents extends MittEvent {
-  /** { imaginary events } */
-  /** 🤖 imagine a place  */
-  /** "Your robot is different :0!" - Bluskript 2022 */
-}
+export interface BackendToReporterEvents extends MittEvent {}
 
 /**
  * Welcome to the troll-zone :trollface:
@@ -76,18 +71,18 @@ export class WebsocketManager {
 
     reporterSocket.on("connection", async (socket) => {
       let machineUUID: string | undefined = undefined;
-      let usersThatHaveAccess: string[] = [];
+      // let usersThatHaveAccess: string[] = [];
 
       socket.on("login", async (data) => {
         try {
           const machine = await loginMachine(data.auth_token);
           this.reporterConnections[machine.uuid] = socket;
           machineUUID = machine.uuid;
-          // Find the machine in the database
-          const machineInDatabase = await machines.findOne({ uuid: machineUUID }).catch();
-          // TODO: Make this disconnect the socket
-          if (!machineInDatabase) return;
-          usersThatHaveAccess = [machineInDatabase.owner_uuid, ...machineInDatabase.access];
+          // // Find the machine in the database
+          // const machineInDatabase = await machines.findOne({ uuid: machineUUID }).catch();
+          // // TODO: Make this disconnect the socket
+          // if (!machineInDatabase) return;
+          // usersThatHaveAccess = [machineInDatabase.owner_uuid, ...machineInDatabase.access];
         } catch (error) {
           socket.socket.close();
         }
@@ -117,7 +112,8 @@ export class WebsocketManager {
           tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
 
-        this.broadcastClients("machineData", computedData, usersThatHaveAccess);
+        // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
+        this.broadcastClients("machineData", computedData);
       });
     });
   }
