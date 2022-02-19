@@ -17,7 +17,7 @@ machines.post<{}, {}, MachineSignupInput>("/@signup", async (req, res) => {
   const { two_factor_key, hardware_uuid, hostname } = req.body;
   const userUuid = check2FAKey(two_factor_key);
 
-  if (!userUuid) return res.status(404).json({ error: "the 2FA token you provided has expired" });
+  if (!userUuid) return res.status(403).json({ error: "the 2FA token you provided has expired" });
   getUser({ uuid: userUuid })
     .then((user) => {
       createMachine({ owner_uuid: user.uuid, hardware_uuid, hostname })
