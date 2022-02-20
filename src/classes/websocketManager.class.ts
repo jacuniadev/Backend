@@ -102,8 +102,8 @@ export class WebsocketManager {
           // Computed values
           cau: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
           cas: ~~(data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
-          td: data.network.reduce((a, b) => a + b.rx, 0) * 0.00001,
-          tu: data.network.reduce((a, b) => a + b.tx, 0) * 0.00001,
+          td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
+          tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
         };
 
         // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
