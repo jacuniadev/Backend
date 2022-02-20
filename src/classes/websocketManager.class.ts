@@ -98,18 +98,12 @@ export class WebsocketManager {
       socket.on("dynamicData", async (data) => {
         const computedData = {
           ...data,
-          // Beta compatible
-          network: data.network.map((e) => ({
-            tx: e.tx,
-            rx: e.rx,
-            n: e.name,
-            s: e.speed,
-          })),
           uuid: machineUUID,
+          // Computed values
           cau: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
           cas: ~~(data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
-          td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
-          tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
+          td: data.network.reduce((a, b) => a + b.rx, 0) * 0.00001,
+          tu: data.network.reduce((a, b) => a + b.tx, 0) * 0.00001,
         };
 
         // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
