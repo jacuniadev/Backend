@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "dev": "nodemon ./src/index.ts",
-    "test": "cross-env TESTING=true nyc ts-mocha --exit --colors -p ./tsconfig.json ./tests/**/*.test.ts",
+    "dev": "cross-env MODE=development nodemon ./src/index.ts",
+    "prod": "cross-env MODE=production nodemon ./src/index.ts",
+    "test": "cross-env MODE=testing nyc ts-mocha --exit --colors -p ./tsconfig.json ./tests/**/*.test.ts",
     "constant-test": "nodemon --ext ts --exec npm run test"
   },
   "repository": {
