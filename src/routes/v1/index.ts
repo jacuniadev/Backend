@@ -9,5 +9,6 @@ const HELLO_WORLD = JSON.stringify({
 });
 
 v1.get("/", async (req, res) => res.send(HELLO_WORLD));
+v1.get("/ping", async (req, res) => res.send());
 v1.use("/users", users);
 v1.use("/machines", machines);
