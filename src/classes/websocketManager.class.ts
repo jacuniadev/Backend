@@ -47,12 +47,18 @@ export class WebsocketManager {
     // If they defined specific client uuids then just emit to those
     if (specificClients) {
       return Object.entries(this.userConnections).forEach(
-        ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
+        ([userUuid, user]) =>
+          specificClients.includes(userUuid) &&
+          console.log(`Emitting event ${String(event)} to client ${userUuid}`) &&
+          user.emit(event, data)
       );
     }
 
     // Otherwise emit to all the clients
-    Object.values(this.userConnections).forEach((user) => user.emit(event, data));
+    Object.entries(this.userConnections).forEach(([userUuid, user]) => {
+      console.log(`Emitting event ${String(event)} to client ${userUuid}`);
+      user.emit(event, data);
+    });
   }
 
   constructor(server: http.Server) {
@@ -89,6 +95,8 @@ export class WebsocketManager {
       });
 
       socket.on("staticData", async (data) => {
+        console.log(`Got event staticData to from reporter ${machineUUID}`);
+
         // Get the country flag from their IP
         const response = await axios.get<{}, { data: IGeolocation }>(`https://ipwhois.app/json/${data.public_ip}`).catch();
         response.data?.country_code && (data.country = response.data.country_code);
@@ -96,6 +104,8 @@ export class WebsocketManager {
       });
 
       socket.on("dynamicData", async (data) => {
+        console.log(`Got event dynamicData to from reporter ${machineUUID}`);
+
         const computedData = {
           ...data,
           uuid: machineUUID,
