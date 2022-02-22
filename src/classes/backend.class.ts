@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import express, { Express } from "express";
 import fs from "fs";
 import http from "http";
@@ -24,7 +25,7 @@ export class Backend implements BackendSettings {
       // to the API (e.g. in case you use sessions)
       res.setHeader("Access-Control-Allow-Credentials", "true");
 
-      console.log(req.headers);
+      console.log(`Request from IP: ${chalk.cyan(req.headers["cf-connecting-ip"])}`);
 
       // Pass to next layer of middleware
       next();
