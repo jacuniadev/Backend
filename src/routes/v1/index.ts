@@ -14,7 +14,7 @@ v1.get("/ping", async (req, res) => res.send());
 v1.get("/status", async (req, res) =>
   res.json({
     memory: await getMemoryUsage(),
-    cpu: await getProcessorUsage(),
+    processor: await getProcessorUsage(),
     uptime: process.uptime(),
   })
 );
