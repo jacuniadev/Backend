@@ -1,6 +1,8 @@
 package main
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/middleware"
@@ -8,6 +10,7 @@ import (
 )
 
 const MONGO_URL = "mongodb://localhost:27017"
+const PORT = 3000
 
 func main() {
 	db, err := database.Connect(MONGO_URL)
@@ -26,5 +29,5 @@ func main() {
 		})
 	})
 
-	app.Listen(":3000")
+	app.Listen(":" + strconv.Itoa(PORT))
 }
