@@ -1,6 +1,3 @@
-node_modules
-.nyc_output
-.env
-
-key.pem
-cert.pem
+dist
+*.exe
+tmp
