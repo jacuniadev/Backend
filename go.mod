@@ -6,6 +6,7 @@ require github.com/gofiber/fiber/v2 v2.22.0
 
 require (
 	github.com/gofiber/utils v0.0.10 // indirect
+	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect

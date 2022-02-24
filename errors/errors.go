@@ -34,6 +34,10 @@ var (
 		"user.creationFailure",
 		500,
 	}
+	CredentialsInvalid = ApiError{
+		"credentials.invalid",
+		403,
+	}
 )
 
 func (err ApiError) Error() string {

@@ -20,7 +20,7 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get("/users/email/:email", v1.GetUserByEmail)
 	app.Get("/users/username/:username", v1.GetUserByUsername)
 
-	// app.Post("/auth/user/login", v1.LoginUser)
+	app.Post("/auth/user/login", v1.LoginUser)
 	app.Post("/auth/user/signup", v1.SignupUser)
 
 	return v1

@@ -43,11 +43,26 @@ func (v1 V1) SignupUser(c *fiber.Ctx) error {
 		return errors.PasswordInvalid
 	}
 
-	var user, err = v1.db.CreateUser(c.Context(), *form)
+	var token, err = v1.db.CreateUser(c.Context(), *form)
 	if err != nil {
 		return errors.UserCreationFailure
 	}
-	return c.JSON(&user)
+	return c.JSON(token)
+}
+func (v1 V1) LoginUser(c *fiber.Ctx) error {
+	var form = new(types.UserLoginForm)
+	if !validators.ValidatePassword(form.Password) {
+		return errors.CredentialsInvalid
+	}
+	if !validators.ValidateUsername(form.Username) {
+		return errors.CredentialsInvalid
+	}
+
+	var token, err = v1.db.LoginUser(c.Context(), *form)
+	if err != nil {
+		return errors.CredentialsInvalid
+	}
+	return c.JSON(token)
 }
 
 func (v1 V1) GetUserByUuid(c *fiber.Ctx) error {

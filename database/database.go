@@ -2,8 +2,10 @@ package database
 
 import (
 	"context"
+	"errors"
 	"time"
 
+	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/types"
@@ -51,8 +53,12 @@ type MachineStaticData struct {
 	CpuThreads string `json:"cpu_threads"`
 }
 
-func Connect(url string) (*Database, error) {
+type SuccessfullLogin struct {
+	Token string `json:"token"`
+}
 
+// Connects to the provided MongoDB server
+func Connect(url string) (*Database, error) {
 	client, err := mongo.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
 		return nil, err
@@ -68,7 +74,31 @@ func Connect(url string) (*Database, error) {
 	}, nil
 }
 
-func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*User, error) {
+// Logs a user in with the provided form and if checks pass -> returns a token
+// that they can store in the localstorage
+func (db *Database) LoginUser(c context.Context, form types.UserLoginForm) (*SuccessfullLogin, error) {
+	user, err := db.GetUserByUsername(c, form.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	if !auth.CheckPasswordHash(form.Password, user.Password) {
+		return nil, errors.New("invalidPassword")
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": user.Uuid})
+
+	tokenString, err := token.SignedString([]byte("&UrNdit5VcS8R3E#pxYg34Pe!dgBWi!u"))
+	if err != nil {
+		return nil, errors.New("tokenSigningFailure")
+	}
+
+	return &SuccessfullLogin{Token: tokenString}, nil
+}
+
+// Creates a user in the database with a signup form and returns a login token
+// so they can instantly login to their accounts and store the token in localstorage
+func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*SuccessfullLogin, error) {
 	var uuid = uuid.New().String()
 	var timestamp = time.Now()
 
@@ -88,20 +118,22 @@ func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*U
 		"updated_at":      timestamp,
 	}
 
-	var _, err = db.mongo.Collection("users").InsertOne(c, userDocument)
+	var _, insertErr = db.mongo.Collection("users").InsertOne(c, userDocument)
+	if insertErr != nil {
+		return nil, insertErr
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": uuid})
+
+	tokenString, err := token.SignedString([]byte("&UrNdit5VcS8R3E#pxYg34Pe!dgBWi!u"))
 	if err != nil {
-		return nil, err
+		return nil, errors.New("tokenSigningFailure")
 	}
 
-	var user, userErr = db.GetUserByUuid(c, uuid)
-
-	if userErr != nil {
-		return nil, userErr
-	}
-
-	return user, nil
+	return &SuccessfullLogin{Token: tokenString}, nil
 }
 
+// Gets a user from the database provider a bson filter for mongo
 func (db *Database) GetUser(c context.Context, filter bson.M) (*User, error) {
 	var user User
 
@@ -112,14 +144,22 @@ func (db *Database) GetUser(c context.Context, filter bson.M) (*User, error) {
 	return &user, nil
 }
 
+// Gets a user from the database by their uuid
 func (db *Database) GetUserByUuid(c context.Context, uuid string) (*User, error) {
 	return db.GetUser(c, bson.M{"uuid": uuid})
 }
 
-func (db *Database) GetUserByEmail(c context.Context, username string) (*User, error) {
-	return db.GetUser(c, bson.M{"email": username})
+// Gets a user from the database by their email
+func (db *Database) GetUserByEmail(c context.Context, email string) (*User, error) {
+	return db.GetUser(c, bson.M{"email": email})
 }
 
+// Gets a user from the database by their username
+func (db *Database) GetUserByUsername(c context.Context, username string) (*User, error) {
+	return db.GetUser(c, bson.M{"username": username})
+}
+
+// Gets all the users from the database
 func (db *Database) GetUsersAll(c context.Context) ([]User, error) {
 	// Get all the users from the database
 	cursor, err := db.mongo.Collection("users").Find(c, bson.D{})
