@@ -49,7 +49,7 @@ var (
 		fiber.StatusForbidden,
 	}
 	UpdateFailed = ApiError{
-		"ypdate.failed",
+		"update.failed",
 		fiber.StatusInternalServerError,
 	}
 )
