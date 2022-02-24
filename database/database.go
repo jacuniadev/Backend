@@ -3,7 +3,6 @@ package database
 import (
 	"context"
 
-	"github.com/xornet-cloud/Backend/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -15,12 +14,12 @@ type Database struct {
 }
 
 type User struct {
-	Avatar         string  `json:"avatar"`
-	ClientSettings string  `json:"client_settings"`
-	Uuid           string  `json:"uuid"`
-	Username       string  `json:"username"`
 	Email          string  `json:"email"`
 	Password       string  `json:"password"`
+	Username       string  `json:"username"`
+	Uuid           string  `json:"uuid"`
+	Avatar         string  `json:"avatar"`
+	ClientSettings string  `json:"client_settings"`
 	CreatedAt      float32 `json:"created_at"`
 	UpdatedAt      float32 `json:"updated_at"`
 }
@@ -48,21 +47,20 @@ type MachineStaticData struct {
 	CpuThreads string `json:"cpu_threads"`
 }
 
-func Connect(url string) Database {
+func Connect(url string) (*Database, error) {
 	client, err := mongo.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
-		utils.Log(err)
+		return nil, err
 	}
 	ctx := context.TODO()
 	err = client.Connect(ctx)
 	if err != nil {
-		utils.Log(err)
+		return nil, err
 	}
-
-	return Database{
+	return &Database{
 		client.Database("xornet"),
 		&ctx,
-	}
+	}, nil
 }
 
 func (db *Database) GetUser(c context.Context, filter bson.M) (*User, error) {
@@ -75,11 +73,11 @@ func (db *Database) GetUser(c context.Context, filter bson.M) (*User, error) {
 	return &user, nil
 }
 
-func (db *Database) GetUserByUuid(c context.Context, uuid string) (*User, error) {
+func (db *Database) GetUserByUuid(c context.Context, uuid string, safe bool) (*User, error) {
 	return db.GetUser(c, bson.M{"uuid": uuid})
 }
 
-func (db *Database) GetUserByEmail(c context.Context, username string) (*User, error) {
+func (db *Database) GetUserByEmail(c context.Context, username string, safe bool) (*User, error) {
 	return db.GetUser(c, bson.M{"email": username})
 }
 
