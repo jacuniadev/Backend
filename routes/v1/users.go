@@ -3,6 +3,8 @@ package v1
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/xornet-cloud/Backend/errors"
+	"github.com/xornet-cloud/Backend/types"
+	"github.com/xornet-cloud/Backend/validators"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -22,6 +24,29 @@ func (v1 V1) getUserByField(c *fiber.Ctx, fieldName string) error {
 		return errors.UserNotFoundError
 	}
 
+	return c.JSON(&user)
+}
+
+func (v1 V1) SignupUser(c *fiber.Ctx) error {
+	var form = new(types.UserSignupForm)
+
+	if err := c.BodyParser(form); err != nil {
+		return errors.FormInvalid
+	}
+	if !validators.ValidateEmail(form.Email) {
+		return errors.EmailInvalid
+	}
+	if !validators.ValidatePassword(form.Password) {
+		return errors.UsernameInvalid
+	}
+	if !validators.ValidateUsername(form.Username) {
+		return errors.PasswordInvalid
+	}
+
+	var user, err = v1.db.CreateUser(c.Context(), *form)
+	if err != nil {
+		return errors.UserCreationFailure
+	}
 	return c.JSON(&user)
 }
 

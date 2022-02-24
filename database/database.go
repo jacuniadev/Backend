@@ -2,7 +2,11 @@ package database
 
 import (
 	"context"
+	"time"
 
+	"github.com/google/uuid"
+	"github.com/xornet-cloud/Backend/auth"
+	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -48,6 +52,7 @@ type MachineStaticData struct {
 }
 
 func Connect(url string) (*Database, error) {
+
 	client, err := mongo.NewClient(options.Client().ApplyURI(url))
 	if err != nil {
 		return nil, err
@@ -63,21 +68,55 @@ func Connect(url string) (*Database, error) {
 	}, nil
 }
 
+func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*User, error) {
+	var uuid = uuid.New().String()
+	var timestamp = time.Now()
+
+	var hashedPassword, hashErr = auth.HashPassword(form.Password)
+	if hashErr != nil {
+		return nil, hashErr
+	}
+
+	var userDocument = bson.M{
+		"email":           form.Email,
+		"password":        hashedPassword,
+		"username":        form.Username,
+		"uuid":            uuid,
+		"avatar":          "",
+		"client_settings": "",
+		"created_at":      timestamp,
+		"updated_at":      timestamp,
+	}
+
+	var _, err = db.mongo.Collection("users").InsertOne(c, userDocument)
+	if err != nil {
+		return nil, err
+	}
+
+	var user, userErr = db.GetUserByUuid(c, uuid)
+
+	if userErr != nil {
+		return nil, userErr
+	}
+
+	return user, nil
+}
+
 func (db *Database) GetUser(c context.Context, filter bson.M) (*User, error) {
 	var user User
 
-	result := db.mongo.Collection("users").FindOne(c, filter)
+	var result = db.mongo.Collection("users").FindOne(c, filter)
 	if err := result.Decode(&user); err != nil {
 		return nil, err
 	}
 	return &user, nil
 }
 
-func (db *Database) GetUserByUuid(c context.Context, uuid string, safe bool) (*User, error) {
+func (db *Database) GetUserByUuid(c context.Context, uuid string) (*User, error) {
 	return db.GetUser(c, bson.M{"uuid": uuid})
 }
 
-func (db *Database) GetUserByEmail(c context.Context, username string, safe bool) (*User, error) {
+func (db *Database) GetUserByEmail(c context.Context, username string) (*User, error) {
 	return db.GetUser(c, bson.M{"email": username})
 }
 
