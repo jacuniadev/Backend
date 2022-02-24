@@ -1,5 +1,7 @@
 package errors
 
+import "github.com/gofiber/fiber/v2"
+
 type ApiError struct {
 	Name   string
 	Status int32
@@ -8,43 +10,47 @@ type ApiError struct {
 var (
 	ParamInvalidError = ApiError{
 		"param.invalid",
-		400,
+		fiber.StatusBadRequest,
 	}
 	UserNotFoundError = ApiError{
 		"user.notFound",
-		404,
+		fiber.StatusNotFound,
 	}
 	EmailInvalid = ApiError{
 		"email.invalid",
-		400,
+		fiber.StatusBadRequest,
 	}
 	UsernameInvalid = ApiError{
 		"username.invalid",
-		400,
+		fiber.StatusBadRequest,
 	}
 	PasswordInvalid = ApiError{
 		"password.invalid",
-		400,
+		fiber.StatusBadRequest,
 	}
 	PasswordRepeatInvalid = ApiError{
 		"password.repeatInvalid",
-		400,
+		fiber.StatusBadRequest,
 	}
 	PasswordMismatch = ApiError{
 		"password.mismatch",
-		400,
+		fiber.StatusBadRequest,
 	}
 	FormInvalid = ApiError{
 		"form.invalid",
-		400,
+		fiber.StatusBadRequest,
 	}
 	UserCreationFailure = ApiError{
 		"user.creationFailure",
-		500,
+		fiber.StatusInternalServerError,
 	}
 	CredentialsInvalid = ApiError{
 		"credentials.invalid",
-		403,
+		fiber.StatusForbidden,
+	}
+	UpdateFailed = ApiError{
+		"ypdate.failed",
+		fiber.StatusInternalServerError,
 	}
 )
 

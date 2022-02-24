@@ -3,17 +3,17 @@ package v1
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/xornet-cloud/Backend/errors"
+	"github.com/xornet-cloud/Backend/validators"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (v1 V1) getUserByField(c *fiber.Ctx, fieldName string) error {
 	param := c.Params(fieldName)
-	if param == "" {
+	if !validators.IsNotEmpty(param) {
 		return errors.ParamInvalidError
 	}
 
 	user, err := v1.db.GetUser(c.Context(), bson.M{fieldName: param})
-
 	if err != nil {
 		return errors.UserNotFoundError
 	}

@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"os"
 	"time"
 
 	"github.com/golang-jwt/jwt"
@@ -125,7 +126,7 @@ func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*S
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": uuid})
 
-	tokenString, err := token.SignedString([]byte("&UrNdit5VcS8R3E#pxYg34Pe!dgBWi!u"))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return nil, errors.New("tokenSigningFailure")
 	}
@@ -178,4 +179,29 @@ func (db *Database) GetUsersAll(c context.Context) ([]User, error) {
 
 	// Return the users
 	return users, nil
+}
+
+// Updates a user's avatar
+func (db *Database) UpdateField(c context.Context, uuid string, fieldName string, fieldValue string) (*User, error) {
+
+	target := bson.M{"uuid": uuid}
+
+	_, err := db.mongo.Collection("users").UpdateOne(c, target, bson.M{fieldName: fieldValue})
+	if err != nil {
+		return nil, err
+	}
+
+	user, err := db.GetUser(c, target)
+	if err != nil {
+		return nil, err
+	}
+
+	print(user)
+
+	return user, nil
+}
+
+// Updates a user's avatar
+func (db *Database) UpdateAvatar(c context.Context, uuid string, avatar string) (*User, error) {
+	return db.UpdateField(c, uuid, "avatar", avatar)
 }

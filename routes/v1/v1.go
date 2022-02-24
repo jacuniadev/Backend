@@ -14,16 +14,18 @@ func New(db database.Database, app *fiber.App) V1 {
 		db,
 	}
 
-	app.Get("/ping", v1.Ping)
-	app.Get("/status", v1.Status)
+	app.Get("/v1/ping", v1.Ping)
+	app.Get("/v1/status", v1.Status)
 
-	app.Get("/users/all", v1.GetUsersAll)
-	app.Get("/users/uuid/:uuid", v1.GetUserByUuid)
-	app.Get("/users/email/:email", v1.GetUserByEmail)
-	app.Get("/users/username/:username", v1.GetUserByUsername)
+	app.Get("/v1/users/all", v1.GetUsersAll)
+	app.Get("/v1/users/uuid/:uuid", v1.GetUserByUuid)
+	app.Get("/v1/users/email/:email", v1.GetUserByEmail)
+	app.Get("/v1/users/username/:username", v1.GetUserByUsername)
 
-	app.Post("/auth/user/login", v1.LoginUser)
-	app.Post("/auth/user/signup", v1.SignupUser)
+	app.Post("/v1/auth/user/login", v1.LoginUser)
+	app.Post("/v1/auth/user/signup", v1.SignupUser)
+
+	// app.Patch("/me", v1.UpdateAvatar)
 
 	return v1
 }
