@@ -21,7 +21,7 @@ func main() {
 	v1.New(*db, app)
 
 	app.Get("/", func(c *fiber.Ctx) error {
-		return c.Status(200).JSON(&fiber.Map{
+		return c.JSON(&fiber.Map{
 			"message": "Hello world",
 		})
 	})

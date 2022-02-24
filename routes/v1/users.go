@@ -6,6 +6,10 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+func (v1 V1) Ping(c *fiber.Ctx) error {
+	return c.Send(nil)
+}
+
 func (v1 V1) getUserByField(c *fiber.Ctx, fieldName string) error {
 	param := c.Params(fieldName)
 	if param == "" {
@@ -18,7 +22,7 @@ func (v1 V1) getUserByField(c *fiber.Ctx, fieldName string) error {
 		return errors.UserNotFoundError
 	}
 
-	return c.Status(200).JSON(&user)
+	return c.JSON(&user)
 }
 
 func (v1 V1) GetUserByUuid(c *fiber.Ctx) error {
@@ -38,5 +42,5 @@ func (v1 V1) GetUsersAll(c *fiber.Ctx) error {
 	if err != nil {
 		return err
 	}
-	return c.Status(200).JSON(&users)
+	return c.JSON(&users)
 }

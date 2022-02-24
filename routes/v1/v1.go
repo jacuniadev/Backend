@@ -14,6 +14,7 @@ func New(db database.Database, app *fiber.App) V1 {
 		db,
 	}
 
+	app.Get("/ping", v1.Ping)
 	app.Get("/users", v1.GetUsersAll)
 	app.Get("/users/uuid/:uuid", v1.GetUserByUuid)
 	app.Get("/users/email/:email", v1.GetUserByEmail)
