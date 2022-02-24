@@ -13,14 +13,20 @@ func (v1 V1) SignupUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(form); err != nil {
 		return errors.FormInvalid
 	}
+	if !validators.ValidateUsername(form.Username) {
+		return errors.UsernameInvalid
+	}
 	if !validators.ValidateEmail(form.Email) {
 		return errors.EmailInvalid
 	}
 	if !validators.ValidatePassword(form.Password) {
-		return errors.UsernameInvalid
-	}
-	if !validators.ValidateUsername(form.Username) {
 		return errors.PasswordInvalid
+	}
+	if !validators.ValidatePassword(form.PasswordRepeat) {
+		return errors.PasswordRepeatInvalid
+	}
+	if form.Password != form.PasswordRepeat {
+		return errors.PasswordMismatch
 	}
 
 	var token, err = v1.db.CreateUser(c.Context(), *form)

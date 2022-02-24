@@ -26,6 +26,14 @@ var (
 		"password.invalid",
 		400,
 	}
+	PasswordRepeatInvalid = ApiError{
+		"password.repeatInvalid",
+		400,
+	}
+	PasswordMismatch = ApiError{
+		"password.mismatch",
+		400,
+	}
 	FormInvalid = ApiError{
 		"form.invalid",
 		400,
