@@ -1,9 +1,11 @@
 package main
 
 import (
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/joho/godotenv"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/middleware"
 	v1 "github.com/xornet-cloud/Backend/routes/v1"
@@ -21,17 +23,23 @@ const LOGO = `
  /   / /_/ / /  / / / /  __/ /_    ___           __               __  
 /_/|_\____/_/  /_/ /_/\___/\__/   / _ )___ _____/ /_____ ___  ___/ / 
                                  / _  / _ ` + ` / __/  '_/ -_) _ \/ _  /  
-                Made in Golang  /____/\_,_/\__/_/\_\\__/_//_/\_,_/   
+ Made in Go fuck yourself lang  /____/\_,_/\__/_/\_\\__/_//_/\_,_/   
 `
 
 func main() {
+
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+		panic(1)
+	}
 
 	print(CLEAR_SCREEN)
 	println(string(CYAN_COLOR), LOGO)
 
 	db, err := database.Connect(MONGO_URL)
 	if err != nil {
-		println("Database failed to connect")
+		log.Fatal("Database failed to connect")
 		panic(1)
 	}
 	app := fiber.New(fiber.Config{

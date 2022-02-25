@@ -21,6 +21,7 @@ require (
 	github.com/gofiber/fiber v1.14.6
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hashicorp/go-version v1.0.0 // indirect
+	github.com/joho/godotenv v1.4.0
 	github.com/klauspost/compress v1.14.4 // indirect
 	github.com/mitchellh/gox v1.0.1 // indirect
 	github.com/mitchellh/iochan v1.0.0 // indirect

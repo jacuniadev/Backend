@@ -89,7 +89,7 @@ func (db *Database) LoginUser(c context.Context, form types.UserLoginForm) (*Suc
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": user.Uuid})
 
-	tokenString, err := token.SignedString([]byte("&UrNdit5VcS8R3E#pxYg34Pe!dgBWi!u"))
+	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return nil, errors.New("tokenSigningFailure")
 	}
@@ -126,7 +126,7 @@ func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*S
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": uuid})
 
-	tokenString, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+	tokenString, err := token.SignedString([]byte("pussyily2124124912mwuamamsita"))
 	if err != nil {
 		return nil, errors.New("tokenSigningFailure")
 	}
@@ -183,10 +183,9 @@ func (db *Database) GetUsersAll(c context.Context) ([]User, error) {
 
 // Updates a user's avatar
 func (db *Database) UpdateField(c context.Context, uuid string, fieldName string, fieldValue string) (*User, error) {
-
 	target := bson.M{"uuid": uuid}
 
-	_, err := db.mongo.Collection("users").UpdateOne(c, target, bson.M{fieldName: fieldValue})
+	_, err := db.mongo.Collection("users").UpdateOne(c, target, bson.M{"$set": bson.M{fieldName: fieldValue}})
 	if err != nil {
 		return nil, err
 	}
@@ -195,8 +194,6 @@ func (db *Database) UpdateField(c context.Context, uuid string, fieldName string
 	if err != nil {
 		return nil, err
 	}
-
-	print(user)
 
 	return user, nil
 }

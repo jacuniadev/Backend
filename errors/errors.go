@@ -20,6 +20,10 @@ var (
 		"email.invalid",
 		fiber.StatusBadRequest,
 	}
+	UserNotAuthenticated = ApiError{
+		"auth.invalid",
+		fiber.StatusUnauthorized,
+	}
 	UsernameInvalid = ApiError{
 		"username.invalid",
 		fiber.StatusBadRequest,

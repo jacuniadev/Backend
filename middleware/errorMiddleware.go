@@ -15,6 +15,7 @@ func ErrorHandlerMiddleware(c *fiber.Ctx) error {
 		}
 		return c.Status(500).JSON(&fiber.Map{
 			"message": "trollface event happened",
+			"error":   err.Error(),
 		})
 	}
 	return err
