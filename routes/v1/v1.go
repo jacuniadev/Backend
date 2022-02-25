@@ -44,7 +44,7 @@ func New(db database.Database, app *fiber.App) V1 {
 	var v = "/v1"
 
 	app.Get(v+"/ping", v1.Ping)
-	app.Get(v+"/status", userMiddleware, v1.Status)
+	app.Get(v+"/status", v1.Status)
 
 	app.Post(v+"/auth/user/login", v1.LoginUser)
 	app.Post(v+"/auth/user/signup", v1.SignupUser)
@@ -56,12 +56,13 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get(v+"/users/email/:email", v1.GetUserByEmail)
 	app.Get(v+"/users/username/:username", v1.GetUserByUsername)
 	app.Get(v+"/users/me", userMiddleware, v1.GetMe)
+	app.Get(v+"/users/me/machines", userMiddleware, v1.GetMeMachines)
 	app.Patch(v+"/users/me/avatar", userMiddleware, v1.UpdateAvatar)
 
-	app.Get(v+"/machines/all", v1.GetMachinesAll)
-	app.Get(v+"/machines/uuid/:uuid", v1.GetMachineByUuid)
-	app.Get(v+"/machines/hostname/:hostname", v1.GetMachineByHostname)
-	app.Get(v+"/machines/owner/:owner", v1.GetMachineByOwner)
+	app.Get(v+"/machines/all", userMiddleware, v1.GetMachinesAll)
+	app.Get(v+"/machines/uuid/:uuid", userMiddleware, v1.GetMachineByUuid)
+	app.Get(v+"/machines/hostname/:hostname", userMiddleware, v1.GetMachineByHostname)
+	app.Get(v+"/machines/owner/:owner", userMiddleware, v1.GetMachineByOwner)
 
 	// app.Get(v + "/machines/key", v1.GenerateSignupToken)
 	// app.Delete(v + "/machines/uuid/:uuid", v1.DeleteMachine)

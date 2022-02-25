@@ -2,10 +2,11 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (v1 V1) GetMachinesAll(c *fiber.Ctx) error {
-	machines, err := v1.db.GetMachinesAll(c.Context())
+	machines, err := v1.db.GetMachines(c.Context(), bson.M{})
 	if err != nil {
 		return err
 	}

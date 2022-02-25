@@ -22,8 +22,8 @@ func (db *Database) GetMachineByUuid(c context.Context, uuid string) (*Machine, 
 }
 
 // Gets a machine from the database by its owner_uuid
-func (db *Database) GetMachineByOwnerUuid(c context.Context, ownerUuid string) (*Machine, error) {
-	return db.GetMachine(c, bson.M{"owner_uuid": ownerUuid})
+func (db *Database) GetMachinesByOwnerUuid(c context.Context, ownerUuid string) (*[]Machine, error) {
+	return db.GetMachines(c, bson.M{"owner_uuid": ownerUuid})
 }
 
 // Gets a machine from the database by its hostname
@@ -32,16 +32,16 @@ func (db *Database) GetMachineByHostname(c context.Context, hostname string) (*M
 }
 
 // Gets all the machines from the database
-func (db *Database) GetMachinesAll(c context.Context) ([]Machine, error) {
+func (db *Database) GetMachines(c context.Context, filter bson.M) (*[]Machine, error) {
 	// Get all the machines from the database
-	cursor, err := db.mongo.Collection("machines").Find(c, bson.D{})
+	cursor, err := db.mongo.Collection("machines").Find(c, filter)
 	if err != nil {
 		// if theres an error return it
 		return nil, err
 	}
 
 	// Prepare machines array
-	var machines []Machine
+	var machines *[]Machine
 
 	// Pass a pointer to the machines array for this dumb function to write the machines to
 	if err := cursor.All(c, &machines); err != nil {

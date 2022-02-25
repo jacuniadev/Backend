@@ -5,6 +5,7 @@ import (
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/types"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 func (v1 V1) GetUserByUuid(c *fiber.Ctx) error {
@@ -20,7 +21,7 @@ func (v1 V1) GetUserByUsername(c *fiber.Ctx) error {
 }
 
 func (v1 V1) GetUsersAll(c *fiber.Ctx) error {
-	users, err := v1.db.GetUsersAll(c.Context())
+	users, err := v1.db.GetUsers(c.Context(), bson.M{})
 	if err != nil {
 		return err
 	}
@@ -44,4 +45,13 @@ func (v1 V1) UpdateAvatar(c *fiber.Ctx) error {
 func (v1 V1) GetMe(c *fiber.Ctx) error {
 	user := c.Locals("user").(*database.User)
 	return c.JSON(&user)
+}
+
+func (v1 V1) GetMeMachines(c *fiber.Ctx) error {
+	user := c.Locals("user").(*database.User)
+	machines, err := v1.db.GetMachinesByOwnerUuid(c.Context(), user.Uuid)
+	if err != nil {
+		return err
+	}
+	return c.JSON(&machines)
 }

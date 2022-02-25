@@ -98,9 +98,9 @@ func (db *Database) GetUserByUsername(c context.Context, username string) (*User
 }
 
 // Gets all the users from the database
-func (db *Database) GetUsersAll(c context.Context) ([]User, error) {
+func (db *Database) GetUsers(c context.Context, filter bson.M) ([]User, error) {
 	// Get all the users from the database
-	cursor, err := db.mongo.Collection("users").Find(c, bson.D{})
+	cursor, err := db.mongo.Collection("users").Find(c, filter)
 	if err != nil {
 		// if theres an error return it
 		return nil, err
