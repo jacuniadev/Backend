@@ -16,6 +16,10 @@ var (
 		"user.notFound",
 		fiber.StatusNotFound,
 	}
+	MachineNotFoundError = ApiError{
+		"machine.notFound",
+		fiber.StatusNotFound,
+	}
 	EmailInvalid = ApiError{
 		"email.invalid",
 		fiber.StatusBadRequest,

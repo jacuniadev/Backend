@@ -5,34 +5,18 @@ import (
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/types"
-	"github.com/xornet-cloud/Backend/validators"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
-func (v1 V1) getUserByField(c *fiber.Ctx, fieldName string) error {
-	param := c.Params(fieldName)
-	if !validators.IsNotEmpty(param) {
-		return errors.ParamInvalidError
-	}
-
-	user, err := v1.db.GetUser(c.Context(), bson.M{fieldName: param})
-	if err != nil {
-		return errors.UserNotFoundError
-	}
-
-	return c.JSON(&user)
-}
-
 func (v1 V1) GetUserByUuid(c *fiber.Ctx) error {
-	return v1.getUserByField(c, "uuid")
+	return v1.getDocByFieldFromParam(c, "users", "uuid")
 }
 
 func (v1 V1) GetUserByEmail(c *fiber.Ctx) error {
-	return v1.getUserByField(c, "email")
+	return v1.getDocByFieldFromParam(c, "users", "email")
 }
 
 func (v1 V1) GetUserByUsername(c *fiber.Ctx) error {
-	return v1.getUserByField(c, "username")
+	return v1.getDocByFieldFromParam(c, "users", "username")
 }
 
 func (v1 V1) GetUsersAll(c *fiber.Ctx) error {

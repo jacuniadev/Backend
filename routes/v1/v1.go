@@ -3,11 +3,39 @@ package v1
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/xornet-cloud/Backend/database"
+	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/middleware"
+	"github.com/xornet-cloud/Backend/validators"
+	"go.mongodb.org/mongo-driver/bson"
 )
 
 type V1 struct {
 	db database.Database
+}
+
+func (v1 V1) getDocByFieldFromParam(c *fiber.Ctx, docType string, paramName string) error {
+	paramValue := c.Params(paramName)
+	if !validators.IsNotEmpty(paramValue) {
+		return errors.ParamInvalidError
+	}
+
+	var filter = bson.M{paramName: paramValue}
+
+	if docType == "user" {
+		doc, err := v1.db.GetUser(c.Context(), filter)
+		if err != nil {
+			return errors.UserNotFoundError
+		}
+		return c.JSON(&doc)
+	} else if docType == "machine" {
+		doc, err := v1.db.GetMachine(c.Context(), filter)
+		if err != nil {
+			return errors.UserNotFoundError
+		}
+		return c.JSON(&doc)
+	}
+
+	return c.Send(nil)
 }
 
 func New(db database.Database, app *fiber.App) V1 {
@@ -29,6 +57,11 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get(v+"/users/username/:username", v1.GetUserByUsername)
 	app.Get(v+"/users/me", userMiddleware, v1.GetMe)
 	app.Patch(v+"/users/me/avatar", userMiddleware, v1.UpdateAvatar)
+
+	app.Get(v+"/machines/all", v1.GetMachinesAll)
+	app.Get(v+"/machines/uuid/:uuid", v1.GetMachineByUuid)
+	app.Get(v+"/machines/hostname/:hostname", v1.GetMachineByHostname)
+	app.Get(v+"/machines/owner/:owner", v1.GetMachineByOwner)
 
 	// app.Get(v + "/machines/key", v1.GenerateSignupToken)
 	// app.Delete(v + "/machines/uuid/:uuid", v1.DeleteMachine)
