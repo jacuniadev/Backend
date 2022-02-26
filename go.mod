@@ -5,20 +5,24 @@ go 1.17
 require github.com/gofiber/fiber/v2 v2.27.0
 
 require (
+	github.com/fasthttp/websocket v1.5.0 // indirect
 	github.com/gofiber/jwt/v3 v3.2.6 // indirect
 	github.com/gofiber/utils v0.0.10 // indirect
+	github.com/gofiber/websocket/v2 v2.0.16 // indirect
 	github.com/golang-jwt/jwt v3.2.2+incompatible // indirect
 	github.com/golang-jwt/jwt/v4 v4.3.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gorilla/schema v1.1.0 // indirect
 	github.com/mattn/go-colorable v0.1.7 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/savsgio/gotils v0.0.0-20220201163454-d252f0a44d5b // indirect
 )
 
 require (
 	github.com/andybalholm/brotli v1.0.4 // indirect
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/gofiber/fiber v1.14.6
+	github.com/gofiber/websocket v0.5.1
 	github.com/golang/snappy v0.0.3 // indirect
 	github.com/hashicorp/go-version v1.0.0 // indirect
 	github.com/joho/godotenv v1.4.0
