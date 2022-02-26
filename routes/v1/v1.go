@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/middleware"
@@ -40,6 +41,8 @@ func (v1 V1) getDocByFieldFromParam(c *fiber.Ctx, docType string, paramName stri
 
 func New(db database.Database, app *fiber.App) V1 {
 	var userMiddleware = middleware.UserMiddleware(&db)
+	var keyManager = auth.NewKeyManager()
+
 	var v1 = V1{db}
 	var v = "/v1"
 
@@ -48,8 +51,6 @@ func New(db database.Database, app *fiber.App) V1 {
 
 	app.Post(v+"/auth/user/login", v1.LoginUser)
 	app.Post(v+"/auth/user/signup", v1.SignupUser)
-	// app.Post(v+"/auth/reporter/login", v1.LoginUser)
-	// app.Post(v+"/auth/reporter/signup", v1.SignupUser)
 
 	app.Get(v+"/users/all", v1.GetUsersAll)
 	app.Get(v+"/users/uuid/:uuid", v1.GetUserByUuid)
@@ -64,8 +65,9 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get(v+"/machines/hostname/:hostname", userMiddleware, v1.GetMachineByHostname)
 	app.Get(v+"/machines/owner/:owner", userMiddleware, v1.GetMachineByOwner)
 
-	// app.Get(v + "/machines/key", v1.GenerateSignupToken)
-	// app.Delete(v + "/machines/uuid/:uuid", v1.DeleteMachine)
+	app.Get(v+"/machines/key", userMiddleware, func(c *fiber.Ctx) error { return v1.GenerateSignupToken(c, keyManager) })
+	app.Post(v+"/auth/reporter/signup", func(c *fiber.Ctx) error { return v1.SignupMachine(c, keyManager) })
+	app.Delete(v+"/machines/uuid/:uuid", v1.DeleteMachine)
 
 	return v1
 }

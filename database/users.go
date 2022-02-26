@@ -39,7 +39,7 @@ func (db *Database) LoginUser(c context.Context, form types.UserLoginForm) (*Suc
 // so they can instantly login to their accounts and store the token in localstorage
 func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*SuccessfullLogin, error) {
 	var uuid = uuid.New().String()
-	var timestamp = time.Now()
+	var timestamp = time.Now().UnixMilli()
 
 	var hashedPassword, hashErr = auth.HashPassword(form.Password)
 	if hashErr != nil {

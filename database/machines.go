@@ -2,9 +2,48 @@ package database
 
 import (
 	"context"
+	"errors"
+	"os"
+	"time"
 
+	"github.com/golang-jwt/jwt"
+	"github.com/google/uuid"
+	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
 )
+
+// Creates a user in the database with a signup form and returns a login token
+// so they can instantly login to their accounts and store the token in localstorage
+func (db *Database) CreateMachine(c context.Context, ownerUuid string, form types.MachineSignupForm) (*SuccessfullLogin, error) {
+	var uuid = uuid.New().String()
+	var timestamp = time.Now().UnixMilli()
+	var access []string
+	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": uuid})
+	var tokenString, err = token.SignedString([]byte(os.Getenv("JWT_SECRET")))
+
+	if err != nil {
+		return nil, errors.New("tokenSigningFailure")
+	}
+
+	var machineDocument = bson.M{
+		"created_at":    timestamp,
+		"updated_at":    timestamp,
+		"status":        "0",
+		"owner_uuid":    ownerUuid,
+		"access_token":  tokenString,
+		"hardware_uuid": form.HardwareUuid,
+		"name":          form.Hostname,
+		"access":        access,
+		"uuid":          uuid,
+	}
+
+	var _, insertErr = db.mongo.Collection("machines").InsertOne(c, machineDocument)
+	if insertErr != nil {
+		return nil, insertErr
+	}
+
+	return &SuccessfullLogin{Token: tokenString}, nil
+}
 
 // Gets a machine from the database provider a bson filter for mongo
 func (db *Database) GetMachine(c context.Context, filter bson.M) (*Machine, error) {
@@ -14,6 +53,11 @@ func (db *Database) GetMachine(c context.Context, filter bson.M) (*Machine, erro
 		return nil, err
 	}
 	return &machine, nil
+}
+
+func (db *Database) DeleteMachine(c context.Context, filter bson.M) error {
+	var _, err = db.mongo.Collection("machines").DeleteOne(c, filter)
+	return err
 }
 
 // Gets a machine from the database by its uuid
