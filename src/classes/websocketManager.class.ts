@@ -62,7 +62,8 @@ export class WebsocketManager {
     userSocket.on("connection", (socket) => {
       socket.on("login", async (data) => {
         const user = await loginWebsocketUser(data.auth_token);
-        this.userConnections[user.uuid] = socket;
+        const sessionKey = `${user.uuid}-${Date.now()}`;
+        this.userConnections[sessionKey] = socket;
       });
     });
 
