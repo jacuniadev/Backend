@@ -6,7 +6,6 @@ import (
 	"os"
 
 	"github.com/golang-jwt/jwt"
-	"github.com/google/uuid"
 	"github.com/xornet-cloud/Backend/logic"
 	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -15,7 +14,7 @@ import (
 // Creates a user in the database with a signup form and returns a login token
 // so they can instantly login to their accounts and store the token in localstorage
 func (db *Database) CreateMachine(c context.Context, ownerUuid string, form types.MachineSignupForm) (*SuccessfullMachineLogin, error) {
-	var uuid = uuid.New().String()
+	var uuid = form.HardwareUuid
 	var timestamp = int32(logic.MakeTimestamp())
 	var access []string
 	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": uuid})
