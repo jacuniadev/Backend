@@ -16,7 +16,7 @@ type GenericMessage struct {
 }
 
 type UserAvatarUpdateForm struct {
-	Avatar string `json:"avatar" xml:"avatar" form:"avatar"`
+	Url string `json:"url" xml:"url" form:"url"`
 }
 
 type MachineSignupKey struct {

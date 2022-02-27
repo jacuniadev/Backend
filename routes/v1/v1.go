@@ -10,6 +10,7 @@ import (
 	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/errors"
+	"github.com/xornet-cloud/Backend/logic"
 	"github.com/xornet-cloud/Backend/middleware"
 	"github.com/xornet-cloud/Backend/types"
 	"github.com/xornet-cloud/Backend/validators"
@@ -44,19 +45,20 @@ type ClientLoginData struct {
 }
 
 type ClientDynamicData struct {
-	CPU            types.CPUStats                `json:"cpu"`
-	RAM            types.RAMStats                `json:"ram"`
-	GPU            types.GPUStats                `json:"gpu"`
-	Disks          []types.DiskStats             `json:"disks"`
-	Temps          []types.TempStats             `json:"temps"`
-	Network        []types.NetworkInterfaceStats `json:"network"`
-	ProcessCount   uint64                        `json:"process_count"`
-	HostUptime     uint64                        `json:"host_uptime"`
-	ReporterUptime uint64                        `json:"reporter_uptime"`
-	Cau            uint32                        `json:"cau`
-	Cas            uint32                        `json:"cas`
-	Td             uint32                        `json:"td`
-	Tu             uint32                        `json:"tu`
+	UUID             string                        `json:"uuid"`
+	CPU              types.CPUStats                `json:"cpu"`
+	RAM              types.RAMStats                `json:"ram"`
+	GPU              types.GPUStats                `json:"gpu"`
+	Disks            []types.DiskStats             `json:"disks"`
+	Temps            []types.TempStats             `json:"temps"`
+	Network          []types.NetworkInterfaceStats `json:"network"`
+	ProcessCount     uint64                        `json:"process_count"`
+	HostUptime       uint64                        `json:"host_uptime"`
+	ReporterUptime   uint64                        `json:"reporter_uptime"`
+	CpuAverageUsage  float32                       `json:"cau"`
+	CpuAverageSpeed  float32                       `json:"cas"`
+	TotalTrafficDown float32                       `json:"td"`
+	TotalTrafficUp   float32                       `json:"tu"`
 }
 
 type ClientDynamicDataEvent struct {
@@ -92,7 +94,7 @@ func (v1 V1) getDocByFieldFromParam(c *fiber.Ctx, docType string, paramName stri
 func New(db database.Database, app *fiber.App) V1 {
 	var userMiddleware = middleware.UserMiddleware(&db)
 	var keyManager = auth.NewKeyManager()
-	var clients = make(map[string]*websocket.Conn)
+	var clients = make(map[string]websocket.Conn)
 	var reporters = make(map[string]*websocket.Conn)
 
 	ticker := time.NewTicker(5 * time.Second)
@@ -136,7 +138,7 @@ func New(db database.Database, app *fiber.App) V1 {
 				// Get the user's uuid from their token
 				uuid, _ := auth.GetUuidFromToken(data.Data.AuthToken)
 				// Set this websocket to the hashmap with the users uuid
-				clients[uuid] = c
+				clients[uuid] = *c
 			}
 		}
 	}))
@@ -173,22 +175,25 @@ func New(db database.Database, app *fiber.App) V1 {
 					var data MachineDynamicDataEvent
 					json.Unmarshal([]byte(message), &data)
 					for _, socket := range clients {
+						totalTx, totalRx := logic.GetTotalTraffic(data.Data.Network)
+
 						err := socket.WriteJSON(ClientDynamicDataEvent{
 							Name: "machineData",
 							Data: ClientDynamicData{
-								CPU:            data.Data.CPU,
-								RAM:            data.Data.RAM,
-								GPU:            data.Data.GPU,
-								ProcessCount:   data.Data.ProcessCount,
-								Disks:          data.Data.Disks,
-								Temps:          data.Data.Temps,
-								Network:        data.Data.Network,
-								HostUptime:     data.Data.HostUptime,
-								ReporterUptime: data.Data.ReporterUptime,
-								Cau:            0,
-								Cas:            0,
-								Td:             0,
-								Tu:             0,
+								UUID:             uuid,
+								CPU:              data.Data.CPU,
+								RAM:              data.Data.RAM,
+								GPU:              data.Data.GPU,
+								ProcessCount:     data.Data.ProcessCount,
+								Disks:            data.Data.Disks,
+								Temps:            data.Data.Temps,
+								Network:          data.Data.Network,
+								HostUptime:       data.Data.HostUptime,
+								ReporterUptime:   data.Data.ReporterUptime,
+								CpuAverageUsage:  logic.GetAverageSumFromArray(data.Data.CPU.Usage),
+								CpuAverageSpeed:  logic.GetAverageSumFromArray(data.Data.CPU.Freq),
+								TotalTrafficUp:   totalTx,
+								TotalTrafficDown: totalRx,
 							},
 						})
 						if err != nil {

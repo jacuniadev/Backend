@@ -3,6 +3,7 @@ package database
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -135,11 +136,13 @@ func (db *Database) UpdateField(c context.Context, uuid string, fieldName string
 
 	_, err := db.mongo.Collection("users").UpdateOne(c, target, bson.M{"$set": bson.M{fieldName: fieldValue}})
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 
 	user, err := db.GetUser(c, target)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 

@@ -1,6 +1,8 @@
 package v1
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/errors"
@@ -32,11 +34,12 @@ func (v1 V1) UpdateAvatar(c *fiber.Ctx) error {
 	user := c.Locals("user").(*database.User)
 	var form = new(types.UserAvatarUpdateForm)
 	if err := c.BodyParser(form); err != nil {
-		return c.JSON(errors.FormInvalid)
+		return errors.FormInvalid
 	}
 
-	user, err := v1.db.UpdateAvatar(c.Context(), user.Uuid, form.Avatar)
+	user, err := v1.db.UpdateAvatar(c.Context(), user.Uuid, form.Url)
 	if err != nil {
+		fmt.Print(err)
 		return err
 	}
 	return c.JSON(&user)
