@@ -226,7 +226,7 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get(v+"/machines/owner/:owner", userMiddleware, v1.GetMachineByOwner)
 
 	app.Get(v+"/machines/key", userMiddleware, func(c *fiber.Ctx) error { return v1.GenerateSignupToken(c, keyManager) })
-	app.Delete(v+"/machines/uuid/:uuid", v1.DeleteMachine)
+	app.Delete(v+"/machines/uuid/:uuid", userMiddleware, v1.DeleteMachine)
 
 	return v1
 }
