@@ -181,6 +181,7 @@ func New(db database.Database, app *fiber.App) V1 {
 
 					// Get the user's uuid from their token
 					id, _ := auth.GetUuidFromToken(data.Data.AuthToken)
+					// TODO: Check if this id is in the database and if not close the socket
 					uuid = id
 					// Set this websocket to the hashmap with the users uuid
 					reporters[uuid] = c
