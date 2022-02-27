@@ -5,11 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 
 	"github.com/golang-jwt/jwt"
 	"github.com/google/uuid"
 	"github.com/xornet-cloud/Backend/auth"
+	"github.com/xornet-cloud/Backend/logic"
 	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -43,7 +43,7 @@ func (db *Database) LoginUser(c context.Context, form types.UserLoginForm) (*Suc
 // so they can instantly login to their accounts and store the token in localstorage
 func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*SuccessfullLogin, error) {
 	var uuid = uuid.New().String()
-	var timestamp = time.Now().UnixMilli()
+	var timestamp = logic.MakeTimestamp()
 
 	var hashedPassword, hashErr = auth.HashPassword(form.Password)
 	if hashErr != nil {

@@ -1,12 +1,11 @@
 package v1
 
 import (
-	"time"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/errors"
+	"github.com/xornet-cloud/Backend/logic"
 	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -76,7 +75,7 @@ func (v1 V1) SignupMachine(c *fiber.Ctx, km *auth.KeyManager) error {
 }
 
 func (v1 V1) GenerateSignupToken(c *fiber.Ctx, km *auth.KeyManager) error {
-	var timestamp = time.Now().UnixMilli()
+	var timestamp = logic.MakeTimestamp()
 	var user = c.Locals("user").(*database.User)
 	var key = km.Generate(user.Uuid)
 	return c.JSON(types.MachineSignupKey{

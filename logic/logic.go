@@ -2,6 +2,7 @@ package logic
 
 import (
 	"runtime"
+	"time"
 
 	"github.com/xornet-cloud/Backend/types"
 )
@@ -33,4 +34,8 @@ func GetTotalTraffic(arr []types.NetworkInterfaceStats) (float32, float32) {
 
 	// I don't know why but i had to multiply this by 2
 	return ((sumTx / length) / 1024 / 1024) * 2, ((sumRx / length) / 1024 / 1024) * 2
+}
+
+func MakeTimestamp() int64 {
+	return time.Now().UnixNano() / int64(time.Millisecond)
 }
