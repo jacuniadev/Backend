@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -15,7 +16,6 @@ import (
 const APP_NAME = "Xornet Backend"
 const CLEAR_SCREEN = "\033[H\033[2J"
 const CYAN_COLOR = "\033[36m"
-const MONGO_URL = "mongodb://localhost:27017"
 const PORT = 7000
 const LOGO = `
    _  __                      __ 
@@ -38,7 +38,7 @@ func main() {
 	print(CLEAR_SCREEN)
 	println(string(CYAN_COLOR), LOGO)
 
-	db, err := database.Connect(MONGO_URL)
+	db, err := database.Connect(os.Getenv("MONGO_URL"))
 	if err != nil {
 		log.Fatal("Database failed to connect")
 		panic(1)
