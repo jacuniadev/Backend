@@ -75,21 +75,21 @@ func (v1 V1) getDocByFieldFromParam(c *fiber.Ctx, docType string, paramName stri
 
 	var filter = bson.M{paramName: paramValue}
 
-	if docType == "user" {
+	if docType == "users" {
 		doc, err := v1.db.GetUser(c.Context(), filter)
 		if err != nil {
 			return apierrors.UserNotFoundError
 		}
 		return c.JSON(&doc)
-	} else if docType == "machine" {
+	} else if docType == "machines" {
 		doc, err := v1.db.GetMachine(c.Context(), filter)
 		if err != nil {
-			return apierrors.UserNotFoundError
+			return apierrors.MachineNotFoundError
 		}
 		return c.JSON(&doc)
 	}
 
-	return c.Send(nil)
+	return apierrors.ParamInvalidError
 }
 
 func New(db database.Database, app *fiber.App) V1 {
