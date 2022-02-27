@@ -9,7 +9,6 @@ import (
 
 func (v1 V1) SignupUser(c *fiber.Ctx) error {
 	var form = new(types.UserSignupForm)
-
 	if err := c.BodyParser(form); err != nil {
 		return errors.FormInvalid
 	}
@@ -29,15 +28,18 @@ func (v1 V1) SignupUser(c *fiber.Ctx) error {
 		return errors.PasswordMismatch
 	}
 
-	var token, err = v1.db.CreateUser(c.Context(), *form)
+	var success, err = v1.db.CreateUser(c.Context(), *form)
 	if err != nil {
 		return errors.UserCreationFailure
 	}
-	return c.JSON(token)
+	return c.JSON(success)
 }
 
 func (v1 V1) LoginUser(c *fiber.Ctx) error {
 	var form = new(types.UserLoginForm)
+	if err := c.BodyParser(form); err != nil {
+		return errors.FormInvalid
+	}
 	if !validators.ValidatePassword(form.Password) {
 		return errors.CredentialsInvalid
 	}
@@ -45,9 +47,9 @@ func (v1 V1) LoginUser(c *fiber.Ctx) error {
 		return errors.CredentialsInvalid
 	}
 
-	var token, err = v1.db.LoginUser(c.Context(), *form)
+	var success, err = v1.db.LoginUser(c.Context(), *form)
 	if err != nil {
 		return errors.CredentialsInvalid
 	}
-	return c.JSON(token)
+	return c.JSON(success)
 }

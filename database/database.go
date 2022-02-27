@@ -14,41 +14,48 @@ type Database struct {
 }
 
 type User struct {
-	Email          string  `json:"email"`
-	Password       string  `json:"password"`
-	Username       string  `json:"username"`
-	Uuid           string  `json:"uuid"`
-	Avatar         string  `json:"avatar"`
-	ClientSettings string  `json:"client_settings"`
-	CreatedAt      float32 `json:"created_at"`
-	UpdatedAt      float32 `json:"updated_at"`
+	Email          string `json:"email" bson:"email"`
+	Password       string `json:"password" bson:"password"`
+	Username       string `json:"username" bson:"username"`
+	Uuid           string `json:"uuid" bson:"uuid"`
+	Avatar         string `json:"avatar" bson:"avatar"`
+	ClientSettings string `json:"client_settings" bson:"client_settings"`
+	CreatedAt      int64  `json:"created_at" bson:"created_at"`
+	UpdatedAt      int64  `json:"updated_at" bson:"updated_at"`
 }
 
 type Machine struct {
-	CreatedAt    float32            `json:"created_at"`
-	UpdatedAt    float32            `json:"updated_at"`
-	Status       string             `json:"status"`
-	OwnerUuid    string             `json:"owner_uuid"`
-	AccessToken  string             `json:"access_token"`
-	HardwareUuid string             `json:"hardware_uuid"`
-	Name         string             `json:"name"`
-	Access       []string           `json:"access"`
-	Uuid         string             `json:"uuid"`
-	StaticData   *MachineStaticData `json:"static_data"`
+	CreatedAt    int64             `json:"created_at" bson:"created_at"`
+	UpdatedAt    int64             `json:"updated_at" bson:"updated_at"`
+	Status       string            `json:"status" bson:"status"`
+	OwnerUuid    string            `json:"owner_uuid" bson:"owner_uuid"`
+	AccessToken  string            `json:"access_token" bson:"access_token"`
+	HardwareUuid string            `json:"hardware_uuid" bson:"hardware_uuid"`
+	Name         string            `json:"name" bson:"name"`
+	Access       []string          `json:"access" bson:"access"`
+	Uuid         string            `json:"uuid" bson:"uuid"`
+	StaticData   MachineStaticData `json:"static_data" bson:"static_data"`
 }
 
 type MachineStaticData struct {
-	Hostname   string `json:"hostname"`
-	PublicIp   string `json:"public_ip"`
-	OsName     string `json:"os_name"`
-	OsVersion  string `json:"os_version"`
-	CpuModel   string `json:"cpu_model"`
-	CpuCores   string `json:"cpu_cores"`
-	CpuThreads string `json:"cpu_threads"`
+	Hostname        string `json:"hostname" bson:"hostname"`
+	PublicIP        string `json:"public_ip" bson:"public_ip"`
+	CPUModel        string `json:"cpu_model" bson:"cpu_model"`
+	CPUCores        int32  `json:"cpu_cores" bson:"cpu_cores"`
+	CPUThreads      int32  `json:"cpu_threads" bson:"cpu_threads"`
+	OSVersion       string `json:"os_version" bson:"os_version"`
+	OSName          string `json:"os_name" bson:"os_name"`
+	TotalMemory     int32  `json:"total_mem" bson:"total_mem"`
+	ReporterVersion string `json:"reporter_version" bson:"reporter_version"`
 }
 
 type SuccessfullLogin struct {
 	Token string `json:"token"`
+	User  User   `json:"user"`
+}
+
+type SuccessfullMachineLogin struct {
+	AccessToken string `json:"access_token"`
 }
 
 // Connects to the provided MongoDB server

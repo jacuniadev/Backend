@@ -14,9 +14,9 @@ import (
 
 // Creates a user in the database with a signup form and returns a login token
 // so they can instantly login to their accounts and store the token in localstorage
-func (db *Database) CreateMachine(c context.Context, ownerUuid string, form types.MachineSignupForm) (*SuccessfullLogin, error) {
+func (db *Database) CreateMachine(c context.Context, ownerUuid string, form types.MachineSignupForm) (*SuccessfullMachineLogin, error) {
 	var uuid = uuid.New().String()
-	var timestamp = time.Now().UnixMilli()
+	var timestamp = int32(time.Now().UnixMilli())
 	var access []string
 	var token = jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{"uuid": uuid})
 	var tokenString, err = token.SignedString([]byte(os.Getenv("JWT_SECRET")))
@@ -35,6 +35,7 @@ func (db *Database) CreateMachine(c context.Context, ownerUuid string, form type
 		"name":          form.Hostname,
 		"access":        access,
 		"uuid":          uuid,
+		"static_data":   nil,
 	}
 
 	var _, insertErr = db.mongo.Collection("machines").InsertOne(c, machineDocument)
@@ -42,7 +43,11 @@ func (db *Database) CreateMachine(c context.Context, ownerUuid string, form type
 		return nil, insertErr
 	}
 
-	return &SuccessfullLogin{Token: tokenString}, nil
+	return &SuccessfullMachineLogin{AccessToken: tokenString}, nil
+}
+
+func (db *Database) UpdateStaticData(c context.Context, uuid string, data MachineStaticData) {
+	db.mongo.Collection("machines").UpdateOne(c, bson.M{"uuid": uuid}, bson.M{"$set": bson.M{"static_data": data}})
 }
 
 // Gets a machine from the database provider a bson filter for mongo
@@ -77,15 +82,13 @@ func (db *Database) GetMachineByHostname(c context.Context, hostname string) (*M
 
 // Gets all the machines from the database
 func (db *Database) GetMachines(c context.Context, filter bson.M) (*[]Machine, error) {
-	// Get all the machines from the database
 	cursor, err := db.mongo.Collection("machines").Find(c, filter)
 	if err != nil {
-		// if theres an error return it
 		return nil, err
 	}
 
 	// Prepare machines array
-	var machines *[]Machine
+	var machines []Machine
 
 	// Pass a pointer to the machines array for this dumb function to write the machines to
 	if err := cursor.All(c, &machines); err != nil {
@@ -93,5 +96,5 @@ func (db *Database) GetMachines(c context.Context, filter bson.M) (*[]Machine, e
 	}
 
 	// Return the machines
-	return machines, nil
+	return &machines, nil
 }

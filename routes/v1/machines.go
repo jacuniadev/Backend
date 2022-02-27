@@ -36,16 +36,16 @@ func (v1 V1) DeleteMachine(c *fiber.Ctx) error {
 	var targetMachineUuid = c.Params("uuid")
 	var machine, err = v1.db.GetMachineByUuid(c.Context(), targetMachineUuid)
 	if err != nil {
-		return c.JSON(errors.ParamInvalidError)
+		return errors.ParamInvalidError
 	}
 
 	if machine.OwnerUuid != user.Uuid {
-		return c.JSON(errors.InsufficientPermissions)
+		return errors.InsufficientPermissions
 	}
 
 	var delErr = v1.db.DeleteMachine(c.Context(), bson.M{"uuid": machine.Uuid})
 	if delErr != nil {
-		return c.JSON(errors.DeletionFailure)
+		return errors.DeletionFailure
 	}
 
 	return c.JSON(types.GenericMessage{
@@ -54,33 +54,31 @@ func (v1 V1) DeleteMachine(c *fiber.Ctx) error {
 }
 
 func (v1 V1) SignupMachine(c *fiber.Ctx, km *auth.KeyManager) error {
-	var user = c.Locals("user").(*database.User)
 	var form = new(types.MachineSignupForm)
 	if err := c.BodyParser(form); err != nil {
-		return c.JSON(errors.FormInvalid)
+		return errors.FormInvalid
 	}
 
 	var userUuidFromToken, uuidErr = km.Validate(form.TwoFactorKey)
 	if userUuidFromToken == "" {
-		return c.JSON(errors.KeyExpired)
+		return errors.KeyExpired
 	}
-	if uuidErr != nil || userUuidFromToken != user.Uuid {
-		return c.JSON(errors.KeyInvalid)
+	if uuidErr != nil {
+		return errors.KeyInvalid
 	}
 
-	var machine, err = v1.db.CreateMachine(c.Context(), user.Uuid, *form)
+	var success, err = v1.db.CreateMachine(c.Context(), userUuidFromToken, *form)
 	if err != nil {
-		return c.JSON(errors.MachineCreationFailure)
+		return errors.MachineCreationFailure
 	}
 
-	return c.JSON(&machine)
+	return c.JSON(&success)
 }
 
 func (v1 V1) GenerateSignupToken(c *fiber.Ctx, km *auth.KeyManager) error {
 	var timestamp = time.Now().UnixMilli()
 	var user = c.Locals("user").(*database.User)
-	var key = km.Generate()
-	km.Add(user.Uuid, key)
+	var key = km.Generate(user.Uuid)
 	return c.JSON(types.MachineSignupKey{
 		Key:        key,
 		Expiration: timestamp + 60*1000,

@@ -48,8 +48,9 @@ func (v1 V1) GetMe(c *fiber.Ctx) error {
 }
 
 func (v1 V1) GetMeMachines(c *fiber.Ctx) error {
-	user := c.Locals("user").(*database.User)
-	machines, err := v1.db.GetMachinesByOwnerUuid(c.Context(), user.Uuid)
+	// user := c.Locals("user").(*database.User)
+	// machines, err := v1.db.GetMachinesByOwnerUuid(c.Context(), user.Uuid)
+	machines, err := v1.db.GetMachines(c.Context(), bson.M{})
 	if err != nil {
 		return err
 	}

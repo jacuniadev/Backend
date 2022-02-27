@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 	"github.com/xornet-cloud/Backend/database"
 	"github.com/xornet-cloud/Backend/middleware"
@@ -15,7 +16,7 @@ const APP_NAME = "Xornet Backend"
 const CLEAR_SCREEN = "\033[H\033[2J"
 const CYAN_COLOR = "\033[36m"
 const MONGO_URL = "mongodb://localhost:27017"
-const PORT = 3000
+const PORT = 7000
 const LOGO = `
    _  __                      __ 
   | |/ /___  _________  ___  / /_
@@ -45,6 +46,16 @@ func main() {
 	app := fiber.New(fiber.Config{
 		AppName: APP_NAME,
 	})
+
+	app.Use(cors.New(cors.Config{
+		Next:             nil,
+		AllowOrigins:     "*",
+		AllowMethods:     "GET,POST,HEAD,PUT,DELETE,PATCH",
+		AllowHeaders:     "",
+		AllowCredentials: false,
+		ExposeHeaders:    "",
+		MaxAge:           600,
+	}))
 
 	app.Use(middleware.ErrorHandlerMiddleware)
 	v1.New(*db, app)

@@ -32,7 +32,10 @@ func (db *Database) LoginUser(c context.Context, form types.UserLoginForm) (*Suc
 		return nil, errors.New("tokenSigningFailure")
 	}
 
-	return &SuccessfullLogin{Token: tokenString}, nil
+	return &SuccessfullLogin{
+		Token: tokenString,
+		User:  *user,
+	}, nil
 }
 
 // Creates a user in the database with a signup form and returns a login token
@@ -69,7 +72,15 @@ func (db *Database) CreateUser(c context.Context, form types.UserSignupForm) (*S
 		return nil, errors.New("tokenSigningFailure")
 	}
 
-	return &SuccessfullLogin{Token: tokenString}, nil
+	var user, userErr = db.GetUserByUuid(c, uuid)
+	if userErr != nil {
+		return nil, userErr
+	}
+
+	return &SuccessfullLogin{
+		Token: tokenString,
+		User:  *user,
+	}, nil
 }
 
 // Gets a user from the database provider a bson filter for mongo

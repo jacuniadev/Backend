@@ -18,13 +18,11 @@ func NewKeyManager() *KeyManager {
 	}
 }
 
-func (km *KeyManager) Generate() string {
-	return strings.ReplaceAll(uuid.New().String(), "-", "")
-}
-
-func (km *KeyManager) Add(userUuid string, key string) {
+func (km *KeyManager) Generate(userUuid string) string {
+	key := strings.ToUpper(strings.ReplaceAll(uuid.New().String(), "-", ""))
 	km.keys[userUuid] = key
 	time.AfterFunc(60000*time.Millisecond, func() { km.remove(userUuid) })
+	return key
 }
 
 func (km *KeyManager) remove(userUuid string) {
@@ -33,7 +31,7 @@ func (km *KeyManager) remove(userUuid string) {
 
 func (km *KeyManager) Validate(key string) (string, error) {
 	for userUuid, value := range km.keys {
-		if value == key {
+		if value == strings.ToUpper(key) {
 			return userUuid, nil
 		}
 	}
