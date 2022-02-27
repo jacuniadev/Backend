@@ -3,13 +3,14 @@ package v1
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
+	"github.com/xornet-cloud/Backend/apierrors"
 	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/database"
-	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/logic"
 	"github.com/xornet-cloud/Backend/middleware"
 	"github.com/xornet-cloud/Backend/types"
@@ -69,7 +70,7 @@ type ClientDynamicDataEvent struct {
 func (v1 V1) getDocByFieldFromParam(c *fiber.Ctx, docType string, paramName string) error {
 	paramValue := c.Params(paramName)
 	if !validators.IsNotEmpty(paramValue) {
-		return errors.ParamInvalidError
+		return apierrors.ParamInvalidError
 	}
 
 	var filter = bson.M{paramName: paramValue}
@@ -77,13 +78,13 @@ func (v1 V1) getDocByFieldFromParam(c *fiber.Ctx, docType string, paramName stri
 	if docType == "user" {
 		doc, err := v1.db.GetUser(c.Context(), filter)
 		if err != nil {
-			return errors.UserNotFoundError
+			return apierrors.UserNotFoundError
 		}
 		return c.JSON(&doc)
 	} else if docType == "machine" {
 		doc, err := v1.db.GetMachine(c.Context(), filter)
 		if err != nil {
-			return errors.UserNotFoundError
+			return apierrors.UserNotFoundError
 		}
 		return c.JSON(&doc)
 	}
@@ -96,20 +97,36 @@ func New(db database.Database, app *fiber.App) V1 {
 	var keyManager = auth.NewKeyManager()
 	var clients = make(map[string]websocket.Conn)
 	var reporters = make(map[string]*websocket.Conn)
+	var machineBuffer []ClientDynamicData
 
-	ticker := time.NewTicker(5 * time.Second)
-	quit := make(chan struct{})
+	// Increment the WaitGroup counter.
+	heartbeatClock := time.NewTicker(5 * time.Second)
+	machineDataClock := time.NewTicker(time.Second)
+
 	go func() {
 		for {
 			select {
-			case <-ticker.C:
+			case <-heartbeatClock.C:
 				// Send heartbeats to all the clients
 				for _, socket := range clients {
+					// Send a heartbeat
 					socket.WriteJSON(WebsocketEventName{Name: "heartbeat"})
 				}
-			case <-quit:
-				ticker.Stop()
-				return
+			case <-machineDataClock.C:
+				// Send heartbeats to all the clients
+				for _, socket := range clients {
+					// Send all the machines from the buffer
+					for _, machine := range machineBuffer {
+						socket.WriteJSON(ClientDynamicDataEvent{
+							Name: "machineData",
+							Data: machine,
+						})
+					}
+				}
+				// Remove the current element
+				if len(machineBuffer) != 0 {
+					machineBuffer = machineBuffer[1:]
+				}
 			}
 		}
 	}()
@@ -138,7 +155,7 @@ func New(db database.Database, app *fiber.App) V1 {
 				// Get the user's uuid from their token
 				uuid, _ := auth.GetUuidFromToken(data.Data.AuthToken)
 				// Set this websocket to the hashmap with the users uuid
-				clients[uuid] = *c
+				clients[uuid+"-"+fmt.Sprint(logic.MakeTimestamp())] = *c
 			}
 		}
 	}))
@@ -174,32 +191,27 @@ func New(db database.Database, app *fiber.App) V1 {
 				case "dynamicData":
 					var data MachineDynamicDataEvent
 					json.Unmarshal([]byte(message), &data)
-					for _, socket := range clients {
-						totalTx, totalRx := logic.GetTotalTraffic(data.Data.Network)
+					var totalTx, totalRx = logic.GetTotalTraffic(data.Data.Network)
+					var CpuAverageUsage = logic.GetAverageSumFromArray(data.Data.CPU.Usage)
+					var CpuAverageSpeed = logic.GetAverageSumFromArray(data.Data.CPU.Freq)
+					// Write to the buffer
 
-						err := socket.WriteJSON(ClientDynamicDataEvent{
-							Name: "machineData",
-							Data: ClientDynamicData{
-								UUID:             uuid,
-								CPU:              data.Data.CPU,
-								RAM:              data.Data.RAM,
-								GPU:              data.Data.GPU,
-								ProcessCount:     data.Data.ProcessCount,
-								Disks:            data.Data.Disks,
-								Temps:            data.Data.Temps,
-								Network:          data.Data.Network,
-								HostUptime:       data.Data.HostUptime,
-								ReporterUptime:   data.Data.ReporterUptime,
-								CpuAverageUsage:  logic.GetAverageSumFromArray(data.Data.CPU.Usage),
-								CpuAverageSpeed:  logic.GetAverageSumFromArray(data.Data.CPU.Freq),
-								TotalTrafficUp:   totalTx,
-								TotalTrafficDown: totalRx,
-							},
-						})
-						if err != nil {
-							break
-						}
-					}
+					machineBuffer = append(machineBuffer, (ClientDynamicData{
+						UUID:             uuid,
+						CPU:              data.Data.CPU,
+						RAM:              data.Data.RAM,
+						GPU:              data.Data.GPU,
+						ProcessCount:     data.Data.ProcessCount,
+						Disks:            data.Data.Disks,
+						Temps:            data.Data.Temps,
+						Network:          data.Data.Network,
+						HostUptime:       data.Data.HostUptime,
+						ReporterUptime:   data.Data.ReporterUptime,
+						CpuAverageUsage:  CpuAverageUsage,
+						CpuAverageSpeed:  CpuAverageSpeed,
+						TotalTrafficUp:   totalTx,
+						TotalTrafficDown: totalRx,
+					}))
 				}
 			} else {
 				break

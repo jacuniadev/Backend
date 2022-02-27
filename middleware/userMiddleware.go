@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/xornet-cloud/Backend/apierrors"
 	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/database"
-	"github.com/xornet-cloud/Backend/errors"
 )
 
 func UserMiddleware(db *database.Database) func(c *fiber.Ctx) error {
@@ -19,13 +19,13 @@ func UserMiddleware(db *database.Database) func(c *fiber.Ctx) error {
 
 		// If the header is literally empty then fuck them
 		if tokenString == "" {
-			return c.JSON(errors.UserNotAuthenticated)
+			return c.JSON(apierrors.UserNotAuthenticated)
 		}
 
 		// If it fails to get the token then return
 		uuid, err := auth.GetUuidFromToken(tokenString)
 		if err != nil {
-			return c.JSON(errors.UserNotAuthenticated)
+			return c.JSON(apierrors.UserNotAuthenticated)
 		}
 
 		// Get the user from the database
@@ -33,7 +33,7 @@ func UserMiddleware(db *database.Database) func(c *fiber.Ctx) error {
 
 		// If they failed to be fetched from the database fuck them
 		if err != nil {
-			return c.JSON(errors.UserNotAuthenticated)
+			return c.JSON(apierrors.UserNotAuthenticated)
 		}
 
 		// attach the user to the local context for this request

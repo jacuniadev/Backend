@@ -2,9 +2,9 @@ package v1
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/xornet-cloud/Backend/apierrors"
 	"github.com/xornet-cloud/Backend/auth"
 	"github.com/xornet-cloud/Backend/database"
-	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/logic"
 	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
@@ -35,16 +35,16 @@ func (v1 V1) DeleteMachine(c *fiber.Ctx) error {
 	var targetMachineUuid = c.Params("uuid")
 	var machine, err = v1.db.GetMachineByUuid(c.Context(), targetMachineUuid)
 	if err != nil {
-		return errors.ParamInvalidError
+		return apierrors.ParamInvalidError
 	}
 
 	if machine.OwnerUuid != user.Uuid {
-		return errors.InsufficientPermissions
+		return apierrors.InsufficientPermissions
 	}
 
 	var delErr = v1.db.DeleteMachine(c.Context(), bson.M{"uuid": machine.Uuid})
 	if delErr != nil {
-		return errors.DeletionFailure
+		return apierrors.DeletionFailure
 	}
 
 	return c.JSON(types.GenericMessage{
@@ -55,20 +55,20 @@ func (v1 V1) DeleteMachine(c *fiber.Ctx) error {
 func (v1 V1) SignupMachine(c *fiber.Ctx, km *auth.KeyManager) error {
 	var form = new(types.MachineSignupForm)
 	if err := c.BodyParser(form); err != nil {
-		return errors.FormInvalid
+		return apierrors.FormInvalid
 	}
 
 	var userUuidFromToken, uuidErr = km.Validate(form.TwoFactorKey)
 	if userUuidFromToken == "" {
-		return errors.KeyExpired
+		return apierrors.KeyExpired
 	}
 	if uuidErr != nil {
-		return errors.KeyInvalid
+		return apierrors.KeyInvalid
 	}
 
 	var success, err = v1.db.CreateMachine(c.Context(), userUuidFromToken, *form)
 	if err != nil {
-		return errors.MachineCreationFailure
+		return apierrors.MachineCreationFailure
 	}
 
 	return c.JSON(&success)

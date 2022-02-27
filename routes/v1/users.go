@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/xornet-cloud/Backend/apierrors"
 	"github.com/xornet-cloud/Backend/database"
-	"github.com/xornet-cloud/Backend/errors"
 	"github.com/xornet-cloud/Backend/types"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -34,7 +34,7 @@ func (v1 V1) UpdateAvatar(c *fiber.Ctx) error {
 	user := c.Locals("user").(*database.User)
 	var form = new(types.UserAvatarUpdateForm)
 	if err := c.BodyParser(form); err != nil {
-		return errors.FormInvalid
+		return apierrors.FormInvalid
 	}
 
 	user, err := v1.db.UpdateAvatar(c.Context(), user.Uuid, form.Url)
