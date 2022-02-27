@@ -201,6 +201,8 @@ func New(db database.Database, app *fiber.App) V1 {
 						}
 					}
 				}
+			} else {
+				break
 			}
 		}
 	}))
