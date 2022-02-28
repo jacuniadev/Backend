@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -37,10 +38,12 @@ func GetUuidFromToken(tokenString string) (string, error) {
 
 	// if the token is valid
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
-
+		uuid := claims["uuid"]
+		if uuid == nil {
+			return "", errors.New("uuid field can't be nil")
+		}
 		// Get the uuid from the jwt map
-		return claims["uuid"].(string), nil
-
+		return uuid.(string), nil
 	} else {
 		// else fuck them
 		return "", err
