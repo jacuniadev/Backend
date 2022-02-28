@@ -108,13 +108,14 @@ func New(db database.Database, app *fiber.App) V1 {
 			select {
 			case <-heartbeatClock.C:
 				// Send heartbeats to all the clients
-				for _, socket := range clients {
+				for clientUuid, socket := range clients {
+					fmt.Println("Emitting heartbeat to: ", clientUuid)
 					// Send a heartbeat
 					socket.WriteJSON(WebsocketEventName{Name: "heartbeat"})
 				}
 			case <-machineDataClock.C:
-				// Send heartbeats to all the clients
-				for _, socket := range clients {
+				for clientUuid, socket := range clients {
+					fmt.Println("Emitting DynamicData to: ", clientUuid)
 					// Send all the machines from the buffer
 					for _, machine := range machineBuffer {
 						socket.WriteJSON(ClientDynamicDataEvent{
@@ -154,11 +155,9 @@ func New(db database.Database, app *fiber.App) V1 {
 				json.Unmarshal([]byte(message), &data)
 				// Get the user's uuid from their token
 				uuid, _ := auth.GetUuidFromToken(data.Data.AuthToken)
-				// Create a key
-				key := uuid + "-" + fmt.Sprint(logic.MakeTimestamp())
-				fmt.Println("Client logged in session:", key)
+				fmt.Println("Client logged in session:", uuid)
 				// Set this websocket to the hashmap with the users uuid
-				clients[key] = *c
+				clients[uuid] = *c
 			}
 		}
 	}))
