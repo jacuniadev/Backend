@@ -163,7 +163,7 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get("/reporter", websocket.New(func(c *websocket.Conn) {
 		var message []byte
 		var err error
-		var uuid string
+		var uuid *string
 
 		for {
 			if _, message, err = c.ReadMessage(); err == nil {
@@ -182,13 +182,13 @@ func New(db database.Database, app *fiber.App) V1 {
 					// Get the user's uuid from their token
 					id, _ := auth.GetUuidFromToken(data.Data.AuthToken)
 					// TODO: Check if this id is in the database and if not close the socket
-					uuid = id
+					uuid = &id
 					// Set this websocket to the hashmap with the users uuid
-					reporters[uuid] = c
+					reporters[*uuid] = c
 				case "staticData":
 					var data ReporterStaticDataEvent
 					json.Unmarshal([]byte(message), &data)
-					db.UpdateStaticData(context.TODO(), uuid, data.Data)
+					db.UpdateStaticData(context.TODO(), *uuid, data.Data)
 				case "dynamicData":
 					var data MachineDynamicDataEvent
 					json.Unmarshal([]byte(message), &data)
@@ -198,7 +198,7 @@ func New(db database.Database, app *fiber.App) V1 {
 					// Write to the buffer
 
 					machineBuffer = append(machineBuffer, (ClientDynamicData{
-						UUID:             uuid,
+						UUID:             *uuid,
 						CPU:              data.Data.CPU,
 						RAM:              data.Data.RAM,
 						GPU:              data.Data.GPU,
