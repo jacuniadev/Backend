@@ -189,6 +189,12 @@ func New(db database.Database, app *fiber.App) V1 {
 					// TODO: Check if this id is in the database and if not close the socket
 					fmt.Println("Machine logged in session:", uuid)
 
+					// Close the connection if theres no uuid
+					if uuid == "" {
+						c.Close()
+						return
+					}
+
 					// Set this websocket to the hashmap with the users uuid
 					reporters[uuid] = c
 				case "staticData":
