@@ -185,14 +185,14 @@ func New(db database.Database, app *fiber.App) V1 {
 					id, _ := auth.GetUuidFromToken(data.Data.AuthToken)
 					uuid = id
 
-					// TODO: Check if this id is in the database and if not close the socket
-					fmt.Println("Machine logged in session:", uuid)
-
 					// Close the connection if theres no uuid
-					if uuid == "" {
+					if len(uuid) == 0 {
 						c.Close()
 						return
 					}
+
+					// TODO: Check if this id is in the database and if not close the socket
+					fmt.Println("Machine logged in session:", uuid)
 
 					// Set this websocket to the hashmap with the users uuid
 					reporters[uuid] = c
