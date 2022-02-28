@@ -100,7 +100,7 @@ func New(db database.Database, app *fiber.App) V1 {
 	var machineBuffer []ClientDynamicData
 
 	// Increment the WaitGroup counter.
-	heartbeatClock := time.NewTicker(5 * time.Second)
+	heartbeatClock := time.NewTicker(3 * time.Second)
 	machineDataClock := time.NewTicker(time.Second)
 
 	go func() {
@@ -154,8 +154,11 @@ func New(db database.Database, app *fiber.App) V1 {
 				json.Unmarshal([]byte(message), &data)
 				// Get the user's uuid from their token
 				uuid, _ := auth.GetUuidFromToken(data.Data.AuthToken)
+				// Create a key
+				key := uuid + "-" + fmt.Sprint(logic.MakeTimestamp())
+				fmt.Println("Client logged in session:", key)
 				// Set this websocket to the hashmap with the users uuid
-				clients[uuid+"-"+fmt.Sprint(logic.MakeTimestamp())] = *c
+				clients[key] = *c
 			}
 		}
 	}))
@@ -163,7 +166,7 @@ func New(db database.Database, app *fiber.App) V1 {
 	app.Get("/reporter", websocket.New(func(c *websocket.Conn) {
 		var message []byte
 		var err error
-		var uuid *string
+		var uuid string
 
 		for {
 			if _, message, err = c.ReadMessage(); err == nil {
@@ -181,14 +184,18 @@ func New(db database.Database, app *fiber.App) V1 {
 
 					// Get the user's uuid from their token
 					id, _ := auth.GetUuidFromToken(data.Data.AuthToken)
+					uuid = id
+
 					// TODO: Check if this id is in the database and if not close the socket
-					uuid = &id
+					fmt.Println("Machine logged in session:", uuid)
+
 					// Set this websocket to the hashmap with the users uuid
-					reporters[*uuid] = c
+					reporters[uuid] = c
 				case "staticData":
 					var data ReporterStaticDataEvent
 					json.Unmarshal([]byte(message), &data)
-					db.UpdateStaticData(context.TODO(), *uuid, data.Data)
+					fmt.Println("Setting static data for:", uuid)
+					db.UpdateStaticData(context.TODO(), uuid, data.Data)
 				case "dynamicData":
 					var data MachineDynamicDataEvent
 					json.Unmarshal([]byte(message), &data)
@@ -198,7 +205,7 @@ func New(db database.Database, app *fiber.App) V1 {
 					// Write to the buffer
 
 					machineBuffer = append(machineBuffer, (ClientDynamicData{
-						UUID:             *uuid,
+						UUID:             uuid,
 						CPU:              data.Data.CPU,
 						RAM:              data.Data.RAM,
 						GPU:              data.Data.GPU,
