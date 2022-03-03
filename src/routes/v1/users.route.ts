@@ -1,6 +1,6 @@
 import express, { Router } from "express";
 import auth from "../../middleware/auth";
-import { createUser, getUser, getUsers, loginUser } from "../../services/user.service";
+import { createUser, deleteAllUsers, deleteUser, getUser, getUsers, loginUser } from "../../services/user.service";
 import { MachineDocument, MachineObject } from "../../types/machine";
 import {
   LoggedInRequest,
@@ -35,6 +35,8 @@ function cleanMachine(machine: MachineDocument | MachineObject, userID: string):
 export const users: Router = express.Router();
 
 users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(cleanUser(req.user!)));
+
+users.delete<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => deleteUser(req.user!.uuid));
 
 users.get<{}, string>("/@settings", auth, (req: LoggedInRequest, res) => res.send(JSON.stringify(req.user!.client_settings)));
 
