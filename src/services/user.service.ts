@@ -5,9 +5,8 @@
 import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import { FilterQuery } from "mongoose";
-import machineModel from "../models/machine.model";
+import Machine from "../models/machine.model";
 import User from "../models/user.model";
-import { machines } from "../routes/v1/machines.route";
 import { UserDocument, UserLoginResult, UserObject, UserSignupInput, UserSignupResult } from "../types/user";
 import { Validators } from "../utils/validators";
 
@@ -74,8 +73,6 @@ export const loginUser = async ({ username, password }: { username: string; pass
 export const deleteAllUsers = () => User.deleteMany({});
 
 export const deleteUser = async (uuid: string) => {
-  try {
-    await User.deleteOne({ uuid: uuid });
-    await machineModel.deleteMany({ owner_uuid: uuid });
-  } catch (error) {}
+  await User.deleteOne({ uuid: uuid });
+  await Machine.deleteMany({ owner_uuid: uuid });
 };

@@ -36,7 +36,11 @@ export const users: Router = express.Router();
 
 users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(cleanUser(req.user!)));
 
-users.delete<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => deleteUser(req.user!.uuid));
+users.delete<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) =>
+  deleteUser(req.user!.uuid)
+    .then(() => res.send())
+    .catch(() => res.status(500).send())
+);
 
 users.get<{}, string>("/@settings", auth, (req: LoggedInRequest, res) => res.send(JSON.stringify(req.user!.client_settings)));
 
