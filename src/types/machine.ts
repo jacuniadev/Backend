@@ -17,6 +17,7 @@ export interface StaticData {
 export interface DynamicData {
   cpu: ICPU;
   ram: IRAM;
+  swap: ISwap;
   gpu?: IGPU;
   disks: IDisk[];
   process_count: number;
@@ -43,6 +44,8 @@ export interface IRAM {
   total: number;
   used: number;
 }
+
+export type ISwap = IRAM;
 
 export interface IGPU {
   brand: string;
