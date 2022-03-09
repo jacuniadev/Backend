@@ -5,34 +5,15 @@ import http from "http";
 import https from "https";
 import mongoose from "mongoose";
 import morgan from "morgan";
+import cors from "../middleware/cors";
+import log from "../middleware/log";
 import { v1 } from "../routes/v1";
 import { BackendSettings } from "../types";
+import { Logger } from "./logger";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
-  public express: Express = express()
-    .use(function (req, res, next) {
-      // Website you wish to allow to connect
-      res.setHeader("Access-Control-Allow-Origin", "*");
-
-      // Request methods you wish to allow
-      res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS, PUT, PATCH, DELETE");
-
-      // Request headers you wish to allow
-      res.setHeader("Access-Control-Allow-Headers", "X-Requested-With,content-type,Authorization");
-
-      // Set to true if you need the website to include cookies in the requests sent
-      // to the API (e.g. in case you use sessions)
-      res.setHeader("Access-Control-Allow-Credentials", "true");
-
-      console.log(`Request from IP: ${chalk.cyan(req.headers["cf-connecting-ip"])}`);
-
-      // Pass to next layer of middleware
-      next();
-    })
-    .use(morgan("dev"))
-    .use(express.json())
-    .use(v1);
+  public express: Express = express().use(cors).use(log).use(express.json()).use(v1);
   public port: number;
   public verbose: boolean;
   public secure: boolean;
@@ -65,17 +46,17 @@ export class Backend implements BackendSettings {
   }
 
   private async connectDatabase() {
-    console.log(`Connecting to MongoDB...`);
+    Logger.info(`Connecting to MongoDB...`);
     return mongoose
       .connect(this.mongoUrl, { appName: "Xornet Backend" })
-      .then(() => this.verbose && console.log("MongoDB Connected"))
+      .then(() => this.verbose && Logger.info("MongoDB Connected"))
       .catch((reason) => {
-        this.verbose && console.log("MongoDB failed to connect, reason: ", reason);
+        this.verbose && Logger.info("MongoDB failed to connect, reason: ", reason);
         process.exit(1);
       });
   }
 
   private listen() {
-    this.server.listen(this.port, () => this.verbose && console.log(`[INDEX] Started on port ${this.port.toString()}`));
+    this.server.listen(this.port, () => this.verbose && Logger.info(`Started on port ${this.port.toString()}`));
   }
 }
