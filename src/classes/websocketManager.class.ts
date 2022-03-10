@@ -45,11 +45,11 @@ export class WebsocketManager {
    */
   public broadcastClients(event: keyof BackendToClientEvents, data?: any, specificClients?: string[]) {
     // If they defined specific client uuids then just emit to those
-    if (specificClients) {
-      return Object.entries(this.userConnections).forEach(
-        ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
-      );
-    }
+    // if (specificClients) {
+    //   return Object.entries(this.userConnections).forEach(
+    //     ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
+    //   );
+    // }
 
     // Otherwise emit to all the clients
     Object.values(this.userConnections).forEach((user) => user.emit(event, data));
