@@ -5,18 +5,21 @@ import Machine from "../models/machine.model";
 import { Time } from "../types";
 import { CreateMachineInput, MachineDocument, StaticData } from "../types/machine";
 import { UserObject } from "../types/user";
+import { v4 as uuidv4 } from "uuid";
 import { Validators } from "../utils/validators";
 
 const keyManager = new KeyManager();
 
 export const getMachines = (query: FilterQuery<MachineDocument> = {}) => Machine.find(query, { _id: 0 });
 
+export const generateAccessToken = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");
+
 export const createMachine = async (input: CreateMachineInput) => {
   if (!Validators.validateUUID(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
   if (!Validators.validateUUID(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
   if (!Validators.validateHostname(input.hostname)) return Promise.reject("hostname is invalid");
 
-  const access_token = jwt.sign(input, process.env.JWT_SECRET!, { expiresIn: "30d" });
+  const access_token = generateAccessToken();
 
   return Machine.create({
     access_token,
