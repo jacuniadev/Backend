@@ -9,9 +9,8 @@
 1.  We are not responsible for any data loss or corruption that may occur
     due to the use of our services.
 
-2.  Even though we develop our software with privacy and safety as highest
-    priority, but if you are using our services, you are responsible for
-    your own data security.
+2.  Even though we develop our software with privacy and safety in mind,
+    you are responsible for your own data security.
 
 3.  You are responsible for all activities that occur on your computer or
     device while using our services.
@@ -25,7 +24,7 @@
 6.  Hate speech and other objectionable content is not allowed on
     our services.
 
-7.  NSFW (Not Safe For Work) Content is not allowed on our platform.
+7.  NSFW (Not Safe For Work) content is not allowed on our platform.
 
 8.  Xornet is still in Beta and under development. We are not responsible
     for any bugs or other issues that may occur and is not intended for
