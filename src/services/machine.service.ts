@@ -41,9 +41,8 @@ export const updateStaticData = async (uuid: string, staticData: StaticData) => 
  */
 export const loginMachine = async (access_token: string) => {
   try {
-    const { hardware_uuid, owner_uuid } = jwt.verify(access_token, process.env.JWT_SECRET!) as CreateMachineInput;
-    const machine = await Machine.findOne({ hardware_uuid, owner_uuid });
-    if (!machine) return Promise.reject("invalid credentials");
+    const machine = await Machine.findOne({ access_token });
+    if (!machine) return Promise.reject("Invalid access token");
     return machine;
   } catch (error) {
     return Promise.reject("invalid credentials");
