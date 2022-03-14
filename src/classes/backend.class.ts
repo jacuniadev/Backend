@@ -1,10 +1,8 @@
-import chalk from "chalk";
 import express, { Express } from "express";
 import fs from "fs";
 import http from "http";
 import https from "https";
 import mongoose from "mongoose";
-import morgan from "morgan";
 import cors from "../middleware/cors";
 import log from "../middleware/log";
 import { v1 } from "../routes/v1";
