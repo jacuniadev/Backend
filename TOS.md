@@ -1,10 +1,17 @@
 # Terms of Service
 
-### When we say "Xornet", "we", "us" and "our" in these terms, we mean Xornet and it's subsidiaries and affiliates.
+When we say "Xornet", "we", "us" and "our" in these terms, we mean Xornet
+and it's subsidiaries and affiliates.
 
-### When we say "services", "platform" in theses terms, we mean the our services, Reporter, Client and other products.
+When we say "services", "platform" in theses terms, we mean the our
+services, Reporter, Client and other products.
 
-### When we say "you" or "your", we mean you, the end user. If you're using our services on behalf of a company or other entity, you agree that you have the authority to bind that entity to these terms.
+When we say "you" or "your", we mean you, the end user. If you're
+using our services on behalf of a company or other entity, you agree
+that you have the authority to bind that entity to these terms.
+
+The Service is provided to you "AS IS" and "AS AVAILABLE" and with all
+faults and defects with ABSOLUTELY NO WARRANTY of any kind.
 
 1.  We are not responsible for any data loss or corruption that may occur
     due to the use of our services.
@@ -30,7 +37,7 @@
     for any bugs or other issues that may occur and is not intended for
     use in a production environment.
 
-9.  Do not liter the database by submitting the same data multiple times.
+9.  Do not litter the database by submitting the same data multiple times.
 
 10. Do not use our services for illegal activities.
 
@@ -55,8 +62,19 @@
 
 19. You have the right to request access to your data.
 
-20. We do not store any cookies on your device.
+20. We do not track your cookies.
 
-### Any of these violations may result into a permanent ban from the platform and a report submission may be sent to relative authorities depending on the severity of the violation.
+21. We do not share or sell your data with third parties, unless requested
+    by legal authorities.
 
-## By using our software, services or products, you agree to these terms.
+22. Infringing on any proprietary rights of any party, including patent,
+    trademark, trade secret,copyright, right of publicity or other
+    rights is prohibited.
+
+23. We are allowed to update the terms of use at any time.
+
+Any of these violations may result into a permanent ban from the
+platform and a report submission may be sent to relative authorities
+depending on the severity of the violation.
+
+By using our software, services or products, you agree to these terms.
