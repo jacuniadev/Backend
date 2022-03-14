@@ -1,7 +1,12 @@
 import Joi from "joi";
 
 export class Validators {
-  public static TRUSTED_IMAGE_HOSTERS = ["https://cdn.discordapp.com", "https://i.imgur.com"];
+  public static TRUSTED_IMAGE_HOSTERS = [
+    "https://cdn.discordapp.com",
+    "https://media.discordapp.net",
+    "https://i.imgur.com",
+    "https://avatars.githubusercontent.com",
+  ];
   public static ALLOWED_IMAGE_EXTENSIONS = ["png", "gif", "jpg", "jpeg", "webp"];
 
   public static validateEmail = (email: string) =>
