@@ -36,6 +36,9 @@ const userSchema = new mongoose.Schema({
   avatar: {
     type: String,
   },
+  banner: {
+    type: String,
+  },
   biography: {
     type: String,
   },
@@ -68,6 +71,11 @@ userSchema.methods.comparePassword = async function (this: UserDocument, candida
 
 userSchema.methods.updateAvatar = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
   this.avatar = newValue;
+  return this.save();
+};
+
+userSchema.methods.updateBanner = async function (this: UserDocument, newValue: string): Promise<UserDocument> {
+  this.banner = newValue;
   return this.save();
 };
 

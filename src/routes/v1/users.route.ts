@@ -66,6 +66,12 @@ users.patch<{}, UserObject | { error: string }, { url: string }>("/@avatar", aut
     : res.status(400).json({ error: "invalid url" })
 );
 
+users.patch<{}, UserObject | { error: string }, { url: string }>("/@banner", auth, (req: LoggedInRequest, res) =>
+  Validators.validateAvatarUrl(req.body.url)
+    ? req.user!.updateBanner(req.body.url).then((user) => res.json(cleanUser(user)))
+    : res.status(400).json({ error: "invalid url" })
+);
+
 users.post<{}, UserSignupResultSafe | { error: string }, UserSignupInput>("/@signup", async (req, res) =>
   createUser(req.body).then(
     ({ user, token }) => res.status(201).json({ user: cleanUser(user), token }),

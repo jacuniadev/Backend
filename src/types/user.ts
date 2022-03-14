@@ -56,6 +56,7 @@ export interface LoggedInRequest extends Request {
 export interface UserDocument extends UserSignupInput, UserObject, mongoose.Document {
   comparePassword:      (candidatePassword: string)    => Promise<boolean>;
   updateAvatar:         (newValue: string)             => Promise<UserDocument>;
+  updateBanner:         (newValue: string)             => Promise<UserDocument>;
   updatePassword:       (newValue: string)             => Promise<UserDocument>;
   updateEmail:          (newValue: string)             => Promise<UserDocument>;
   updateUsername:       (newValue: string)             => Promise<UserDocument>;
