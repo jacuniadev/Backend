@@ -11,7 +11,10 @@ import { machinePayload, userPayload } from "./constants";
 import { describe } from "./utils";
 
 let backend: Backend;
-before(async () => (backend = await Backend.create({ port: 3001, verbose: false, mongoUrl: process.env.MONGO_TESTING_URL! })));
+before(
+  async () =>
+    (backend = await Backend.create({ secure: false, port: 3001, verbose: false, mongoUrl: process.env.MONGO_TESTING_URL! }))
+);
 after(() => backend.server.close());
 
 type BasicResponse = { status: number; body: { error: string; message: string } };

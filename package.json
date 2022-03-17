@@ -24,6 +24,7 @@
   },
   "homepage": "https://github.com/xornet-cloud/Backend#readme",
   "devDependencies": {
+    "@types/axios": "^0.14.0",
     "@types/bcrypt": "^5.0.0",
     "@types/chai": "^4.3.0",
     "@types/cors": "^2.8.12",
