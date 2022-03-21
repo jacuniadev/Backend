@@ -14,6 +14,18 @@ export interface StaticData {
   country?: string;
 }
 
+export interface DockerMemoryStats {
+  raw: string;
+  percent: string;
+}
+
+export interface DockerStats {
+  container: string;
+  name: string;
+  memory: DockerMemoryStats;
+  cpu: string;
+}
+
 export interface DynamicData {
   cpu: ICPU;
   ram: IRAM;
@@ -24,6 +36,7 @@ export interface DynamicData {
   temps?: ITemp[];
   network: INetwork[];
   host_uptime: number;
+  docker?: DockerStats;
   reporter_uptime: number;
 }
 
