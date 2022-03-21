@@ -36,7 +36,7 @@ export interface DynamicData {
   temps?: ITemp[];
   network: INetwork[];
   host_uptime: number;
-  docker?: DockerStats;
+  docker?: DockerStats[];
   reporter_uptime: number;
 }
 
