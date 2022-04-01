@@ -7,11 +7,14 @@ export interface StaticData {
   os_name?: string;
   cpu_cores?: number;
   public_ip?: string;
+  country?: string;
+  city?: string;
+  isp?: string;
+  timezone?: number;
   cpu_model: string;
   cpu_threads: number;
   total_mem: number;
   reporter_version: string;
-  country?: string;
 }
 
 export interface DockerMemoryStats {
