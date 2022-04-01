@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import express, { NextFunction } from "express";
-import { Logger } from "../classes/logger";
+import { Logger } from "../utils/logger";
 
 export default async function (req: express.Request, res: express.Response, next: NextFunction) {
   const startedAt = process.hrtime();

@@ -7,7 +7,7 @@ import cors from "../middleware/cors";
 import log from "../middleware/log";
 import { v1 } from "../routes/v1";
 import { BackendSettings } from "../types";
-import { Logger } from "./logger";
+import { Logger } from "../utils/logger";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
