@@ -2,7 +2,6 @@ import axios from "axios";
 import http from "http";
 import { loginMachine, updateStaticData } from "../services/machine.service";
 import { loginWebsocketUser } from "../services/user.service";
-import { IGeolocation } from "../types";
 import { DynamicData, MachineObject, StaticData } from "../types/machine";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
@@ -89,9 +88,6 @@ export class WebsocketManager {
       });
 
       socket.on("staticData", async (data) => {
-        // Get the country flag from their IP
-        const response = await axios.get<{}, { data: IGeolocation }>(`https://ipwhois.app/json/${data.public_ip}`).catch();
-        response.data?.country_code && (data.country = response.data.country_code);
         updateStaticData(machineUUID!, data);
       });
 
