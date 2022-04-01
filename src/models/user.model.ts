@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import mongoose from "mongoose";
 import { v4 as uuidv4 } from "uuid";
 import { getMachines } from "../services/machine.service";

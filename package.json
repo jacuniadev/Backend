@@ -7,7 +7,13 @@
     "dev": "cross-env MODE=development nodemon ./src/index.ts",
     "prod": "cross-env MODE=production nodemon ./src/index.ts",
     "test": "cross-env MODE=testing nyc ts-mocha --exit --colors -p ./tsconfig.json ./tests/**/*.test.ts",
-    "constant-test": "nodemon --ext ts --exec npm run test"
+    "constant-test": "nodemon --ext ts --exec npm run test",
+    "postinstall": "npm i -g typescript nexe nodemon ts-node",
+    "build": "npm run build:typescript && npm run build:binary && npm run build:upx",
+    "build:typescript": "tsc --build --verbose",
+    "build:binary": "nexe --build --input ./dist/js/src/index.js --output ./dist/bin/xornet-backend.exe -r \"assets/**/*\" --verbose ",
+    "build:upx": "upx --color -v ./dist/bin/xornet-backend.exe",
+    "prettify": "npx prettier --write \"./**/*.ts\" && npx prettier --write \"./**/*.json\""
   },
   "repository": {
     "type": "git",
@@ -17,7 +23,7 @@
     "backend",
     "node.js"
   ],
-  "author": "Geoxor",
+  "author": "Xornet Cloud",
   "license": "AGPL-3.0",
   "bugs": {
     "url": "https://github.com/xornet-cloud/Backend/issues"
@@ -26,6 +32,7 @@
   "devDependencies": {
     "@types/axios": "^0.14.0",
     "@types/bcrypt": "^5.0.0",
+    "@types/bcryptjs": "^2.4.2",
     "@types/chai": "^4.3.0",
     "@types/cors": "^2.8.12",
     "@types/express": "^4.17.13",
@@ -36,20 +43,16 @@
     "@types/supertest": "^2.0.11",
     "@types/uuid": "^8.3.3",
     "@types/ws": "^8.2.2",
-    "chai": "^4.3.4",
     "cross-env": "^7.0.3",
     "mitt": "^3.0.0",
-    "mocha": "^8.4.0",
     "mongodb": "^4.2.1",
-    "nyc": "^15.1.0",
     "supertest": "^6.1.6",
-    "ts-mocha": "^8.0.0",
     "ts-node": "^7.0.1",
     "typescript": "^4.5.3"
   },
   "dependencies": {
     "axios": "^0.25.0",
-    "bcrypt": "^5.0.1",
+    "bcryptjs": "^2.4.3",
     "chalk": "^4.1.2",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
