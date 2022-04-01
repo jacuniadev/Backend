@@ -54,13 +54,16 @@ const machineSchema = new mongoose.Schema({
     hostname: String,
     os_version: String,
     os_name: String,
+    country: String,
+    city: String,
+    isp: String,
+    timezone: Number,
     cpu_cores: Number,
     public_ip: String,
     cpu_model: String,
     cpu_threads: Number,
     total_mem: Number,
     reporter_version: String,
-    country: String,
   },
 });
 
