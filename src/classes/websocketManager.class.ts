@@ -1,4 +1,3 @@
-import axios from "axios";
 import http from "http";
 import { loginMachine, updateStaticData } from "../services/machine.service";
 import { loginWebsocketUser } from "../services/user.service";
@@ -56,9 +55,9 @@ export class WebsocketManager {
 
   constructor(server: http.Server) {
     // I will trollcrazy you :trollface:
-    const [_userSocketServer, userSocket] = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
+    const userSockets = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
 
-    userSocket.on("connection", (socket) => {
+    userSockets.on("connection", (socket) => {
       socket.on("login", async (data) => {
         const user = await loginWebsocketUser(data.auth_token);
         this.userConnections[`${user.uuid}-${Date.now()}`] = socket;
@@ -66,9 +65,9 @@ export class WebsocketManager {
     });
 
     // I will trollcrazy you again :trollface:
-    const [_reporterSocketServer, reporterSocket] = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
+    const reporterSockets = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
 
-    reporterSocket.on("connection", async (socket) => {
+    reporterSockets.on("connection", async (socket) => {
       let machineUUID: string | undefined = undefined;
       // let usersThatHaveAccess: string[] = [];
 
@@ -87,11 +86,9 @@ export class WebsocketManager {
         }
       });
 
-      socket.on("staticData", async (data) => {
-        updateStaticData(machineUUID!, data);
-      });
+      socket.on("staticData", (data) => updateStaticData(machineUUID!, data));
 
-      socket.on("dynamicData", async (data) => {
+      socket.on("dynamicData", (data) => {
         const computedData = {
           ...data,
           uuid: machineUUID,
