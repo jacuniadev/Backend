@@ -112,9 +112,11 @@ export interface IMachine extends ISafeMachine, mongoose.Document {
 export interface IUserMethods {
   compare_password: (a: string) => Promise<boolean>;
   update_avatar: (a: string) => Promise<IUser>;
+  update_banner: (a: string) => Promise<IUser>;
   update_password: (a: UserPasswordUpdateInput) => Promise<IUser>;
   update_email: (a: string) => Promise<IUser>;
   update_username: (a: string) => Promise<IUser>;
+  get_machines: () => Promise<IMachine[]>;
 }
 
 /**
@@ -193,6 +195,9 @@ export class DatabaseManager {
    * Assigns all the user methods
    */
   private register_user_schema_methods() {
+    // Local reference so 'this' doesn't conflict
+    const machines = this.machines;
+
     this.userSchema.methods.compare_password = async function (this: IUser, candidatePassword: string): Promise<boolean> {
       return bcrypt.compare(candidatePassword, this.password).catch(() => false);
     };
@@ -200,6 +205,10 @@ export class DatabaseManager {
     this.userSchema.methods.update_avatar = async function (this: IUser, newAvatar: string): Promise<IUser> {
       this.avatar = newAvatar;
       return this.save();
+    };
+
+    this.userSchema.methods.get_machines = async function (this: IUser) {
+      return machines.find({ owner_uuid: this.uuid });
     };
 
     this.userSchema.methods.update_password = async function (this: IUser, form: UserPasswordUpdateInput): Promise<IUser> {

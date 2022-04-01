@@ -1,87 +1,54 @@
 import express, { Router } from "express";
+import { DatabaseManager, ISafeMachine, ISafeUser } from "../../database/DatabaseManager";
 import auth from "../../middleware/auth";
-import { createUser, deleteAllUsers, deleteUser, getUser, getUsers, loginUser } from "../../services/user.service";
-import { MachineDocument, MachineObject } from "../../types/machine";
-import {
-  LoggedInRequest,
-  UserDocument,
-  UserLoginInput,
-  UserLoginResultSafe,
-  UserObject,
-  UserSignupInput,
-  UserSignupResultSafe,
-} from "../../types/user";
-import { Validators } from "../../utils/validators";
+import { LoggedInRequest, UserLoginInput, UserLoginResultSafe, UserSignupInput, UserSignupResultSafe } from "../../types/user";
+import { Validators } from "../../validators";
 
-function cleanUser(user: UserDocument | UserObject): UserObject {
-  user = user.toObject();
-  user.password = undefined;
-  // @ts-ignore
-  user.email = undefined;
-  user.__v = undefined;
-  user._id = undefined;
-  return user;
-}
+export const generate_users_route = (db: DatabaseManager): Router => {
+  const router: Router = express.Router();
 
-function cleanMachine(machine: MachineDocument | MachineObject, userID: string): MachineObject {
-  machine = machine.toObject();
-  machine.access_token = undefined;
-  machine.__v = undefined;
-  machine._id = undefined;
-  machine.static_data && machine.owner_uuid !== userID && (machine.static_data.public_ip = undefined);
-  return machine;
-}
+  router.get<{}, ISafeUser>("/@me", auth, (req: LoggedInRequest, res) => req.user!.toJSON());
 
-export const users: Router = express.Router();
+  router.delete<{}, ISafeUser>("/@me", auth, (req: LoggedInRequest, res) =>
+    req
+      .user!.delete()
+      .then(() => res.send())
+      .catch(() => res.status(500).send())
+  );
 
-users.get<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) => res.json(cleanUser(req.user!)));
+  router.get<{}, ISafeMachine[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>
+    req.user!.get_machines().then((machines) => res.send(machines.map((machine) => machine.toJSON())))
+  );
 
-users.delete<{}, UserObject>("/@me", auth, (req: LoggedInRequest, res) =>
-  deleteUser(req.user!.uuid)
-    .then(() => res.send())
-    .catch(() => res.status(500).send())
-);
+  router.get<{ uuid: string }, ISafeUser>("/:uuid", auth, async (req: LoggedInRequest, res) =>
+    (await db.find_user_by_uuid(req.params.uuid)).toJSON()
+  );
 
-users.get<{}, string>("/@settings", auth, (req: LoggedInRequest, res) => res.send(JSON.stringify(req.user!.client_settings)));
+  router.patch<{}, ISafeUser | { error: string }, { url: string }>("/@avatar", auth, (req: LoggedInRequest, res) =>
+    Validators.validate_avatar_url(req.body.url)
+      ? req.user!.update_avatar(req.body.url).then((user) => res.send(user.toJSON()))
+      : res.status(400).json({ error: "invalid url" })
+  );
 
-users.patch<{}, {}, string>("/@settings", auth, async (req: LoggedInRequest, res) =>
-  res.send((await req.user!.updateClientSettings(JSON.stringify(req.body))).client_settings)
-);
+  router.patch<{}, ISafeUser | { error: string }, { url: string }>("/@banner", auth, (req: LoggedInRequest, res) =>
+    Validators.validate_avatar_url(req.body.url)
+      ? req.user!.update_banner(req.body.url).then((user) => res.send(user.toJSON()))
+      : res.status(400).json({ error: "invalid url" })
+  );
 
-users.get<{}, UserObject[]>("/@all", async (req, res) =>
-  getUsers().then((users) => res.json(users.map((user) => cleanUser(user))))
-);
+  router.post<{}, UserSignupResultSafe | { error: string }, UserSignupInput>("/@signup", async (req, res) =>
+    db.new_user(req.body).then(
+      ({ user, token }) => res.status(201).json({ user: user.toJSON(), token }),
+      (reason) => res.status(400).json({ error: reason })
+    )
+  );
 
-users.get<{}, MachineObject[]>("/@me/machines", auth, (req: LoggedInRequest, res) =>
-  req.user!.getMachines().then((machines) => res.json(machines.map((machine) => cleanMachine(machine, req.user!.uuid))))
-);
+  router.post<{}, UserLoginResultSafe | { error: string }, UserLoginInput>("/@login", async (req, res) =>
+    db.login_user(req.body).then(
+      ({ user, token }) => res.status(200).json({ user: user.toJSON(), token }),
+      (reason) => res.status(400).json({ error: reason })
+    )
+  );
 
-users.get<{ uuid: string }, UserObject>("/:uuid", auth, async (req: LoggedInRequest, res) =>
-  res.json(cleanUser(await getUser({ uuid: req.params.uuid })))
-);
-
-users.patch<{}, UserObject | { error: string }, { url: string }>("/@avatar", auth, (req: LoggedInRequest, res) =>
-  Validators.validateAvatarUrl(req.body.url)
-    ? req.user!.updateAvatar(req.body.url).then((user) => res.json(cleanUser(user)))
-    : res.status(400).json({ error: "invalid url" })
-);
-
-users.patch<{}, UserObject | { error: string }, { url: string }>("/@banner", auth, (req: LoggedInRequest, res) =>
-  Validators.validateAvatarUrl(req.body.url)
-    ? req.user!.updateBanner(req.body.url).then((user) => res.json(cleanUser(user)))
-    : res.status(400).json({ error: "invalid url" })
-);
-
-users.post<{}, UserSignupResultSafe | { error: string }, UserSignupInput>("/@signup", async (req, res) =>
-  createUser(req.body).then(
-    ({ user, token }) => res.status(201).json({ user: cleanUser(user), token }),
-    (reason) => res.status(400).json({ error: reason })
-  )
-);
-
-users.post<{}, UserLoginResultSafe | { error: string }, UserLoginInput>("/@login", async (req, res) =>
-  loginUser(req.body).then(
-    ({ user, token }) => res.status(200).json({ user: cleanUser(user), token }),
-    (reason) => res.status(400).json({ error: reason })
-  )
-);
+  return router;
+};
