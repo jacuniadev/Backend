@@ -3,21 +3,28 @@ import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import mongoose, { Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import { KeyManager } from "../classes/keyManager.class";
+import { CreateMachineInput } from "../types/machine";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
-import { userSchema } from "./schemas";
+import { machineSchema, userSchema } from "./schemas";
+
+export const enum MachineStatus {
+  Offline,
+  Online,
+}
 
 export interface UserLoginInput {
   [key: string]: any;
-  password: string;
-  username: string;
+  password: string; // The password of the user
+  username: string; // The username of the user
 }
 
 export interface UserPasswordUpdateInput {
   [key: string]: any;
-  current_password: string;
-  new_password: string;
-  new_password_repeat: string;
+  current_password: string; // The current password of the user
+  new_password: string; // The new password of the user
+  new_password_repeat: string; // The new password of the user
 }
 
 /**
@@ -25,13 +32,19 @@ export interface UserPasswordUpdateInput {
  */
 export interface UserSignupInput extends UserLoginInput {
   [key: string]: any;
-  email: string;
+  email: string; // The email of the user
 }
 
 /**
  * The object the login/signup database statics return
  */
 export type UserAuthResult = { user: IUser; token: string };
+
+export interface IBaseDocument {
+  uuid: string; // The unique identifier of the document
+  created_at: number; // The time the document was created
+  updated_at: number; // The time the document was last updated
+}
 
 /**
  * A user in the database with methods etc.
@@ -45,13 +58,52 @@ export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
  * The user object that will be sent through the internet
  * not containing the passwords and emails
  */
-export interface ISafeUser {
+export interface ISafeUser extends IBaseDocument {
   avatar: string; // The avatar url of the user
   banner: string; // The avatar url of the user
-  uuid: string; // The uuid of the user
   username: string; // The username of the user
-  created_at: number; // The time the user was created
-  updated_at: number; // The modification date of the user
+}
+
+/**
+ * This is the safe object that will be sent through the API endpoints
+ */
+export interface ISafeMachine extends IBaseDocument {
+  [key: string]: any;
+  owner_uuid: string; // The uuid of the user that owns this machine
+  hardware_uuid: string; // The generated uuid of the machine
+  name: string; // The hostname of the machine
+  description?: string; // A description of the machine
+  status: MachineStatus; // Online offline etc.
+  access: string[]; // The list of users that have access to this machine
+  static_data: ISafeStaticData; // The static data of the machine
+}
+
+export interface IStaticData extends ISafeStaticData {
+  city?: string; // The city of the machine (from the IP)
+  public_ip?: string; // The public IP of the machine
+}
+
+export interface ISafeStaticData {
+  hostname?: string; // The hostname of the machine
+  os_version?: string; // The version number of the os
+  os_name?: string; // Windows, Arch Linux, MacOS etc
+  cpu_cores?: number; // The number of cores
+  country?: string; // The country of the machine (from the IP)
+  isp?: string; // The ISP of the machine (from the IP)
+  timezone?: number; // The timezone of the machine (from the IP)
+  cpu_model: string; // The CPU model of the machine
+  cpu_threads: number; // The number of threads the CPU has
+  total_mem: number; // The total memory of the machine
+  reporter_version: string; // The version of the reporter
+}
+
+/**
+ * The backend machine containing methods
+ */
+// prettier-ignore
+export interface IMachine extends ISafeMachine, mongoose.Document {
+  access_token: string;	// The access token (password) of the machine (used for authentication)
+  static_data: IStaticData; // This overrides the static data from the extended interface with the non-safe verison
 }
 
 /**
@@ -66,18 +118,23 @@ export interface IUserMethods {
 }
 
 /**
+ * A machines's methods
+ */
+export interface IMachineMethods {
+  update_static_data: (A: IStaticData) => Promise<IMachine>;
+  delete: () => Promise<void>;
+}
+
+/**
  * This function updates the "updated_at" field automatically
  * whenever something changes on the database and it also will encrypt the
  * password of a user if it changes
  */
 const preSaveMiddleware = async function <
-  T extends {
+  T extends IBaseDocument & {
     isNew: boolean;
-    created_at: number;
-    updated_at: number;
-    uuid: string;
     isModified: (a: string) => boolean;
-    password: string;
+    password?: string; // question mark hack to avoid conflict with machineSchema
   }
 >(this: T, next: Function) {
   if (this.isNew) {
@@ -88,7 +145,7 @@ const preSaveMiddleware = async function <
   // Intercept the password save and hash it
   if (this.isModified("password")) {
     const salt = await bcrypt.genSalt(process.env.MODE === "testing" ? 1 : 10);
-    const hash = await bcrypt.hash(this.password, salt);
+    const hash = await bcrypt.hash(this.password!, salt);
     this.password = hash;
   }
 
@@ -103,13 +160,17 @@ const preSaveMiddleware = async function <
  */
 export class DatabaseManager {
   private userSchema = userSchema;
+  private machineSchema = machineSchema;
+  private keyManager = new KeyManager();
   public users: Model<IUser>;
+  public machines: Model<IMachine>;
 
   constructor(public database_url: string, public app_name: string, public database_name: string) {
     this.register_database_middleware();
     this.register_schema_methods();
 
     this.users = mongoose.model<IUser>("User", this.userSchema);
+    this.machines = mongoose.model<IMachine>("Machine", this.machineSchema);
   }
 
   /**
@@ -117,6 +178,7 @@ export class DatabaseManager {
    */
   private register_database_middleware() {
     this.userSchema.pre("save", preSaveMiddleware);
+    this.machineSchema.pre("save", preSaveMiddleware);
   }
 
   /**
@@ -124,6 +186,7 @@ export class DatabaseManager {
    */
   private register_schema_methods() {
     this.register_user_schema_methods();
+    this.register_machine_schema_methods();
   }
 
   /**
@@ -152,11 +215,33 @@ export class DatabaseManager {
 
     this.userSchema.set("toJSON", {
       virtuals: false,
-      transform: (doc, ret, options) => {
+      transform: (doc: any, ret: any, options: any) => {
         delete ret.__v;
         delete ret._id;
         delete ret.password;
         delete ret.email;
+      },
+    });
+  }
+
+  private register_machine_schema_methods() {
+    this.machineSchema.methods.update_static_data = async function (this: IMachine, staticData: IStaticData) {
+      this.static_data = staticData;
+      return this.save();
+    };
+
+    this.machineSchema.methods.delete = async function (this: IMachine) {
+      return this.delete();
+    };
+
+    this.machineSchema.set("toJSON", {
+      virtuals: false,
+      transform: (doc: any, ret: any, options: any) => {
+        delete ret.__v;
+        delete ret._id;
+        delete ret.static_data.public_ip;
+        delete ret.static_data.city;
+        delete ret.access_token;
       },
     });
   }
@@ -195,6 +280,23 @@ export class DatabaseManager {
         Logger.error("MongoDB failed to connect, reason: ", reason);
         process.exit(1);
       });
+  }
+
+  private generate_access_token = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");
+
+  public async new_machine(input: CreateMachineInput) {
+    if (!Validators.validate_uuid(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
+    if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
+    if (!Validators.validate_hostname(input.hostname)) return Promise.reject("hostname is invalid");
+
+    const access_token = this.generate_access_token();
+
+    return this.machines.create({
+      access_token,
+      hardware_uuid: input.hardware_uuid,
+      owner_uuid: input.owner_uuid,
+      name: input.hostname,
+    });
   }
 
   /**
@@ -237,6 +339,16 @@ export class DatabaseManager {
     return Promise.reject("invalid credentials");
   }
 
+  public async login_user_websocket(access_token: string) {
+    return jwt.verify(access_token, process.env.JWT_SECRET!) as IUser;
+  }
+
+  public async login_machine(access_token: string) {
+    const machine = await this.machines.findOne({ access_token });
+    if (!machine) return Promise.reject("Invalid access token");
+    return machine;
+  }
+
   /**
    * Deletes a user by the specified username and password
    * @param username The username to search by
@@ -261,9 +373,7 @@ export class DatabaseManager {
    * @returns The user object if found, null otherwise
    */
   private async find_user_by_field(field_name: string, field_value: string): Promise<IUser> {
-    const query = this.users.findOne({ [field_name]: field_value });
-    // safe && query.select("-password").select("-_id").select("-__v");
-    return (await query.exec()) ?? Promise.reject("user.notFound");
+    return (await this.users.findOne({ [field_name]: field_value })) ?? Promise.reject("user.notFound");
   }
 
   /**

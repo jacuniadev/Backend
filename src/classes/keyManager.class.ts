@@ -9,6 +9,12 @@ export class KeyManager extends Map<string, { key: string; timer: NodeJS.Timeout
     super();
   }
 
+  public createNewKey(userUuid: string): { key: string; expiration: number } {
+    const key = this.generateKey();
+    this.add(userUuid, key);
+    return { key, expiration: Date.now() + Time.Minute };
+  }
+
   public add(userUuid: string, key: string) {
     const timer = setTimeout(() => this.delete(userUuid), this.expiration);
     clearTimeout(this.get(userUuid)?.timer!);

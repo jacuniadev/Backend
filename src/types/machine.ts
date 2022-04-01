@@ -1,35 +1,7 @@
 import mongoose from "mongoose";
 import { DatabaseObject } from ".";
 
-export interface StaticData {
-  hostname?: string;
-  os_version?: string;
-  os_name?: string;
-  cpu_cores?: number;
-  public_ip?: string;
-  country?: string;
-  city?: string;
-  isp?: string;
-  timezone?: number;
-  cpu_model: string;
-  cpu_threads: number;
-  total_mem: number;
-  reporter_version: string;
-}
-
-export interface DockerMemoryStats {
-  raw: string;
-  percent: string;
-}
-
-export interface DockerStats {
-  container: string;
-  name: string;
-  memory: DockerMemoryStats;
-  cpu: string;
-}
-
-export interface DynamicData {
+export interface IDynamicData {
   cpu: ICPU;
   ram: IRAM;
   swap: ISwap;
@@ -39,7 +11,6 @@ export interface DynamicData {
   temps?: ITemp[];
   network: INetwork[];
   host_uptime: number;
-  docker?: DockerStats[];
   reporter_uptime: number;
 }
 
@@ -80,40 +51,6 @@ export interface IDisk {
 export interface ITemp {
   label: string;
   value: number;
-}
-
-export const enum MachineStatus {
-  Unknown,
-  Offline,
-  Online,
-}
-
-export type MachineStatusStrings = keyof typeof MachineStatus;
-
-/**
- * This is the safe object that will be sent through the API endpoints
- */
-export interface MachineObject extends DatabaseObject {
-  [key: string]: any;
-  uuid: string;
-  owner_uuid: string;
-  hardware_uuid: string;
-  created_at: number;
-  updated_at: number;
-  name: string;
-  description?: string;
-  status: MachineStatus;
-  icon?: string;
-  access: string[];
-  static_data: StaticData;
-}
-
-/**
- * The backend machine containing methods
- */
-// prettier-ignore
-export interface MachineDocument extends MachineObject, mongoose.Document {
-  access_token: string;
 }
 
 export interface MachineSignupInput {
