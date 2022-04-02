@@ -1,4 +1,11 @@
 {
-  "ignore": ["*.json"],
+  "$schema": "https://raw.githubusercontent.com/SchemaStore/schemastore/master/src/schemas/json/nodemon.json",
+  "ignore": [
+    "*.json"
+  ],
+  "watch": [
+    ".env",
+    ".env.example"
+  ],
   "exec": "ts-node -T ./src/index.ts"
 }
