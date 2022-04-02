@@ -266,11 +266,23 @@ export class DatabaseManager {
     if (user && (await user.compare_password(password))) this.users.deleteOne({ username: username });
   }
 
-  private find_one = async <T>(collection: string, filter?: mongoose.FilterQuery<T>) =>
-    (await (this as any)[collection].findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
+  private find_one = async <T>(collection: string, filter?: mongoose.FilterQuery<T>) => {
+    switch (collection) {
+      case "user":
+        return (await this.users.findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
+      case "machine":
+        return (await this.machines.findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
+    }
+  };
 
-  private find = async <T>(collection: string, filter?: mongoose.FilterQuery<T>) =>
-    (await (this as any)[collection].find(filter)) ?? Promise.reject(`${collection}s.notFound`);
+  private find = async <T>(collection: string, filter?: mongoose.FilterQuery<T>) => {
+    switch (collection) {
+      case "user":
+        return (await this.users.find(filter)) ?? Promise.reject(`${collection}s.notFound`);
+      case "machine":
+        return (await this.machines.find(filter)) ?? Promise.reject(`${collection}s.notFound`);
+    }
+  };
 
   public find_machine = (filter?: mongoose.FilterQuery<IMachine>) => this.find_one("machine", filter);
   public find_user = (filter?: mongoose.FilterQuery<IUser>) => this.find_one("user", filter);

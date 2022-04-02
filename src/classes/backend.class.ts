@@ -14,7 +14,7 @@ export class Backend {
   public express: Express = express().use(cors).use(log).use(express.json()).use(new V1(this.db).router);
   public port = process.env.PORT!;
   public verbose = process.env.VERBOSE!;
-  public secure = process.env.SECURE!;
+  public secure = process.env.SECURE! === "true";
   public server: http.Server | https.Server;
   public websocketManager: WebsocketManager;
 
@@ -39,6 +39,9 @@ export class Backend {
   }
 
   private listen() {
-    this.server.listen(this.port, () => this.verbose && Logger.info(`Started on port ${this.port.toString()}`));
+    this.server.listen(
+      this.port,
+      () => this.verbose && Logger.info(`Started on port http${this.secure ? "s" : ""}://127.0.0.1:${this.port.toString()}`)
+    );
   }
 }
