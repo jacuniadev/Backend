@@ -1,5 +1,6 @@
 import http from "http";
-import { DatabaseManager, IMachine, ISafeMachine, IStaticData } from "../database/DatabaseManager";
+import { DatabaseManager } from "../database/DatabaseManager";
+import { ISafeMachine, IStaticData, IMachine } from "../database/schemas/machine";
 import { IDynamicData } from "../types/machine";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";

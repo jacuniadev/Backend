@@ -3,127 +3,16 @@ import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import mongoose, { Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-import { KeyManager } from "../classes/keyManager.class";
 import { CreateMachineInput } from "../types/machine";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
-import { machineSchema, userSchema } from "./schemas";
-
-export const enum MachineStatus {
-  Offline,
-  Online,
-}
-
-export interface UserLoginInput {
-  [key: string]: any;
-  password: string; // The password of the user
-  username: string; // The username of the user
-}
-
-export interface UserPasswordUpdateInput {
-  [key: string]: any;
-  current_password: string; // The current password of the user
-  new_password: string; // The new password of the user
-  new_password_repeat: string; // The new password of the user
-}
-
-/**
- * What the user signs up with
- */
-export interface UserSignupInput extends UserLoginInput {
-  [key: string]: any;
-  email: string; // The email of the user
-}
-
-/**
- * The object the login/signup database statics return
- */
-export type UserAuthResult = { user: IUser; token: string };
+import { IMachine, IStaticData, machineSchema } from "./schemas/machine";
+import { IUser, UserAuthResult, UserPasswordUpdateInput, userSchema, UserSignupInput } from "./schemas/user";
 
 export interface IBaseDocument {
   uuid: string; // The unique identifier of the document
   created_at: number; // The time the document was created
   updated_at: number; // The time the document was last updated
-}
-
-/**
- * A user in the database with methods etc.
- */
-export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
-  password: string; // The user's hashed password
-  email: string; // The email of the user
-}
-
-/**
- * The user object that will be sent through the internet
- * not containing the passwords and emails
- */
-export interface ISafeUser extends IBaseDocument {
-  avatar: string; // The avatar url of the user
-  banner: string; // The avatar url of the user
-  username: string; // The username of the user
-}
-
-/**
- * This is the safe object that will be sent through the API endpoints
- */
-export interface ISafeMachine extends IBaseDocument {
-  [key: string]: any;
-  owner_uuid: string; // The uuid of the user that owns this machine
-  hardware_uuid: string; // The generated uuid of the machine
-  name: string; // The hostname of the machine
-  description?: string; // A description of the machine
-  status: MachineStatus; // Online offline etc.
-  access: string[]; // The list of users that have access to this machine
-  static_data: ISafeStaticData; // The static data of the machine
-}
-
-export interface IStaticData extends ISafeStaticData {
-  city?: string; // The city of the machine (from the IP)
-  public_ip?: string; // The public IP of the machine
-}
-
-export interface ISafeStaticData {
-  hostname?: string; // The hostname of the machine
-  os_version?: string; // The version number of the os
-  os_name?: string; // Windows, Arch Linux, MacOS etc
-  cpu_cores?: number; // The number of cores
-  country?: string; // The country of the machine (from the IP)
-  isp?: string; // The ISP of the machine (from the IP)
-  timezone?: number; // The timezone of the machine (from the IP)
-  cpu_model: string; // The CPU model of the machine
-  cpu_threads: number; // The number of threads the CPU has
-  total_mem: number; // The total memory of the machine
-  reporter_version: string; // The version of the reporter
-}
-
-/**
- * The backend machine containing methods
- */
-// prettier-ignore
-export interface IMachine extends ISafeMachine, IMachineMethods, mongoose.Document {
-  access_token: string;	// The access token (password) of the machine (used for authentication)
-  static_data: IStaticData; // This overrides the static data from the extended interface with the non-safe verison
-}
-
-/**
- * A user's methods
- */
-export interface IUserMethods {
-  compare_password: (a: string) => Promise<boolean>;
-  update_avatar: (a: string) => Promise<IUser>;
-  update_banner: (a: string) => Promise<IUser>;
-  update_password: (a: UserPasswordUpdateInput) => Promise<IUser>;
-  update_email: (a: string) => Promise<IUser>;
-  update_username: (a: string) => Promise<IUser>;
-  get_machines: () => Promise<IMachine[]>;
-}
-
-/**
- * A machines's methods
- */
-export interface IMachineMethods {
-  update_static_data: (A: IStaticData) => Promise<IMachine>;
 }
 
 /**
