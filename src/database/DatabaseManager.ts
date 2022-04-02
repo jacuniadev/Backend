@@ -256,45 +256,17 @@ export class DatabaseManager {
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
 
     const user = await this.find_user({ username });
-
-    if (user && (await user.compare_password(password))) {
-      return this.users.deleteOne({ username: username });
-    }
+    if (user && (await user.compare_password(password))) this.users.deleteOne({ username: username });
   }
 
-  private async find_one<T>(collection: string, filter?: mongoose.FilterQuery<T>) {
-    return (await (this as any)[collection].findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
-  }
+  private find_one = async <T>(collection: string, filter?: mongoose.FilterQuery<T>) =>
+    (await (this as any)[collection].findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
 
-  private async find<T>(collection: string, filter?: mongoose.FilterQuery<T>) {
-    return (await (this as any)[collection].find(filter)) ?? Promise.reject(`${collection}s.notFound`);
-  }
+  private find = async <T>(collection: string, filter?: mongoose.FilterQuery<T>) =>
+    (await (this as any)[collection].find(filter)) ?? Promise.reject(`${collection}s.notFound`);
 
-  /**
-   *  Finds one machine
-   */
-  public async find_machine(filter?: mongoose.FilterQuery<IMachine>) {
-    return this.find_one("machine", filter);
-  }
-
-  /**
-   *  Finds one user
-   */
-  public async find_user(filter?: mongoose.FilterQuery<IUser>) {
-    return this.find_one("user", filter);
-  }
-
-  /**
-   * 	Finds an array of machines
-   */
-  public async find_machines(filter?: mongoose.FilterQuery<IMachine>) {
-    return this.find("machine", filter);
-  }
-
-  /**
-   * 	Finds an array of users
-   */
-  public async find_users(filter?: mongoose.FilterQuery<IUser>) {
-    return this.find("user", filter);
-  }
+  public find_machine = (filter?: mongoose.FilterQuery<IMachine>) => this.find_one("machine", filter);
+  public find_user = (filter?: mongoose.FilterQuery<IUser>) => this.find_one("user", filter);
+  public find_machines = (filter?: mongoose.FilterQuery<IMachine>) => this.find("machine", filter);
+  public find_users = (filter?: mongoose.FilterQuery<IUser>) => this.find("user", filter);
 }
