@@ -33,7 +33,7 @@ export class Backend implements BackendSettings {
           this.express
         )
       : http.createServer(this.express);
-    this.websocketManager = new WebsocketManager(this.server);
+    this.websocketManager = new WebsocketManager(this.server, this.db);
   }
 
   public static async create(settings: BackendSettings) {

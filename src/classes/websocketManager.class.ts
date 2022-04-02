@@ -1,7 +1,6 @@
 import http from "http";
-import { loginMachine, updateStaticData } from "../services/machine.service";
-import { loginWebsocketUser } from "../services/user.service";
-import { DynamicData, MachineObject, StaticData } from "../types/machine";
+import { DatabaseManager, IMachine, ISafeMachine, IStaticData } from "../database/DatabaseManager";
+import { IDynamicData } from "../types/machine";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
 
@@ -10,13 +9,13 @@ export interface ClientToBackendEvents extends MittEvent {
 }
 
 export interface BackendToClientEvents extends MittEvent {
-  machineData: { machines: MachineObject[] };
+  machineData: { machines: ISafeMachine[] };
 }
 
 export interface ReporterToBackendEvents extends MittEvent {
   login: { auth_token: string };
-  staticData: StaticData;
-  dynamicData: DynamicData;
+  staticData: IStaticData;
+  dynamicData: IDynamicData;
 }
 
 export interface BackendToReporterEvents extends MittEvent {}
@@ -53,29 +52,27 @@ export class WebsocketManager {
     Object.values(this.userConnections).forEach((user) => user.emit(event, data));
   }
 
-  constructor(server: http.Server) {
+  constructor(server: http.Server, public db: DatabaseManager) {
     // I will trollcrazy you :trollface:
     const userSockets = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
 
     userSockets.on("connection", (socket) => {
       socket.on("login", async (data) => {
-        const user = await loginWebsocketUser(data.auth_token);
+        const user = await this.db.login_user_websocket(data.auth_token);
         this.userConnections[`${user.uuid}-${Date.now()}`] = socket;
       });
     });
 
-    // I will trollcrazy you again :trollface:
     const reporterSockets = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
 
     reporterSockets.on("connection", async (socket) => {
-      let machineUUID: string | undefined = undefined;
+      let machine: IMachine | undefined = undefined;
       // let usersThatHaveAccess: string[] = [];
 
       socket.on("login", async (data) => {
         try {
-          const machine = await loginMachine(data.auth_token);
+          machine = await this.db.login_machine(data.auth_token);
           this.reporterConnections[machine.uuid] = socket;
-          machineUUID = machine.uuid;
           // // Find the machine in the database
           // const machineInDatabase = await machines.findOne({ uuid: machineUUID }).catch();
           // // TODO: Make this disconnect the socket
@@ -86,12 +83,12 @@ export class WebsocketManager {
         }
       });
 
-      socket.on("staticData", (data) => updateStaticData(machineUUID!, data));
+      socket.on("staticData", (data) => machine?.update_static_data(data));
 
       socket.on("dynamicData", (data) => {
         const computedData = {
           ...data,
-          uuid: machineUUID,
+          uuid: machine!.uuid,
           // Computed values
           cau: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
           cas: ~~(data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length),

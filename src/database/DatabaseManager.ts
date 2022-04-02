@@ -101,7 +101,7 @@ export interface ISafeStaticData {
  * The backend machine containing methods
  */
 // prettier-ignore
-export interface IMachine extends ISafeMachine, mongoose.Document {
+export interface IMachine extends ISafeMachine, IMachineMethods, mongoose.Document {
   access_token: string;	// The access token (password) of the machine (used for authentication)
   static_data: IStaticData; // This overrides the static data from the extended interface with the non-safe verison
 }
@@ -124,7 +124,6 @@ export interface IUserMethods {
  */
 export interface IMachineMethods {
   update_static_data: (A: IStaticData) => Promise<IMachine>;
-  delete: () => Promise<void>;
 }
 
 /**
@@ -168,7 +167,7 @@ export class DatabaseManager {
 
   constructor(public database_url: string, public app_name: string, public database_name: string) {
     this.register_database_middleware();
-    this.register_schema_methods();
+    this.register_methods();
 
     this.users = mongoose.model<IUser>("User", this.userSchema);
     this.machines = mongoose.model<IMachine>("Machine", this.machineSchema);
@@ -185,15 +184,15 @@ export class DatabaseManager {
   /**
    * Assigns all the methods to every schema
    */
-  private register_schema_methods() {
-    this.register_user_schema_methods();
-    this.register_machine_schema_methods();
+  private register_methods() {
+    this.register_user_methods();
+    this.register_machine_methods();
   }
 
   /**
    * Assigns all the user methods
    */
-  private register_user_schema_methods() {
+  private register_user_methods() {
     // Local reference so 'this' doesn't conflict
     const machines = this.machines;
 
@@ -232,7 +231,7 @@ export class DatabaseManager {
     });
   }
 
-  private register_machine_schema_methods() {
+  private register_machine_methods() {
     this.machineSchema.methods.update_static_data = async function (this: IMachine, staticData: IStaticData) {
       this.static_data = staticData;
       return this.save();
