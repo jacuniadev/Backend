@@ -11,7 +11,7 @@ import { Logger } from "../utils/logger";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend {
-  public express: Express = express().use(cors).use(log).use(express.json()).use("/v1", new V1(this.db).router);
+  public express: Express = express().use(cors).use(log).use(express.json()).use(new V1(this.db).router);
   public port = process.env.PORT!;
   public verbose = process.env.VERBOSE!;
   public secure = process.env.SECURE!;

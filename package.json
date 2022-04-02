@@ -4,11 +4,9 @@
   "description": "",
   "main": "index.ts",
   "scripts": {
-    "dev": "cross-env MODE=development nodemon ./src/index.ts",
-    "prod": "cross-env MODE=production nodemon ./src/index.ts",
-    "test": "cross-env MODE=testing nyc ts-mocha --exit --colors -p ./tsconfig.json ./tests/**/*.test.ts",
+    "dev": "nodemon ./src/index.ts",
+    "prod": "nodemon ./src/index.ts",
     "constant-test": "nodemon --ext ts --exec npm run test",
-    "postinstall": "npm i -g typescript nexe nodemon ts-node",
     "build": "npm run build:typescript && npm run build:binary && npm run build:upx",
     "build:typescript": "tsc --build --verbose",
     "build:binary": "nexe --build --input ./dist/js/src/index.js --output ./dist/bin/xornet-backend.exe -r \"assets/**/*\" --verbose ",
