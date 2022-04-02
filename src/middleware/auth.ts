@@ -1,7 +1,7 @@
 import { Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { DatabaseManager, IUser } from "../database/DatabaseManager";
-import { LoggedInRequest } from "../types/user";
+import { DatabaseManager } from "../database/DatabaseManager";
+import { IUser, LoggedInRequest } from "../database/schemas/user";
 
 /**
  * The middleware that checks if the user is logged in

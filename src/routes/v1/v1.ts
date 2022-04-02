@@ -2,9 +2,9 @@ import express, { Router } from "express";
 import { MongoAPIError } from "mongodb";
 import { KeyManager } from "../../classes/keyManager.class";
 import { DatabaseManager } from "../../database/DatabaseManager";
+import { LoggedInRequest } from "../../database/schemas/user";
 import { getServerMetrics } from "../../logic";
 import { init_auth } from "../../middleware/auth";
-import { LoggedInRequest } from "../../types/user";
 import { Validators } from "../../validators";
 
 export class V1 {

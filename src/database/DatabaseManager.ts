@@ -3,10 +3,9 @@ import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import mongoose, { Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-import { CreateMachineInput } from "../types/machine";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
-import { IMachine, IStaticData, machineSchema } from "./schemas/machine";
+import { CreateMachineInput, IMachine, IStaticData, machineSchema } from "./schemas/machine";
 import { IUser, UserAuthResult, UserPasswordUpdateInput, userSchema, UserSignupInput } from "./schemas/user";
 
 export interface IBaseDocument {

@@ -38,11 +38,6 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
     type: String,
     required: false,
   },
-  status: {
-    type: String,
-    required: true,
-    default: MachineStatus.Offline,
-  },
   icon: {
     type: String,
     required: false,
@@ -69,11 +64,6 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
 /// ------- INTERFACES -----------------------------------------------------------
 /// ------------------------------------------------------------------------------
 
-export const enum MachineStatus {
-  Offline,
-  Online,
-}
-
 /**
  * This is the safe object that will be sent through the API endpoints
  */
@@ -83,7 +73,6 @@ export interface ISafeMachine extends IBaseDocument {
   hardware_uuid: string; // The generated uuid of the machine
   name: string; // The hostname of the machine
   description?: string; // A description of the machine
-  status: MachineStatus; // Online offline etc.
   access: string[]; // The list of users that have access to this machine
   static_data: ISafeStaticData; // The static data of the machine
 }
@@ -121,4 +110,100 @@ export interface IMachine extends ISafeMachine, IMachineMethods, mongoose.Docume
  */
 export interface IMachineMethods {
   update_static_data: (A: IStaticData) => Promise<IMachine>;
+}
+
+export interface IDynamicData {
+  cpu: ICPU;
+  ram: IRAM;
+  swap: ISwap;
+  gpu?: IGPU;
+  disks: IDisk[];
+  process_count: number;
+  temps?: ITemp[];
+  network: INetwork[];
+  host_uptime: number;
+  reporter_uptime: number;
+}
+
+export interface INetwork {
+  [x: string]: any;
+  n: string; // name
+  tx: number;
+  rx: number;
+  s: number; // speed
+}
+
+export interface ICPU {
+  usage: number[];
+  freq: number[];
+}
+
+export interface IRAM {
+  total: number;
+  used: number;
+}
+
+export type ISwap = IRAM;
+
+export interface IGPU {
+  brand: string;
+  gpu_usage: number;
+  power_usage: number;
+}
+
+export interface IDisk {
+  fs: string;
+  mount: string;
+  total: number;
+  type: string;
+  used: number;
+}
+
+export interface ITemp {
+  label: string;
+  value: number;
+}
+
+export interface IGeolocation {
+  ip: string;
+  success: boolean;
+  type: string;
+  continent: string;
+  continent_code: string;
+  country: string;
+  country_code: string;
+  country_flag: string;
+  country_capital: string;
+  country_phone: string;
+  country_neighbours: string;
+  region: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  asn: string;
+  org: string;
+  isp: string;
+  timezone: string;
+  timezone_name: string;
+  timezone_dstOffset: number;
+  timezone_gmtOffset: number;
+  timezone_gmt: string;
+  currency: string;
+  currency_code: string;
+  currency_symbol: string;
+  currency_rates: number;
+  currency_plural: string;
+  completed_requests: number;
+}
+
+export interface MachineSignupInput {
+  two_factor_key: string;
+  hardware_uuid: string;
+  hostname: string;
+}
+
+export interface CreateMachineInput {
+  hardware_uuid: string;
+  owner_uuid: string;
+  hostname: string;
 }

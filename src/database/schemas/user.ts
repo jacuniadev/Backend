@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
 import { IMachine } from "./machine";
+import express from "express";
 
 export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
   uuid: {
@@ -98,3 +99,11 @@ export interface UserSignupInput extends UserLoginInput {
  * The object the login/signup database statics return
  */
 export type UserAuthResult = { user: IUser; token: string };
+
+/**
+ * Logged in requests that implement the user in the request
+ */
+export interface LoggedInRequest extends express.Request {
+  params: any;
+  user?: IUser;
+}
