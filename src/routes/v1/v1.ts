@@ -2,39 +2,29 @@ import express, { Router } from "express";
 import { MongoAPIError } from "mongodb";
 import { KeyManager } from "../../classes/keyManager.class";
 import { DatabaseManager } from "../../database/DatabaseManager";
-import { getMemoryUsage, getProcessorUsage } from "../../logic";
-import { auth } from "../../middleware/auth";
+import { getServerMetrics } from "../../logic";
+import { init_auth } from "../../middleware/auth";
 import { LoggedInRequest } from "../../types/user";
 import { Validators } from "../../validators";
 
 export class V1 {
   private static HELLO_WORLD = JSON.stringify({ message: "Hello World" });
-  private auth = auth(this.db);
+  private auth = init_auth(this.db);
   public router: Router = express.Router();
   public keyManager = new KeyManager();
 
-  private constructor(public db: DatabaseManager) {
-    this.router.get("/", async (req, res) => res.send(V1.HELLO_WORLD));
-    this.router.get("/ping", async (req, res) => res.send());
-    this.router.get("/status", async (req, res) =>
-      res.json({
-        memory: await getMemoryUsage(),
-        processor: await getProcessorUsage(),
-        uptime: process.uptime(),
-      })
-    );
+  public constructor(public db: DatabaseManager) {
+    this.router.get("/", (_, res) => res.send(V1.HELLO_WORLD));
+    this.router.get("/ping", (_, res) => res.send());
+    this.router.get("/status", async (_, res) => res.json(getServerMetrics()));
     this.router.use("/users", this.generate_user_routes());
     this.router.use("/machines", this.generate_machine_routes());
-  }
-
-  public static create(db: DatabaseManager) {
-    return new this(db).router;
   }
 
   private generate_user_routes() {
     const router: Router = express.Router();
 
-    router.get("/@me", this.auth, (req: LoggedInRequest, res) => req.user!.toJSON());
+    router.get("/@me", this.auth, (req: LoggedInRequest) => req.user!.toJSON());
 
     router.delete("/@me", this.auth, (req: LoggedInRequest, res) =>
       req
@@ -48,7 +38,10 @@ export class V1 {
     );
 
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
-      (await this.db.find_user_by_uuid(req.params.uuid)).toJSON()
+      this.db
+        .find_one_user({ uuid: req.params.uuid })
+        .then((user) => res.send(user.toJSON()))
+        .catch((error) => res.status(404).json({ error }))
     );
 
     router.patch("/@avatar", this.auth, (req: LoggedInRequest, res) =>
@@ -91,7 +84,7 @@ export class V1 {
 
       if (!userUuid) return res.status(403).json({ error: "the 2FA token you provided has expired" });
       this.db
-        .find_user_by_uuid(userUuid)
+        .find_one_user({ uuid: userUuid })
         .then((user) => {
           this.db
             .new_machine({ owner_uuid: user.uuid, hardware_uuid, hostname })
@@ -112,7 +105,7 @@ export class V1 {
 
     router.delete("/:uuid", this.auth, async (req: LoggedInRequest, res) => {
       if (!Validators.validate_uuid(req.params.uuid)) return res.status(400).json({ error: "uuid is invalid" });
-      const machine = await this.db.find_machine_by_uuid(req.params.uuid);
+      const machine = await this.db.find_one_machine({ uuid: req.params.uuid });
       if (!machine) return res.status(404).json({ error: "machine not found" });
       if (machine.owner_uuid !== req.user!.uuid)
         return res.status(403).json({ error: "you are not the owner of this machine" });

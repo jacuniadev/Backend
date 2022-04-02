@@ -11,7 +11,7 @@ import { Logger } from "../utils/logger";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend implements BackendSettings {
-  public express: Express = express().use(cors).use(log).use(express.json()).use(V1.create(this.db));
+  public express: Express = express().use(cors).use(log).use(express.json()).use(new V1(this.db).router);
   public port: number;
   public verbose: boolean;
   public secure: boolean;

@@ -14,3 +14,11 @@ export const getMemoryUsage = async () => {
 export const getProcessorUsage = async () => {
   return osu.cpu.usage();
 };
+
+export const getServerMetrics = async () => {
+  return {
+    memory: await getMemoryUsage(),
+    processor: await getProcessorUsage(),
+    uptime: process.uptime(),
+  };
+};

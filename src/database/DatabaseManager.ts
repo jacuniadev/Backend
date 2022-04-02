@@ -337,7 +337,7 @@ export class DatabaseManager {
     if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
 
-    const user = await this.find_user_by_username(username);
+    const user = await this.find_one_user({ username });
 
     if (user && (await user.compare_password(password))) {
       const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
@@ -367,58 +367,22 @@ export class DatabaseManager {
     if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
 
-    const user = await this.find_user_by_username(username);
+    const user = await this.find_one_user({ username });
 
     if (user && (await user.compare_password(password))) {
       return this.users.deleteOne({ username: username });
     }
   }
 
-  private async find_machine_by_field(field: string, value: string) {
-    return (await this.machines.findOne({ [field]: value })) ?? Promise.reject("machine.notFound");
+  private async find_one<T>(collection: string, filter?: mongoose.FilterQuery<T>) {
+    return (await (this as any)[collection].findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
   }
 
-  public async find_machine_by_uuid(uuid: string) {
-    return this.find_machine_by_field("uuid", uuid);
+  public async find_one_machine(filter?: mongoose.FilterQuery<IMachine>) {
+    return this.find_one("machine", filter);
   }
 
-  public async find_machine_by_owner_uuid(owner_uuid: string) {
-    return this.find_machine_by_field("owner_uuid", owner_uuid);
-  }
-  /**
-   * Finds a user by the specified field name and value
-   * @param field_name The field name to search by
-   * @param field_value The value to search for
-   * @returns The user object if found, null otherwise
-   */
-  private async find_user_by_field(field_name: string, field_value: string): Promise<IUser> {
-    return (await this.users.findOne({ [field_name]: field_value })) ?? Promise.reject("user.notFound");
-  }
-
-  /**
-   * Finds a user by the specified user UUID
-   * @param uuid The user UUID to search for
-   * @returns The user object if found, null otherwise
-   */
-  public async find_user_by_uuid(uuid: string): Promise<IUser> {
-    return this.find_user_by_field("uuid", uuid);
-  }
-
-  /**
-   * Finds a user by the specified username
-   * @param username The username to search for
-   * @returns The user object if found, null otherwise
-   */
-  public async find_user_by_username(username: string): Promise<IUser> {
-    return this.find_user_by_field("username", username);
-  }
-
-  /**
-   * Finds a user by the specified email
-   * @param email The email to search for
-   * @returns The user object if found, null otherwise
-   */
-  public async find_user_by_email(email: string): Promise<IUser> {
-    return this.find_user_by_field("email", email);
+  public async find_one_user(filter?: mongoose.FilterQuery<IUser>) {
+    return this.find_one("user", filter);
   }
 }
