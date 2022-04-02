@@ -1,24 +1,19 @@
 import Joi from "joi";
 
 export class Validators {
-  public static TRUSTED_IMAGE_HOSTERS = [
-    "https://cdn.discordapp.com",
-    "https://media.discordapp.net",
-    "https://i.imgur.com",
-    "https://avatars.githubusercontent.com",
-  ];
+  public static TRUSTED_IMAGE_HOSTERS = ["https://cdn.discordapp.com", "https://i.imgur.com"];
   public static ALLOWED_IMAGE_EXTENSIONS = ["png", "gif", "jpg", "jpeg", "webp"];
 
-  public static validateEmail = (email: string) =>
+  public static validate_email = (email: string) =>
     Joi.string().email().not().empty().required().validate(email).error ? false : true;
 
-  public static validatePassword = (password: string) =>
+  public static validate_password = (password: string) =>
     Joi.string().required().min(4).max(64).not().empty().validate(password).error ? false : true;
 
-  public static validateUsername = (username: string) =>
+  public static validate_username = (username: string) =>
     Joi.string().required().min(4).max(32).alphanum().not().empty().validate(username).error ? false : true;
 
-  public static validateAvatarUrl = (url: string) => {
+  public static validate_avatar_url = (url: string) => {
     if (!this.TRUSTED_IMAGE_HOSTERS.some((hoster) => url.startsWith(hoster))) return false;
     if (
       !this.ALLOWED_IMAGE_EXTENSIONS.some((ext) =>
@@ -29,9 +24,9 @@ export class Validators {
     return Joi.string().uri().validate(url).error ? false : true;
   };
 
-  public static validateUUID = (uuid: string) => (Joi.string().required().uuid().validate(uuid).error ? false : true);
+  public static validate_uuid = (uuid: string) => (Joi.string().required().uuid().validate(uuid).error ? false : true);
 
-  public static validateHostname = (hostname: string) =>
+  public static validate_hostname = (hostname: string) =>
     Joi.string()
       .required()
       .pattern(/^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\-]*[A-Za-z0-9])$/)

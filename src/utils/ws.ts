@@ -36,10 +36,7 @@ interface WebsocketEmitter<T extends MittEvent> {
   [key: string | symbol]: unknown;
 }
 
-export function newWebSocketHandler<T extends MittEvent>(
-  server: http.Server,
-  path: string
-): [ws.Server, Emitter<WebsocketEmitter<T>>] {
+export function newWebSocketHandler<T extends MittEvent>(server: http.Server, path: string): Emitter<WebsocketEmitter<T>> {
   const websocketServer = new ws.Server({
     noServer: true,
     path,
@@ -57,5 +54,5 @@ export function newWebSocketHandler<T extends MittEvent>(
 
   websocketServer.on("connection", (socket) => emitter.emit("connection", new WebsocketConnection(socket)));
 
-  return [websocketServer, emitter];
+  return emitter;
 }

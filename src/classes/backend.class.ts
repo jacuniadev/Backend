@@ -2,28 +2,24 @@ import express, { Express } from "express";
 import fs from "fs";
 import http from "http";
 import https from "https";
-import mongoose from "mongoose";
+import { DatabaseManager } from "../database/DatabaseManager";
+import { checkEnvironmentVariables } from "../logic";
 import cors from "../middleware/cors";
 import log from "../middleware/log";
-import { v1 } from "../routes/v1";
-import { BackendSettings } from "../types";
-import { Logger } from "./logger";
+import { V1 } from "../routes/v1/v1";
+import { Logger } from "../utils/logger";
 import { WebsocketManager } from "./websocketManager.class";
 
-export class Backend implements BackendSettings {
-  public express: Express = express().use(cors).use(log).use(express.json()).use(v1);
-  public port: number;
-  public verbose: boolean;
-  public secure: boolean;
-  public mongoUrl: string;
+export class Backend {
+  public express: Express = express().use(cors).use(log).use(express.json()).use("/v1", new V1(this.db).router);
+  public port = process.env.PORT!;
+  public verbose = process.env.VERBOSE!;
+  public secure = process.env.SECURE!;
   public server: http.Server | https.Server;
   public websocketManager: WebsocketManager;
 
-  private constructor(settings: BackendSettings) {
-    this.port = settings.port;
-    this.verbose = settings.verbose;
-    this.mongoUrl = settings.mongoUrl;
-    this.secure = settings.secure;
+  private constructor(public db: DatabaseManager) {
+    checkEnvironmentVariables(["JWT_SECRET", "PORT", "SECURE", "VERBOSE"]);
     this.server = this.secure
       ? https.createServer(
           {
@@ -33,25 +29,13 @@ export class Backend implements BackendSettings {
           this.express
         )
       : http.createServer(this.express);
-    this.websocketManager = new WebsocketManager(this.server);
+    this.websocketManager = new WebsocketManager(this.server, this.db);
   }
 
-  public static async create(settings: BackendSettings) {
-    const server = new this(settings);
-    await server.connectDatabase();
+  public static async create() {
+    const server = new this(await DatabaseManager.new());
     server.listen();
     return server;
-  }
-
-  private async connectDatabase() {
-    Logger.info(`Connecting to MongoDB...`);
-    return mongoose
-      .connect(this.mongoUrl, { appName: "Xornet Backend" })
-      .then(() => this.verbose && Logger.info("MongoDB Connected"))
-      .catch((reason) => {
-        this.verbose && Logger.info("MongoDB failed to connect, reason: ", reason);
-        process.exit(1);
-      });
   }
 
   private listen() {

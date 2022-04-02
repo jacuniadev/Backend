@@ -5,10 +5,11 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "target": "ES2017",
+    "removeComments": true,
     "moduleResolution": "node",
-    "outDir": "dist",
+    "outDir": "dist/js",
     "declaration": false,
     "module": "commonjs",
-    "forceConsistentCasingInFileNames": true
+    "forceConsistentCasingInFileNames": false
   }
 }
