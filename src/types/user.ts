@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { ISafeUser, IUser } from "../database/DatabaseManager";
+import { IUser, ISafeUser } from "../database/schemas/user";
 
 export interface UserLoginInput {
   [key: string]: any;
