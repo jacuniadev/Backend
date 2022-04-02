@@ -8,7 +8,7 @@ async function main() {
   console.clear();
 
   const hostname = `${chalk.cyan("hostname")}  ${chalk.reset(os.hostname())}`;
-  const memory = `${chalk.cyan("memory")}    ${chalk.reset((await getMemoryUsage()).used.toFixed(2))} Mb`;
+  const arch = `${chalk.cyan("arch")}      ${chalk.reset(os.arch())}`;
   const pid = `${chalk.cyan("pid")}       ${chalk.reset(process.pid)}`;
   const secure = `${chalk.cyan("secure")}    ${process.env.SECURE === "true" ? chalk.green("yes") : chalk.red("no")}`;
   const mode = `${chalk.cyan("mode")}      ${
@@ -18,7 +18,7 @@ async function main() {
   const logo = chalk.blue(`
  
    _  ______  ___  _  ____________      ${hostname}
-  | |/_/ __ \\/ _ \\/ |/ / __/_  __/      ${memory}
+  | |/_/ __ \\/ _ \\/ |/ / __/_  __/      ${arch}
  _>  </ /_/ / , _/    / _/  / /         ${pid}
 /_/|_|\\____/_/|_/_/|_/___/ /_/          ${secure}
     John Xina is behind you             ${mode}
