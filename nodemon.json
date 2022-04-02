@@ -5,7 +5,9 @@
   ],
   "watch": [
     ".env",
-    ".env.example"
+    ".env.example",
+    "*.js",
+    "*.ts"
   ],
   "exec": "ts-node -T ./src/index.ts"
 }

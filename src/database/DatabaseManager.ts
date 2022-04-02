@@ -34,7 +34,7 @@ const preSaveMiddleware = async function <
 
   // Intercept the password save and hash it
   if (this.isModified("password")) {
-    const salt = await bcrypt.genSalt(process.env.MODE === "testing" ? 1 : 10);
+    const salt = await bcrypt.genSalt(process.env.MODE === "development" ? 1 : 10);
     const hash = await bcrypt.hash(this.password!, salt);
     this.password = hash;
   }
@@ -66,7 +66,7 @@ export class DatabaseManager {
   }
 
   private check_process_variables() {
-    checkEnvironmentVariables(["DB_PROTOCOL", "DB_HOST", "DB_NAME", "APP_NAME"]);
+    checkEnvironmentVariables(["DB_PROTOCOL", "DB_HOST", "DB_NAME", "APP_NAME", "MODE"]);
   }
 
   /**
@@ -173,7 +173,7 @@ export class DatabaseManager {
   /**
    * Connects to the MongoDB
    */
-  public async connect_database() {
+  public connect_database() {
     const DB_URL = this.construct_database_url();
     Logger.info(`Connecting to ${DB_URL}`);
     return mongoose
