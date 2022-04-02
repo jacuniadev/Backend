@@ -337,7 +337,7 @@ export class DatabaseManager {
     if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
 
-    const user = await this.find_one_user({ username });
+    const user = await this.find_user({ username });
 
     if (user && (await user.compare_password(password))) {
       const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
@@ -367,7 +367,7 @@ export class DatabaseManager {
     if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
 
-    const user = await this.find_one_user({ username });
+    const user = await this.find_user({ username });
 
     if (user && (await user.compare_password(password))) {
       return this.users.deleteOne({ username: username });
@@ -378,11 +378,35 @@ export class DatabaseManager {
     return (await (this as any)[collection].findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
   }
 
-  public async find_one_machine(filter?: mongoose.FilterQuery<IMachine>) {
+  private async find<T>(collection: string, filter?: mongoose.FilterQuery<T>) {
+    return (await (this as any)[collection].find(filter)) ?? Promise.reject(`${collection}s.notFound`);
+  }
+
+  /**
+   *  Finds one machine
+   */
+  public async find_machine(filter?: mongoose.FilterQuery<IMachine>) {
     return this.find_one("machine", filter);
   }
 
-  public async find_one_user(filter?: mongoose.FilterQuery<IUser>) {
+  /**
+   *  Finds one user
+   */
+  public async find_user(filter?: mongoose.FilterQuery<IUser>) {
     return this.find_one("user", filter);
+  }
+
+  /**
+   * 	Finds an array of machines
+   */
+  public async find_machines(filter?: mongoose.FilterQuery<IMachine>) {
+    return this.find("machine", filter);
+  }
+
+  /**
+   * 	Finds an array of users
+   */
+  public async find_users(filter?: mongoose.FilterQuery<IUser>) {
+    return this.find("user", filter);
   }
 }

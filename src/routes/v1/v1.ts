@@ -39,7 +39,7 @@ export class V1 {
 
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
       this.db
-        .find_one_user({ uuid: req.params.uuid })
+        .find_user({ uuid: req.params.uuid })
         .then((user) => res.send(user.toJSON()))
         .catch((error) => res.status(404).json({ error }))
     );
@@ -84,7 +84,7 @@ export class V1 {
 
       if (!userUuid) return res.status(403).json({ error: "the 2FA token you provided has expired" });
       this.db
-        .find_one_user({ uuid: userUuid })
+        .find_user({ uuid: userUuid })
         .then((user) => {
           this.db
             .new_machine({ owner_uuid: user.uuid, hardware_uuid, hostname })
@@ -105,7 +105,7 @@ export class V1 {
 
     router.delete("/:uuid", this.auth, async (req: LoggedInRequest, res) => {
       if (!Validators.validate_uuid(req.params.uuid)) return res.status(400).json({ error: "uuid is invalid" });
-      const machine = await this.db.find_one_machine({ uuid: req.params.uuid });
+      const machine = await this.db.find_machine({ uuid: req.params.uuid });
       if (!machine) return res.status(404).json({ error: "machine not found" });
       if (machine.owner_uuid !== req.user!.uuid)
         return res.status(403).json({ error: "you are not the owner of this machine" });
