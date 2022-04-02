@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-const GREEN = "\x1b[32m";
+const BLUE = "\x1b[34m";
 const YELLOW = "\x1b[33m";
 const RED = "\x1b[31m";
 const DIM = "\x1b[2m";
@@ -46,7 +46,7 @@ export class Logger {
    * @author azur1s
    */
   static info = (...args: any[]): void => {
-    this.log(GREEN, "Info", ...args);
+    this.log(BLUE, "Info", ...args);
   };
 
   /**
