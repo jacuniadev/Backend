@@ -7,10 +7,3 @@ export const enum Time {
   Month = 30 * Day,
   Year = 365 * Day,
 }
-
-export interface BackendSettings {
-  port: number;
-  verbose: boolean;
-  mongoUrl: string;
-  secure: boolean;
-}

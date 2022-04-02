@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import mongoose, { Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
+import { checkEnvironmentVariables } from "../logic";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
 import { CreateMachineInput, IMachine, IStaticData, machineSchema } from "./schemas/machine";
@@ -52,13 +53,32 @@ export class DatabaseManager {
   private machineSchema = machineSchema;
   public users: Model<IUser>;
   public machines: Model<IMachine>;
+  private app_name = process.env.APP_NAME!;
 
-  constructor(public database_url: string, public app_name: string, public database_name: string) {
+  private constructor() {
+    this.check_process_variables();
+    this.connect_database();
     this.register_database_middleware();
     this.register_methods();
 
     this.users = mongoose.model<IUser>("User", this.userSchema);
     this.machines = mongoose.model<IMachine>("Machine", this.machineSchema);
+  }
+
+  private check_process_variables() {
+    checkEnvironmentVariables(["DB_PROTOCOL", "DB_HOST", "DB_NAME", "APP_NAME"]);
+  }
+
+  /**
+   * Creates a new database manager
+   * @param database_url The database servers url to connect to
+   * @param app_name the name of the app for the mongodb client
+   * @param database_name The name of the database to connect to
+   * @returns The new database manager
+   */
+  public static async new(): Promise<DatabaseManager> {
+    const self = new this();
+    return self;
   }
 
   /**
@@ -142,34 +162,22 @@ export class DatabaseManager {
   }
 
   /**
-   * Creates a new database manager
-   * @param database_url The database servers url to connect to
-   * @param app_name the name of the app for the mongodb client
-   * @param database_name The name of the database to connect to
-   * @returns The new database manager
-   */
-  public static async new(database_url: string, app_name: string, database_name: string): Promise<DatabaseManager> {
-    const self = new this(database_url, app_name, database_name);
-    return self;
-  }
-
-  /**
    * Creates the URL string for the database
    * @returns The URL for the database
    */
   private construct_database_url() {
-    const { DATABASE_PROTOCOL, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_NAME } = process.env;
-    return `${DATABASE_PROTOCOL}://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@${DATABASE_HOST}/${DATABASE_NAME}`;
+    const { DB_PROTOCOL, DB_USERNAME, DB_PASSWORD, DB_HOST, DB_NAME } = process.env;
+    return `${DB_PROTOCOL}://${DB_USERNAME ? `${DB_USERNAME}:${DB_PASSWORD}@` : ""}${DB_HOST}/${DB_NAME}`;
   }
 
   /**
    * Connects to the MongoDB
    */
   public async connect_database() {
-    const DATABASE_URL = this.construct_database_url();
-    Logger.info(`Connecting to ${DATABASE_URL}`);
+    const DB_URL = this.construct_database_url();
+    Logger.info(`Connecting to ${DB_URL}`);
     return mongoose
-      .connect(DATABASE_URL, { appName: this.app_name })
+      .connect(DB_URL, { appName: this.app_name })
       .then(() => Logger.info("MongoDB Connected"))
       .catch((reason) => {
         Logger.error("MongoDB failed to connect, reason: ", reason);
