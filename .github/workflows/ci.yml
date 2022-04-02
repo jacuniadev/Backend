@@ -17,5 +17,3 @@ jobs:
       run: npm i 
     - name: 🛠 Compile typescript
       run: tsc 
-    - name: 🧪 Run tests
-      run: npm run test
