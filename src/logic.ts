@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import osu from "node-os-utils";
 import { Logger } from "./utils/logger";
 
@@ -30,7 +31,7 @@ export const checkEnvironmentVariables = (variables: string[]) => {
     const variableValue = process.env[variableName];
 
     if (variableValue) {
-      Logger.info(`Process variable ${variableName}: ${variableValue}`);
+      Logger.info(`Process variable ${chalk.cyan(variableName)}: ${variableValue}`);
     } else {
       Logger.error(`Process variable ${variableName} is undefined, please fix the .env`);
       process.exit(1);

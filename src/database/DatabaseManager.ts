@@ -1,4 +1,5 @@
 import bcrypt from "bcryptjs";
+import chalk from "chalk";
 import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import mongoose, { Model } from "mongoose";
@@ -175,10 +176,10 @@ export class DatabaseManager {
    */
   public connect_database() {
     const DB_URL = this.construct_database_url();
-    Logger.info(`Connecting to ${DB_URL}`);
+    Logger.info(`Connecting to ${chalk.blue(DB_URL)}`);
     return mongoose
       .connect(DB_URL, { appName: this.app_name })
-      .then(() => Logger.info("MongoDB Connected"))
+      .then(() => Logger.info(chalk.green("MongoDB Connected")))
       .catch((reason) => {
         Logger.error("MongoDB failed to connect, reason: ", reason);
         process.exit(1);

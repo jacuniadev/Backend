@@ -25,7 +25,7 @@ export class Logger {
   public static getCurrentMemoryHeap() {
     const mem = process.memoryUsage();
     const total = mem.heapTotal / 1000 / 1000;
-    return chalk.gray(`${total.toFixed(2)}MB`);
+    return chalk.magenta(`${total.toFixed(2)}MB`);
   }
 
   /**

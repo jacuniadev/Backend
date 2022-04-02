@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import express, { Express } from "express";
 import fs from "fs";
 import http from "http";
@@ -41,7 +42,9 @@ export class Backend {
   private listen() {
     this.server.listen(
       this.port,
-      () => this.verbose && Logger.info(`Started on port http${this.secure ? "s" : ""}://127.0.0.1:${this.port.toString()}`)
+      () =>
+        this.verbose &&
+        Logger.info(`Started on port ${chalk.blue(`http${this.secure ? "s" : ""}://127.0.0.1:${this.port.toString()}`)}`)
     );
   }
 }
