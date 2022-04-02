@@ -16,7 +16,7 @@ export class V1 {
   public constructor(public db: DatabaseManager) {
     this.router.get("/", (_, res) => res.send(V1.HELLO_WORLD));
     this.router.get("/ping", (_, res) => res.send());
-    this.router.get("/status", async (_, res) => res.json(getServerMetrics()));
+    this.router.get("/status", async (_, res) => res.json(await getServerMetrics()));
     this.router.use("/users", this.generate_user_routes());
     this.router.use("/machines", this.generate_machine_routes());
   }
