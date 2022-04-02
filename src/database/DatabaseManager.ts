@@ -163,7 +163,6 @@ const preSaveMiddleware = async function <
 export class DatabaseManager {
   private userSchema = userSchema;
   private machineSchema = machineSchema;
-  private keyManager = new KeyManager();
   public users: Model<IUser>;
   public machines: Model<IMachine>;
 
@@ -375,6 +374,17 @@ export class DatabaseManager {
     }
   }
 
+  private async find_machine_by_field(field: string, value: string) {
+    return (await this.machines.findOne({ [field]: value })) ?? Promise.reject("machine.notFound");
+  }
+
+  public async find_machine_by_uuid(uuid: string) {
+    return this.find_machine_by_field("uuid", uuid);
+  }
+
+  public async find_machine_by_owner_uuid(owner_uuid: string) {
+    return this.find_machine_by_field("owner_uuid", owner_uuid);
+  }
   /**
    * Finds a user by the specified field name and value
    * @param field_name The field name to search by
