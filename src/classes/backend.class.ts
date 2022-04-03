@@ -12,7 +12,7 @@ import { Logger } from "../utils/logger";
 import { WebsocketManager } from "./websocketManager.class";
 
 export class Backend {
-  public express: Express;
+  public express: Express = express().use(cors).use(log).use(express.json()).use(new V1(this.db).router);
   public port = process.env.PORT!;
   public verbose = process.env.VERBOSE!;
   public secure = process.env.SECURE! === "true";
@@ -21,9 +21,6 @@ export class Backend {
 
   private constructor(public db: DatabaseManager) {
     checkEnvironmentVariables(["JWT_SECRET", "PORT", "SECURE", "VERBOSE"]);
-    console.log(this.db);
-
-    this.express = express().use(cors).use(log).use(express.json()).use(new V1(this.db).router);
     this.server = this.secure
       ? https.createServer(
           {
