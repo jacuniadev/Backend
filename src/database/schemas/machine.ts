@@ -60,17 +60,6 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
   },
 });
 
-// Logger.info(chalk.cyan("+ Registered machine method update_static_data();"));
-machineSchema.methods.update_static_data = async function (this: IMachine, staticData: IStaticData) {
-  this.static_data = staticData;
-  return this.save();
-};
-
-// Logger.info(chalk.cyan("+ Registered machine method delete();"));
-machineSchema.methods.delete = async function (this: IMachine) {
-  return this.delete();
-};
-
 machineSchema.set("toJSON", {
   virtuals: false,
   transform: (doc: any, ret: any, options: any) => {
@@ -81,6 +70,21 @@ machineSchema.set("toJSON", {
     delete ret.access_token;
   },
 });
+
+/// ------------------------------------------------------------------------------
+/// ------- METHODS --------------------------------------------------------------
+/// ------------------------------------------------------------------------------
+
+export interface IMachineMethods {
+  update_static_data: (A: IStaticData) => Promise<IMachine>;
+}
+
+machineSchema.methods = {
+  update_static_data: async function (this: IMachine, staticData: IStaticData) {
+    this.static_data = staticData;
+    return this.save();
+  },
+} as IMachineMethods;
 
 export const machines = mongoose.model<IMachine>("Machine", machineSchema);
 
@@ -127,13 +131,6 @@ export interface ISafeStaticData {
 export interface IMachine extends ISafeMachine, IMachineMethods, mongoose.Document {
   access_token: string;	// The access token (password) of the machine (used for authentication)
   static_data: IStaticData; // This overrides the static data from the extended interface with the non-safe verison
-}
-
-/**
- * A machines's methods
- */
-export interface IMachineMethods {
-  update_static_data: (A: IStaticData) => Promise<IMachine>;
 }
 
 export interface IDynamicData {
