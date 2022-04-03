@@ -24,7 +24,7 @@ export class V1 {
   private generate_user_routes() {
     const router: Router = express.Router();
 
-    router.get("/@me", this.auth, (req: LoggedInRequest) => req.user!.toJSON());
+    router.get("/@me", this.auth, (req: LoggedInRequest, res) => res.send(req.user!.toJSON()));
 
     router.delete("/@me", this.auth, (req: LoggedInRequest, res) =>
       req
@@ -44,11 +44,11 @@ export class V1 {
         .catch((error) => res.status(404).json({ error }))
     );
 
-    router.patch("/@avatar", this.auth, (req: LoggedInRequest, res) =>
+    router.patch("/@avatar", this.auth, (req: LoggedInRequest, res) => {
       Validators.validate_avatar_url(req.body.url)
         ? req.user!.update_avatar(req.body.url).then((user) => res.send(user.toJSON()))
-        : res.status(400).json({ error: "invalid url" })
-    );
+        : res.status(400).json({ error: "invalid url" });
+    });
 
     router.patch("/@banner", this.auth, (req: LoggedInRequest, res) =>
       Validators.validate_avatar_url(req.body.url)

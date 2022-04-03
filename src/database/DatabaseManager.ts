@@ -7,8 +7,8 @@ import { v4 as uuidv4 } from "uuid";
 import { checkEnvironmentVariables } from "../logic";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
-import { CreateMachineInput, IMachine, IStaticData, machineSchema } from "./schemas/machine";
-import { IUser, UserAuthResult, UserPasswordUpdateInput, userSchema, UserSignupInput } from "./schemas/user";
+import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema } from "./schemas/machine";
+import { IUser, UserAuthResult, UserPasswordUpdateInput, users, userSchema, UserSignupInput } from "./schemas/user";
 
 export interface IBaseDocument {
   uuid: string; // The unique identifier of the document
@@ -52,18 +52,14 @@ const preSaveMiddleware = async function <
 export class DatabaseManager {
   private userSchema = userSchema;
   private machineSchema = machineSchema;
-  public users: Model<IUser>;
-  public machines: Model<IMachine>;
+  public users: Model<IUser> = users;
+  public machines: Model<IMachine> = machines;
   private app_name = process.env.APP_NAME!;
 
   private constructor() {
     this.check_process_variables();
     this.connect_database();
     this.register_database_middleware();
-    this.register_methods();
-
-    this.users = mongoose.model<IUser>("User", this.userSchema);
-    this.machines = mongoose.model<IMachine>("Machine", this.machineSchema);
   }
 
   private check_process_variables() {
@@ -88,78 +84,6 @@ export class DatabaseManager {
   private register_database_middleware() {
     this.userSchema.pre("save", preSaveMiddleware);
     this.machineSchema.pre("save", preSaveMiddleware);
-  }
-
-  /**
-   * Assigns all the methods to every schema
-   */
-  private register_methods() {
-    this.register_user_methods();
-    this.register_machine_methods();
-  }
-
-  /**
-   * Assigns all the user methods
-   */
-  private register_user_methods() {
-    // Local reference so 'this' doesn't conflict
-    const machines = this.machines;
-
-    this.userSchema.methods.compare_password = async function (this: IUser, candidatePassword: string): Promise<boolean> {
-      return bcrypt.compare(candidatePassword, this.password).catch(() => false);
-    };
-
-    this.userSchema.methods.update_avatar = async function (this: IUser, newAvatar: string): Promise<IUser> {
-      this.avatar = newAvatar;
-      return this.save();
-    };
-
-    this.userSchema.methods.get_machines = async function (this: IUser) {
-      return machines.find({ owner_uuid: this.uuid });
-    };
-
-    this.userSchema.methods.update_password = async function (this: IUser, form: UserPasswordUpdateInput): Promise<IUser> {
-      if (!Validators.validate_password(form.current_password)) return Promise.reject("current.password.invalid");
-      if (!Validators.validate_password(form.new_password)) return Promise.reject("new.password.invalid");
-      if (!Validators.validate_password(form.new_password_repeat)) return Promise.reject("repeat.password.invalid");
-      if (!(await this.compare_password(form.current_password))) return Promise.reject("password.invalid");
-      if (form.new_password !== form.new_password_repeat) return Promise.reject("passwords.mismatch");
-
-      this.password = form.new_password;
-      return this.save();
-    };
-
-    this.userSchema.set("toJSON", {
-      virtuals: false,
-      transform: (doc: any, ret: any, options: any) => {
-        delete ret.__v;
-        delete ret._id;
-        delete ret.password;
-        delete ret.email;
-      },
-    });
-  }
-
-  private register_machine_methods() {
-    this.machineSchema.methods.update_static_data = async function (this: IMachine, staticData: IStaticData) {
-      this.static_data = staticData;
-      return this.save();
-    };
-
-    this.machineSchema.methods.delete = async function (this: IMachine) {
-      return this.delete();
-    };
-
-    this.machineSchema.set("toJSON", {
-      virtuals: false,
-      transform: (doc: any, ret: any, options: any) => {
-        delete ret.__v;
-        delete ret._id;
-        delete ret.static_data.public_ip;
-        delete ret.static_data.city;
-        delete ret.access_token;
-      },
-    });
   }
 
   /**

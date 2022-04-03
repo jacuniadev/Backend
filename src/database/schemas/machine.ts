@@ -60,6 +60,30 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
   },
 });
 
+// Logger.info(chalk.cyan("+ Registered machine method update_static_data();"));
+machineSchema.methods.update_static_data = async function (this: IMachine, staticData: IStaticData) {
+  this.static_data = staticData;
+  return this.save();
+};
+
+// Logger.info(chalk.cyan("+ Registered machine method delete();"));
+machineSchema.methods.delete = async function (this: IMachine) {
+  return this.delete();
+};
+
+machineSchema.set("toJSON", {
+  virtuals: false,
+  transform: (doc: any, ret: any, options: any) => {
+    delete ret.__v;
+    delete ret._id;
+    delete ret.static_data.public_ip;
+    delete ret.static_data.city;
+    delete ret.access_token;
+  },
+});
+
+export const machines = mongoose.model<IMachine>("Machine", machineSchema);
+
 /// ------------------------------------------------------------------------------
 /// ------- INTERFACES -----------------------------------------------------------
 /// ------------------------------------------------------------------------------

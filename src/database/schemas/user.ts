@@ -1,7 +1,9 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
-import { IMachine } from "./machine";
+import { IMachine, machines } from "./machine";
 import express from "express";
+import { Validators } from "../../validators";
+import bcrypt from "bcryptjs";
 
 export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
   uuid: {
@@ -38,6 +40,46 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     type: String,
   },
 });
+
+// Logger.info(chalk.cyan("+ Registered user method compare_password();"));
+userSchema.methods.compare_password = async function (this: IUser, candidatePassword: string): Promise<boolean> {
+  return bcrypt.compare(candidatePassword, this.password).catch(() => false);
+};
+
+// Logger.info(chalk.cyan("+ Registered user method update_avatar();"));
+userSchema.methods.update_avatar = async function (this: IUser, newAvatar: string): Promise<IUser> {
+  this.avatar = newAvatar;
+  return this.save();
+};
+
+// Logger.info(chalk.cyan("+ Registered user method get_machines();"));
+userSchema.methods.get_machines = async function (this: IUser) {
+  return machines.find({ owner_uuid: this.uuid });
+};
+
+// Logger.info(chalk.cyan("+ Registered user method update_password();"));
+userSchema.methods.update_password = async function (this: IUser, form: UserPasswordUpdateInput): Promise<IUser> {
+  if (!Validators.validate_password(form.current_password)) return Promise.reject("current.password.invalid");
+  if (!Validators.validate_password(form.new_password)) return Promise.reject("new.password.invalid");
+  if (!Validators.validate_password(form.new_password_repeat)) return Promise.reject("repeat.password.invalid");
+  if (!(await this.compare_password(form.current_password))) return Promise.reject("password.invalid");
+  if (form.new_password !== form.new_password_repeat) return Promise.reject("passwords.mismatch");
+
+  this.password = form.new_password;
+  return this.save();
+};
+
+userSchema.set("toJSON", {
+  virtuals: false,
+  transform: (doc: any, ret: any, options: any) => {
+    delete ret.__v;
+    delete ret._id;
+    delete ret.password;
+    delete ret.email;
+  },
+});
+
+export const users = mongoose.model<IUser>("User", userSchema);
 
 /// ------------------------------------------------------------------------------
 /// ------- INTERFACES -----------------------------------------------------------
