@@ -68,9 +68,6 @@ export class DatabaseManager {
 
   /**
    * Creates a new database manager
-   * @param database_url The database servers url to connect to
-   * @param app_name the name of the app for the mongodb client
-   * @param database_name The name of the database to connect to
    * @returns The new database manager
    */
   public static async new(): Promise<DatabaseManager> {
