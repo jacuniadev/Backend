@@ -33,9 +33,9 @@ export class V1 {
         .catch(() => res.status(500).send())
     );
 
-    router.get("/@me/machines", this.auth, (req: LoggedInRequest, res) =>
-      req.user!.get_machines().then((machines) => res.send(machines.map((machine) => machine.toJSON())))
-    );
+    router.get("/@me/machines", this.auth, (req: LoggedInRequest, res) => {
+      req.user!.get_machines().then((machines) => res.send(machines.map((machine) => machine.toJSON())));
+    });
 
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
       this.db
