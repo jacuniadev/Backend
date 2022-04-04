@@ -4,6 +4,7 @@ import { IMachine, machines } from "./machine";
 import express from "express";
 import { Validators } from "../../validators";
 import bcrypt from "bcryptjs";
+import { preSaveMiddleware } from "../middleware/preSave";
 
 export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
   uuid: {
@@ -50,6 +51,8 @@ userSchema.set("toJSON", {
     delete ret.email;
   },
 });
+
+userSchema.pre("save", preSaveMiddleware);
 
 /// ------------------------------------------------------------------------------
 /// ------- METHODS --------------------------------------------------------------

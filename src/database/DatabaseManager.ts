@@ -17,35 +17,6 @@ export interface IBaseDocument {
 }
 
 /**
- * This function updates the "updated_at" field automatically
- * whenever something changes on the database and it also will encrypt the
- * password of a user if it changes
- */
-const preSaveMiddleware = async function <
-  T extends IBaseDocument & {
-    isNew: boolean;
-    isModified: (a: string) => boolean;
-    password?: string; // question mark hack to avoid conflict with machineSchema
-  }
->(this: T, next: Function) {
-  if (this.isNew) {
-    this.created_at = Date.now();
-    this.uuid = uuidv4();
-  }
-
-  // Intercept the password save and hash it
-  if (this.isModified("password")) {
-    const salt = await bcrypt.genSalt(process.env.MODE === "development" ? 1 : 10);
-    const hash = await bcrypt.hash(this.password!, salt);
-    this.password = hash;
-  }
-
-  this.updated_at = Date.now();
-
-  return next();
-};
-
-/**
  * Database handler class
  * @class DatabaseManager
  */
@@ -59,7 +30,6 @@ export class DatabaseManager {
   private constructor() {
     this.check_process_variables();
     this.connect_database();
-    this.register_database_middleware();
   }
 
   private check_process_variables() {
@@ -73,14 +43,6 @@ export class DatabaseManager {
   public static async new(): Promise<DatabaseManager> {
     const self = new this();
     return self;
-  }
-
-  /**
-   * Registers the presave middleware to all the schemas
-   */
-  private register_database_middleware() {
-    this.userSchema.pre("save", preSaveMiddleware);
-    this.machineSchema.pre("save", preSaveMiddleware);
   }
 
   /**

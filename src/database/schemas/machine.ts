@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
+import { preSaveMiddleware } from "../middleware/preSave";
 
 export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachine>, IMachineMethods>({
   uuid: {
@@ -70,6 +71,8 @@ machineSchema.set("toJSON", {
     ret.static_data?.city && delete ret.static_data.city;
   },
 });
+
+machineSchema.pre("save", preSaveMiddleware);
 
 /// ------------------------------------------------------------------------------
 /// ------- METHODS --------------------------------------------------------------
