@@ -26,7 +26,7 @@ async function main() {
 
   console.log(logo);
   const backend = await Backend.create();
-  process.on("uncaughtException", (err) => console.error("Uncaught Exception: ", err.message));
+  process.on("uncaughtException", (err) => console.log(err.message));
 }
 
 main();
