@@ -78,7 +78,7 @@ userSchema.methods = {
   get_machines: async function (this: IUser) {
     // return machines.find({ owner_uuid: this.uuid });
     // Temporary for now
-    return machines.find();
+    return machines.find({});
   },
 
   update_password: async function (this: IUser, form: UserPasswordUpdateInput): Promise<IUser> {
