@@ -15,8 +15,7 @@ export class Logger {
    * @author Geoxor
    */
   private static log(color: string, prefix: string, ...args: any[]) {
-    process.env.TESTING === "false" &&
-      console.log(`${this.getCurrentMemoryHeap()} ${this.time()} ${color}[${prefix.toUpperCase()}]${RESET}`, ...args);
+    console.log(`${this.getCurrentMemoryHeap()} ${this.time()} ${color}[${prefix.toUpperCase()}]${RESET}`, ...args);
   }
 
   /**

@@ -57,16 +57,16 @@ export class DatabaseManager {
   /**
    * Connects to the MongoDB
    */
-  public connect_database() {
+  public async connect_database() {
     const DB_URL = this.construct_database_url();
     Logger.info(`Connecting to ${chalk.blue(DB_URL)}`);
-    return mongoose
-      .connect(DB_URL, { appName: this.app_name })
-      .then(() => Logger.info(chalk.green("MongoDB Connected")))
-      .catch((reason) => {
-        Logger.error("MongoDB failed to connect, reason: ", reason);
-        process.exit(1);
-      });
+    try {
+      await mongoose.connect(DB_URL, { appName: this.app_name });
+      return Logger.info(chalk.green("MongoDB Connected"));
+    } catch (reason) {
+      Logger.error("MongoDB failed to connect, reason: ", reason);
+      process.exit(1);
+    }
   }
 
   private generate_access_token = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");

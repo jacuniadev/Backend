@@ -78,6 +78,11 @@ userSchema.methods = {
     return this.save();
   },
 
+  update_banner: async function (this: IUser, newBanner: string): Promise<IUser> {
+    this.banner = newBanner;
+    return this.save();
+  },
+
   get_machines: async function (this: IUser) {
     // return machines.find({ owner_uuid: this.uuid });
     // Temporary for now
