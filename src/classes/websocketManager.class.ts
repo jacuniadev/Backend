@@ -1,6 +1,7 @@
 import http from "http";
 import { DatabaseManager } from "../database/DatabaseManager";
-import { ISafeMachine, IStaticData, IMachine, IDynamicData } from "../database/schemas/machine";
+import { ISafeMachine, IStaticData, IMachine, IDynamicData, INetwork } from "../database/schemas/machine";
+import { isVirtualInterface } from "../logic";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
 
@@ -85,18 +86,18 @@ export class WebsocketManager {
       socket.on("staticData", (data) => machine?.update_static_data(data));
 
       socket.on("dynamicData", (data) => {
-        const computedData = {
+        // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
+        this.broadcastClients("machineData", {
           ...data,
           uuid: machine!.uuid,
           // Computed values
           cau: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
           cas: ~~(data.cpu.freq.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
-          td: data.network.reduce((a, b) => a + b.rx, 0) / 1000 / 1000,
-          tu: data.network.reduce((a, b) => a + b.tx, 0) / 1000 / 1000,
-        };
-
-        // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
-        this.broadcastClients("machineData", computedData);
+          td: data.network.reduce((a, b) => (!isVirtualInterface(b) ? a + b.rx : a), 0) / 1000 / 1000,
+          tu: data.network.reduce((a, b) => (!isVirtualInterface(b) ? a + b.tx : a), 0) / 1000 / 1000,
+          tvd: data.network.reduce((a, b) => (isVirtualInterface(b) ? a + b.rx : a), 0) / 1000 / 1000,
+          tvu: data.network.reduce((a, b) => (isVirtualInterface(b) ? a + b.tx : a), 0) / 1000 / 1000,
+        });
       });
     });
   }

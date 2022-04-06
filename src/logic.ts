@@ -1,6 +1,9 @@
 import chalk from "chalk";
 import osu from "node-os-utils";
+import { INetwork } from "./database/schemas/machine";
 import { Logger } from "./utils/logger";
+
+export const VIRTUAL_INTERFACES = ["veth", "vcan", "vxlan", "docker0", "lo"];
 
 /**
  * Gets the used/total heap in ram used
@@ -37,4 +40,12 @@ export const checkEnvironmentVariables = (variables: string[]) => {
       process.exit(1);
     }
   }
+};
+
+export const isVirtualInterface = (iface: INetwork): Boolean => {
+  for (let i = 0; i < VIRTUAL_INTERFACES.length; i++) {
+    const prefixName = VIRTUAL_INTERFACES[i];
+    return iface.n.startsWith(prefixName);
+  }
+  return false;
 };
