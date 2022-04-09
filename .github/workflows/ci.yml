@@ -5,7 +5,7 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   compile-test:
     name: "🛠 Compile & Test"
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
     - name: 🛎 Checkout
       uses: actions/checkout@v2
