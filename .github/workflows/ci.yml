@@ -9,10 +9,6 @@ jobs:
     steps:
     - name: 🛎 Checkout
       uses: actions/checkout@v2
-    - name: 🛠 Install MongoDB
-      uses: supercharge/mongodb-github-action@1.7.0
-      with:
-        mongodb-version: 5.0
     - name: 🛠 Install bloat
       run: npm i 
     - name: 🛠 Compile typescript
