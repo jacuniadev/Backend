@@ -37,6 +37,20 @@ export class V1 {
       req.user!.get_machines().then((machines) => res.send(machines.map((machine) => machine.toJSON())));
     });
 
+    router.get(
+      "/all",
+      this.auth,
+      (req: LoggedInRequest, res, next) => {
+        req.user!.is_admin ? next() : res.status(403).send();
+      },
+      (req, res) => {
+        this.db
+          .find_users({})
+          .then((users) => res.json(users.map((user) => user)))
+          .catch((error) => res.status(500).send(error));
+      }
+    );
+
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
       this.db
         .find_user({ uuid: req.params.uuid })
