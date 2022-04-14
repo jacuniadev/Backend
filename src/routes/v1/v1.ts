@@ -45,6 +45,14 @@ export class V1 {
         .catch((error) => res.status(500).send(error));
     });
 
+    router.delete("/:uuid", this.auth, adminMiddleware, (req: LoggedInRequest, res) => {
+      this.db
+        .find_user({ uuid: req.params.uuid })
+        .then((user) => user.delete())
+        .then(() => res.send({ message: "deleted user" }))
+        .catch((error) => res.status(500).json(error));
+    });
+
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
       this.db
         .find_user({ uuid: req.params.uuid })
