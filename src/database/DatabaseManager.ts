@@ -89,13 +89,13 @@ export class DatabaseManager {
   /**
    * Creates a new user in the database
    */
-  public async new_user(form: UserSignupInput) {
+  public async new_user(form: UserSignupInput, ip?: string) {
     if (!Validators.validate_email(form.email)) return Promise.reject("email.invalid");
     if (!Validators.validate_password(form.password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(form.username)) return Promise.reject("username.invalid");
 
     try {
-      const user = await this.users.create<UserSignupInput>(form);
+      const user = await this.users.create<UserSignupInput>({ ...form, ip });
       const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
       return { user, token };
     } catch (error) {
@@ -112,7 +112,10 @@ export class DatabaseManager {
   /**
    * Attempts to login a user
    */
-  public async login_user({ username, password }: { username: string; password: string }): Promise<UserAuthResult> {
+  public async login_user(
+    { username, password }: { username: string; password: string },
+    ip?: string
+  ): Promise<UserAuthResult> {
     if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
 
@@ -120,6 +123,7 @@ export class DatabaseManager {
 
     if (user && (await user.compare_password(password))) {
       const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
+      ip && user.update_ip(ip);
       return { user, token };
     }
 

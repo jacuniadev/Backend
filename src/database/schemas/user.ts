@@ -12,6 +12,10 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     unique: true,
     index: true,
   },
+  ips: {
+    type: [String],
+    default: [],
+  },
   username: {
     type: String,
     unique: true,
@@ -49,6 +53,7 @@ userSchema.set("toJSON", {
     delete ret._id;
     delete ret.password;
     delete ret.email;
+    delete ret.ips;
   },
 });
 
@@ -64,6 +69,7 @@ export interface IUserMethods {
   update_banner: (a: string) => Promise<IUser>;
   update_password: (a: UserPasswordUpdateInput) => Promise<IUser>;
   update_email: (a: string) => Promise<IUser>;
+  update_ip: (a: string) => Promise<IUser>;
   update_username: (a: string) => Promise<IUser>;
   get_machines: () => Promise<IMachine[]>;
 }
@@ -71,6 +77,11 @@ export interface IUserMethods {
 userSchema.methods = {
   compare_password: async function (this: IUser, candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password).catch(() => false);
+  },
+
+  update_ip: async function (this: IUser, ip: string): Promise<IUser> {
+    this.ips.addToSet(ip);
+    return this.save();
   },
 
   update_avatar: async function (this: IUser, newAvatar: string): Promise<IUser> {
@@ -113,6 +124,7 @@ export const users = mongoose.model<IUser>("User", userSchema);
 export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
   password: string; // The user's hashed password
   email: string; // The email of the user
+  ips: mongoose.Types.Array<string>; // The IPs of the user
 }
 
 /**
@@ -129,6 +141,7 @@ export interface UserLoginInput {
   [key: string]: any;
   password: string; // The password of the user
   username: string; // The username of the user
+  ip?: string;
 }
 
 export interface UserPasswordUpdateInput {
