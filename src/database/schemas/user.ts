@@ -78,7 +78,7 @@ export interface IUserMethods {
   update_banner: (a: string) => Promise<IUser>;
   update_password: (a: UserPasswordUpdateInput) => Promise<IUser>;
   update_email: (a: string) => Promise<IUser>;
-  push_login: (login: IUserLoginHistory) => Promise<IUser>;
+  push_login_history: (login: IUserLoginHistory) => Promise<IUser>;
   update_username: (a: string) => Promise<IUser>;
   get_machines: () => Promise<IMachine[]>;
   login: (headers: IncomingHttpHeaders) => Promise<string>;
@@ -92,7 +92,7 @@ userSchema.methods = {
       agent: headers.agent as string,
       timestamp: Date.now(),
     };
-    this.push_login(login_history);
+    this.push_login_history(login_history);
     return token;
   },
 
@@ -100,7 +100,7 @@ userSchema.methods = {
     return bcrypt.compare(candidatePassword, this.password).catch(() => false);
   },
 
-  push_login: async function (this: IUser, login: IUserLoginHistory): Promise<IUser> {
+  push_login_history: async function (this: IUser, login: IUserLoginHistory): Promise<IUser> {
     this.login_history.push(login);
     return this.save();
   },
