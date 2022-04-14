@@ -4,6 +4,7 @@ import { KeyManager } from "../../classes/keyManager.class";
 import { DatabaseManager } from "../../database/DatabaseManager";
 import { LoggedInRequest } from "../../database/schemas/user";
 import { getServerMetrics } from "../../logic";
+import { adminMiddleware } from "../../middleware/admin";
 import { init_auth } from "../../middleware/auth";
 import { Validators } from "../../validators";
 
@@ -37,19 +38,12 @@ export class V1 {
       req.user!.get_machines().then((machines) => res.send(machines.map((machine) => machine.toJSON())));
     });
 
-    router.get(
-      "/all",
-      this.auth,
-      (req: LoggedInRequest, res, next) => {
-        req.user!.is_admin ? next() : res.status(403).send();
-      },
-      (req, res) => {
-        this.db
-          .find_users({})
-          .then((users) => res.json(users.map((user) => user)))
-          .catch((error) => res.status(500).send(error));
-      }
-    );
+    router.get("/all", this.auth, adminMiddleware, (req, res) => {
+      this.db
+        .find_users({})
+        .then((users) => res.json(users.map((user) => user)))
+        .catch((error) => res.status(500).send(error));
+    });
 
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
       this.db
