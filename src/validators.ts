@@ -12,6 +12,7 @@ export class Validators {
       return false;
     }
   };
+
   public static validate_email = (email: string) =>
     Joi.string().email().not().empty().required().validate(email).error ? false : true;
 

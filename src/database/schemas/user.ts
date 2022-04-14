@@ -22,6 +22,10 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     required: true,
     index: true,
   },
+  is_admin: {
+    type: Boolean,
+    default: false,
+  },
   created_at: {
     type: Number,
   },
@@ -135,6 +139,7 @@ export interface ISafeUser extends IBaseDocument {
   avatar: string; // The avatar url of the user
   banner: string; // The avatar url of the user
   username: string; // The username of the user
+  is_admin: boolean; // Whether the user is an admin
 }
 
 export interface UserLoginInput {
