@@ -17,16 +17,19 @@ export class WebsocketConnection<T extends MittEvent> extends Mitt<T> {
       this.emit(event, data);
     });
 
-    this.on("*", (name, event) =>
-      socket.send(
-        painpeko.gzip(
-          JSON.stringify({
-            e: name,
-            d: event,
-          })
-        )
-      )
-    );
+    this.on("*", (name, event) => {
+      const string = JSON.stringify({
+        e: name,
+        d: event,
+      });
+
+      const uint8array = new Uint8Array(string.length);
+      for (let i = 0; i < string.length; i++) {
+        uint8array[i] = string.charCodeAt(i);
+      }
+
+      socket.send(painpeko.gzip(uint8array));
+    });
   }
 }
 
