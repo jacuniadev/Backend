@@ -19,7 +19,7 @@ export class WebsocketConnection<T extends MittEvent> extends Mitt<T> {
 
     this.on("*", (name, event) =>
       socket.send(
-        painpeko.deflate(
+        painpeko.gzip(
           JSON.stringify({
             e: name,
             d: event,
