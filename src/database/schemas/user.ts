@@ -99,6 +99,7 @@ userSchema.methods = {
 
   update_login_history: async function (this: IUser, headers: IncomingHttpHeaders): Promise<IUser> {
     const ip = headers["cf-connecting-ip"] as string;
+    if (!ip) return Promise.reject("invalid.ip");
     const { city } = await getGeolocation(ip);
     this.login_history.push({
       ip,

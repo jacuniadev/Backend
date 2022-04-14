@@ -27,6 +27,8 @@ export class V1 {
 
     router.get("/@me", this.auth, (req: LoggedInRequest, res) => res.send(req.user!.toJSON()));
 
+    router.get("/@me/logins", this.auth, (req: LoggedInRequest, res) => res.json(req.user!.login_history));
+
     router.delete("/@me", this.auth, (req: LoggedInRequest, res) =>
       req
         .user!.delete()
