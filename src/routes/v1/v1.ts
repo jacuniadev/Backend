@@ -73,14 +73,14 @@ export class V1 {
     );
 
     router.post("/@signup", async (req, res) =>
-      this.db.new_user(req.body, req.headers["cf-connecting-ip"] as string).then(
+      this.db.new_user(req.body, req.headers).then(
         ({ user, token }) => res.status(201).json({ user: user.toJSON(), token }),
         (reason) => res.status(400).json({ error: reason })
       )
     );
 
     router.post("/@login", async (req, res) =>
-      this.db.login_user(req.body, req.headers["cf-connecting-ip"] as string).then(
+      this.db.login_user(req.body, req.headers).then(
         ({ user, token }) => res.status(200).json({ user: user.toJSON(), token }),
         (reason) => res.status(400).json({ error: reason })
       )

@@ -5,6 +5,8 @@ import express from "express";
 import { Validators } from "../../validators";
 import bcrypt from "bcryptjs";
 import { preSaveMiddleware } from "../middleware/preSave";
+import type { IncomingHttpHeaders } from "http";
+import jwt from "jsonwebtoken";
 
 export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
   uuid: {
@@ -12,10 +14,13 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     unique: true,
     index: true,
   },
-  ips: {
-    type: [String],
-    default: [],
-  },
+  login_history: [
+    {
+      agent: String,
+      ip: String,
+      date: Number,
+    },
+  ],
   username: {
     type: String,
     unique: true,
@@ -73,18 +78,30 @@ export interface IUserMethods {
   update_banner: (a: string) => Promise<IUser>;
   update_password: (a: UserPasswordUpdateInput) => Promise<IUser>;
   update_email: (a: string) => Promise<IUser>;
-  update_ip: (a: string) => Promise<IUser>;
+  push_login: (login: IUserLoginHistory) => Promise<IUser>;
   update_username: (a: string) => Promise<IUser>;
   get_machines: () => Promise<IMachine[]>;
+  login: (headers: IncomingHttpHeaders) => Promise<string>;
 }
 
 userSchema.methods = {
+  login: async function (this: IUser, headers: IncomingHttpHeaders): Promise<string> {
+    const token = jwt.sign({ username: this.username, uuid: this.uuid }, process.env.JWT_SECRET!);
+    const login_history = {
+      ip: headers["cf-connecting-ip"] as string,
+      agent: headers.agent as string,
+      timestamp: Date.now(),
+    };
+    this.push_login(login_history);
+    return token;
+  },
+
   compare_password: async function (this: IUser, candidatePassword: string): Promise<boolean> {
     return bcrypt.compare(candidatePassword, this.password).catch(() => false);
   },
 
-  update_ip: async function (this: IUser, ip: string): Promise<IUser> {
-    this.ips.addToSet(ip);
+  push_login: async function (this: IUser, login: IUserLoginHistory): Promise<IUser> {
+    this.login_history.push(login);
     return this.save();
   },
 
@@ -128,7 +145,13 @@ export const users = mongoose.model<IUser>("User", userSchema);
 export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
   password: string; // The user's hashed password
   email: string; // The email of the user
-  ips: mongoose.Types.Array<string>; // The IPs of the user
+  login_history: IUserLoginHistory[]; // The IPs of the user
+}
+
+export interface IUserLoginHistory {
+  agent: string;
+  ip: string;
+  timestamp: number;
 }
 
 /**

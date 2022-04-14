@@ -1,4 +1,3 @@
-import bcrypt from "bcryptjs";
 import chalk from "chalk";
 import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
@@ -9,6 +8,7 @@ import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
 import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema } from "./schemas/machine";
 import { IUser, UserAuthResult, UserPasswordUpdateInput, users, userSchema, UserSignupInput } from "./schemas/user";
+import type { IncomingHttpHeaders } from "http";
 
 export interface IBaseDocument {
   uuid: string; // The unique identifier of the document
@@ -21,8 +21,6 @@ export interface IBaseDocument {
  * @class DatabaseManager
  */
 export class DatabaseManager {
-  private userSchema = userSchema;
-  private machineSchema = machineSchema;
   public users: Model<IUser> = users;
   public machines: Model<IMachine> = machines;
   private app_name = process.env.APP_NAME!;
@@ -89,15 +87,14 @@ export class DatabaseManager {
   /**
    * Creates a new user in the database
    */
-  public async new_user(form: UserSignupInput, ip?: string) {
+  public async new_user(form: UserSignupInput, headers: IncomingHttpHeaders) {
     if (!Validators.validate_email(form.email)) return Promise.reject("email.invalid");
     if (!Validators.validate_password(form.password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(form.username)) return Promise.reject("username.invalid");
 
     try {
-      const user = await this.users.create<UserSignupInput>({ ...form, ip });
-      const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
-      return { user, token };
+      const user = await this.users.create<UserSignupInput>(form);
+      return { user, token: await user.login(headers) };
     } catch (error) {
       if (error instanceof MongoServerError) {
         switch (error.code) {
@@ -114,7 +111,7 @@ export class DatabaseManager {
    */
   public async login_user(
     { username, password }: { username: string; password: string },
-    ip?: string
+    headers: IncomingHttpHeaders
   ): Promise<UserAuthResult> {
     if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
     if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
@@ -122,9 +119,7 @@ export class DatabaseManager {
     const user = await this.find_user({ username });
 
     if (user && (await user.compare_password(password))) {
-      const token = jwt.sign(user.toObject(), process.env.JWT_SECRET!);
-      ip && user.update_ip(ip);
-      return { user, token };
+      return { user, token: await user.login(headers) };
     }
 
     return Promise.reject("invalid credentials");
