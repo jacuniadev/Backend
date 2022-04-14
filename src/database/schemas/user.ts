@@ -62,7 +62,7 @@ userSchema.set("toJSON", {
     delete ret._id;
     delete ret.password;
     delete ret.email;
-    delete ret.ips;
+    delete ret.login_history;
   },
 });
 
