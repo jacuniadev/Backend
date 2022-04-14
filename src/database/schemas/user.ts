@@ -7,6 +7,7 @@ import bcrypt from "bcryptjs";
 import { preSaveMiddleware } from "../middleware/preSave";
 import type { IncomingHttpHeaders } from "http";
 import jwt from "jsonwebtoken";
+import { getGeolocation } from "../../logic";
 
 export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
   uuid: {
@@ -18,6 +19,7 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     {
       agent: String,
       ip: String,
+      location: String,
       date: Number,
     },
   ],
@@ -78,8 +80,8 @@ export interface IUserMethods {
   update_banner: (a: string) => Promise<IUser>;
   update_password: (a: UserPasswordUpdateInput) => Promise<IUser>;
   update_email: (a: string) => Promise<IUser>;
-  push_login_history: (login: IUserLoginHistory) => Promise<IUser>;
   update_username: (a: string) => Promise<IUser>;
+  update_login_history: (headers: IncomingHttpHeaders) => Promise<IUser>;
   get_machines: () => Promise<IMachine[]>;
   login: (headers: IncomingHttpHeaders) => Promise<string>;
 }
@@ -87,12 +89,7 @@ export interface IUserMethods {
 userSchema.methods = {
   login: async function (this: IUser, headers: IncomingHttpHeaders): Promise<string> {
     const token = jwt.sign({ username: this.username, uuid: this.uuid }, process.env.JWT_SECRET!);
-    const login_history = {
-      ip: headers["cf-connecting-ip"] as string,
-      agent: headers.agent as string,
-      timestamp: Date.now(),
-    };
-    this.push_login_history(login_history);
+    this.update_login_history(headers);
     return token;
   },
 
@@ -100,8 +97,15 @@ userSchema.methods = {
     return bcrypt.compare(candidatePassword, this.password).catch(() => false);
   },
 
-  push_login_history: async function (this: IUser, login: IUserLoginHistory): Promise<IUser> {
-    this.login_history.push(login);
+  update_login_history: async function (this: IUser, headers: IncomingHttpHeaders): Promise<IUser> {
+    const ip = headers["cf-connecting-ip"] as string;
+    const { city } = await getGeolocation(ip);
+    this.login_history.push({
+      ip,
+      location: city,
+      agent: headers.agent as string,
+      timestamp: Date.now(),
+    });
     return this.save();
   },
 
@@ -151,6 +155,7 @@ export interface IUserLoginHistory {
   agent: string;
   ip: string;
   timestamp: number;
+  location: string;
 }
 
 /**

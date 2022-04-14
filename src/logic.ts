@@ -1,6 +1,7 @@
+import axios from "axios";
 import chalk from "chalk";
 import osu from "node-os-utils";
-import { INetwork } from "./database/schemas/machine";
+import { IGeolocation, INetwork } from "./database/schemas/machine";
 import { Logger } from "./utils/logger";
 
 export const VIRTUAL_INTERFACES = ["veth", "vcan", "vxlan", "docker0", "lo"];
@@ -48,4 +49,9 @@ export const isVirtualInterface = (iface: INetwork): Boolean => {
     return iface.n.startsWith(prefixName);
   }
   return false;
+};
+
+export const getGeolocation = async (ip: string): Promise<IGeolocation> => {
+  const { data } = await axios.get<IGeolocation>(`https://ipwhois.app/json/${ip}`);
+  return data;
 };
