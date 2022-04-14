@@ -41,7 +41,7 @@ export class V1 {
     router.get("/all", this.auth, adminMiddleware, (req, res) => {
       this.db
         .find_users({})
-        .then((users) => res.json(users.map((user) => user)))
+        .then((users) => res.send(users.map((user) => user.toJSON({ transform: false }))))
         .catch((error) => res.status(500).send(error));
     });
 
