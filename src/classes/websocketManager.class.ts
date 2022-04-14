@@ -4,6 +4,7 @@ import { ISafeMachine, IStaticData, IMachine, IDynamicData, INetwork } from "../
 import { isVirtualInterface } from "../logic";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
+import { gzip } from "node-gzip";
 
 export interface ClientToBackendEvents extends MittEvent {
   login: { auth_token: string };
@@ -45,12 +46,12 @@ export class WebsocketManager {
     // If they defined specific client uuids then just emit to those
     if (specificClients) {
       return Object.entries(this.userConnections).forEach(
-        ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
+        async ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, await gzip(data))
       );
     }
 
     // Otherwise emit to all the clients
-    Object.values(this.userConnections).forEach((user) => user.emit(event, data));
+    Object.values(this.userConnections).forEach(async (user) => user.emit(event, await gzip(data)));
   }
 
   constructor(server: http.Server, public db: DatabaseManager) {
