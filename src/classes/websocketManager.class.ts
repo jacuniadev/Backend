@@ -46,13 +46,12 @@ export class WebsocketManager {
     // If they defined specific client uuids then just emit to those
     if (specificClients) {
       return Object.entries(this.userConnections).forEach(
-        async ([userUuid, user]) =>
-          specificClients.includes(userUuid) && user.emit(event, painpeko.deflate(JSON.stringify(data)))
+        async ([userUuid, user]) => specificClients.includes(userUuid) && user.emit(event, data)
       );
     }
 
     // Otherwise emit to all the clients
-    Object.values(this.userConnections).forEach(async (user) => user.emit(event, painpeko.deflate(JSON.stringify(data))));
+    Object.values(this.userConnections).forEach(async (user) => user.emit(event, data));
   }
 
   constructor(server: http.Server, public db: DatabaseManager) {

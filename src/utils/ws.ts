@@ -2,6 +2,7 @@ import http from "http";
 import mitt, { Emitter } from "mitt";
 import { default as ws, RawData } from "ws";
 import { Mitt, MittEvent } from "./mitt";
+import painpeko from "pako";
 
 export interface WebsocketMessage<T extends string, D extends object> {
   e: T;
@@ -18,10 +19,12 @@ export class WebsocketConnection<T extends MittEvent> extends Mitt<T> {
 
     this.on("*", (name, event) =>
       socket.send(
-        JSON.stringify({
-          e: name,
-          d: event,
-        })
+        painpeko.deflate(
+          JSON.stringify({
+            e: name,
+            d: event,
+          })
+        )
       )
     );
   }
