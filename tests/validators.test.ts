@@ -16,6 +16,8 @@ describe("validate_avatar_url()", () => {
     "https://cdn.discordapp.com/1234567890123456789.mp3",
     "http://i.imgur.com/1234567890123456789.mp3",
     "https://imgur.com/1234567890123456789.png",
+    "ftp://i.imgur.com/1234567890123456789.png",
+    "hello world",
   ];
 
   it("should return true for valid urls", async () => {
