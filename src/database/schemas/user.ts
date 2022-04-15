@@ -1,13 +1,12 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
-import { IGeolocation, IMachine, machines } from "./machine";
+import { IMachine, machines } from "./machine";
 import express from "express";
 import { Validators } from "../../validators";
 import bcrypt from "bcryptjs";
 import { preSaveMiddleware } from "../middleware/preSave";
 import type { IncomingHttpHeaders } from "http";
 import jwt from "jsonwebtoken";
-import { getGeolocation } from "../../logic";
 
 export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUserMethods>({
   uuid: {
@@ -18,21 +17,7 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
   login_history: [
     {
       agent: String,
-      geolocation: {
-        ip: String,
-        type: String,
-        continent: String,
-        continent_code: String,
-        country: String,
-        country_code: String,
-        region: String,
-        city: String,
-        latitude: Number,
-        longitude: Number,
-        asn: String,
-        org: String,
-        isp: String,
-      },
+      ip: String,
       date: Number,
     },
   ],
@@ -113,15 +98,12 @@ userSchema.methods = {
   update_login_history: async function (this: IUser, headers: IncomingHttpHeaders): Promise<IUser> {
     const ip = headers["cf-connecting-ip"] as string;
     if (!ip) return Promise.reject("invalid.ip");
-    try {
-      const geolocation = await getGeolocation(ip);
-      this.login_history.push({
-        agent: (headers.agent as string) || (headers["user-agent"] as string) || "unknown",
-        geolocation,
-        timestamp: Date.now(),
-      });
-      return this.save();
-    } catch (e) {}
+    this.login_history.push({
+      ip,
+      agent: (headers.agent as string) || (headers["user-agent"] as string) || "unknown",
+      timestamp: Date.now(),
+    });
+    return this.save();
   },
 
   update_avatar: async function (this: IUser, newAvatar: string): Promise<IUser> {
@@ -168,7 +150,7 @@ export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
 
 export interface IUserLoginHistory {
   agent: string;
-  geolocation: IGeolocation;
+  ip: string;
   timestamp: number;
 }
 
