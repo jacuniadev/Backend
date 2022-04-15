@@ -19,7 +19,8 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     {
       agent: String,
       ip: String,
-      location: String,
+      city: String,
+      country_code: String,
       date: Number,
     },
   ],
@@ -100,10 +101,11 @@ userSchema.methods = {
   update_login_history: async function (this: IUser, headers: IncomingHttpHeaders): Promise<IUser> {
     const ip = headers["cf-connecting-ip"] as string;
     if (!ip) return Promise.reject("invalid.ip");
-    const { city } = await getGeolocation(ip);
+    const { city, country_code } = await getGeolocation(ip);
     this.login_history.push({
       ip,
-      location: city,
+      city,
+      country_code,
       agent: headers.agent as string,
       timestamp: Date.now(),
     });
@@ -154,9 +156,10 @@ export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
 
 export interface IUserLoginHistory {
   agent: string;
-  ip: string;
+  city: string;
+  country_code: string;
   timestamp: number;
-  location: string;
+  ip: string;
 }
 
 /**
