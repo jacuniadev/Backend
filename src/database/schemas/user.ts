@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
-import { IMachine, machines } from "./machine";
+import { IGeolocation, IMachine, machines } from "./machine";
 import express from "express";
 import { Validators } from "../../validators";
 import bcrypt from "bcryptjs";
@@ -18,9 +18,21 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
   login_history: [
     {
       agent: String,
-      ip: String,
-      city: String,
-      country_code: String,
+      geolocation: {
+        ip: String,
+        type: String,
+        continent: String,
+        continent_code: String,
+        country: String,
+        country_code: String,
+        region: String,
+        city: String,
+        latitude: Number,
+        longitude: Number,
+        asn: String,
+        org: String,
+        isp: String,
+      },
       date: Number,
     },
   ],
@@ -101,11 +113,8 @@ userSchema.methods = {
   update_login_history: async function (this: IUser, headers: IncomingHttpHeaders): Promise<IUser> {
     const ip = headers["cf-connecting-ip"] as string;
     if (!ip) return Promise.reject("invalid.ip");
-    const { city, country_code } = await getGeolocation(ip);
     this.login_history.push({
-      ip,
-      city,
-      country_code,
+      geolocation: await getGeolocation(ip),
       agent: headers.agent as string,
       timestamp: Date.now(),
     });
@@ -156,10 +165,8 @@ export interface IUser extends ISafeUser, IUserMethods, mongoose.Document {
 
 export interface IUserLoginHistory {
   agent: string;
-  city: string;
-  country_code: string;
+  geolocation: IGeolocation;
   timestamp: number;
-  ip: string;
 }
 
 /**

@@ -188,25 +188,12 @@ export interface ITemp {
   value: number;
 }
 
-export interface IGeolocation {
-  ip: string;
+export interface IGeolocationExtras extends IGeolocation {
   success: boolean;
-  type: string;
-  continent: string;
-  continent_code: string;
-  country: string;
-  country_code: string;
   country_flag: string;
   country_capital: string;
   country_phone: string;
   country_neighbours: string;
-  region: string;
-  city: string;
-  latitude: number;
-  longitude: number;
-  asn: string;
-  org: string;
-  isp: string;
   timezone: string;
   timezone_name: string;
   timezone_dstOffset: number;
@@ -218,6 +205,22 @@ export interface IGeolocation {
   currency_rates: number;
   currency_plural: string;
   completed_requests: number;
+}
+
+export interface IGeolocation {
+  ip: string;
+  type: string;
+  continent: string;
+  continent_code: string;
+  country: string;
+  country_code: string;
+  region: string;
+  city: string;
+  latitude: number;
+  longitude: number;
+  asn: string;
+  org: string;
+  isp: string;
 }
 
 export interface MachineSignupInput {
