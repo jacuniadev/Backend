@@ -53,6 +53,22 @@ export const isVirtualInterface = (iface: INetwork): Boolean => {
 
 export const getGeolocation = async (ip: string): Promise<IGeolocation> => {
   const { data } = await axios.get<IGeolocationExtras>(`https://ipwhois.app/json/${ip}`);
+  if (!data.success) return Promise.reject("Failed to get geolocation");
   const { type, continent, continent_code, country, country_code, region, city, latitude, longitude, asn, org, isp } = data;
-  return { ip, type, continent, continent_code, country, country_code, region, city, latitude, longitude, asn, org, isp };
+  const simplified = {
+    ip,
+    type,
+    continent,
+    continent_code,
+    country,
+    country_code,
+    region,
+    city,
+    latitude,
+    longitude,
+    asn,
+    org,
+    isp,
+  };
+  return simplified;
 };

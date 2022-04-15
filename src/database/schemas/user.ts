@@ -113,12 +113,15 @@ userSchema.methods = {
   update_login_history: async function (this: IUser, headers: IncomingHttpHeaders): Promise<IUser> {
     const ip = headers["cf-connecting-ip"] as string;
     if (!ip) return Promise.reject("invalid.ip");
-    this.login_history.push({
-      geolocation: await getGeolocation(ip),
-      agent: headers.agent as string,
-      timestamp: Date.now(),
-    });
-    return this.save();
+    try {
+      const geolocation = await getGeolocation(ip);
+      this.login_history.push({
+        agent: (headers.agent as string) || (headers["user-agent"] as string) || "unknown",
+        geolocation,
+        timestamp: Date.now(),
+      });
+      return this.save();
+    } catch (e) {}
   },
 
   update_avatar: async function (this: IUser, newAvatar: string): Promise<IUser> {
