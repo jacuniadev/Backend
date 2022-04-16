@@ -89,6 +89,10 @@ export class DatabaseManager {
     });
   }
 
+  /**
+   *
+   * Creates a new machine in the database
+   */
   public async new_machine(input: CreateMachineInput) {
     if (!Validators.validate_uuid(input.hardware_uuid)) return Promise.reject("invalid.hardware_uuid");
     if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("invalid.owner_uuid");

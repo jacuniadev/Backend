@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
 import { preSaveMiddleware } from "../middleware/preSave";
+import { ILabel } from "./label";
 
 export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachine>, IMachineMethods>({
   uuid: {
@@ -43,6 +44,9 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
     type: String,
     required: false,
   },
+  labels: {
+    type: [String],
+  },
   access: [String],
   static_data: {
     hostname: String,
@@ -80,12 +84,22 @@ machineSchema.pre("save", preSaveMiddleware);
 /// ------------------------------------------------------------------------------
 
 export interface IMachineMethods {
-  update_static_data: (A: IStaticData) => Promise<IMachine>;
+  update_static_data: (staticData: IStaticData) => Promise<IMachine>;
+  add_label: (uuid: string) => Promise<IMachine>;
+  remove_label: (uuid: string) => Promise<IMachine>;
 }
 
 machineSchema.methods = {
   update_static_data: async function (this: IMachine, staticData: IStaticData) {
     this.static_data = staticData;
+    return this.save();
+  },
+  add_label: async function (this: IMachine, uuid: string) {
+    this.labels.addToSet(uuid);
+    return this.save();
+  },
+  remove_label: async function (this: IMachine, uuid: string) {
+    this.labels.pull(uuid);
     return this.save();
   },
 } as IMachineMethods;
@@ -104,6 +118,7 @@ export interface ISafeMachine extends IBaseDocument {
   owner_uuid: string; // The uuid of the user that owns this machine
   hardware_uuid: string; // The generated uuid of the machine
   name: string; // The hostname of the machine
+  labels: mongoose.Types.Array<string>; // The labels of the machine
   description?: string; // A description of the machine
   access: string[]; // The list of users that have access to this machine
   static_data: ISafeStaticData; // The static data of the machine

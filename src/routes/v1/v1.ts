@@ -24,160 +24,197 @@ export class V1 {
   }
 
   private generate_user_routes() {
-    const router: Router = express.Router();
+    return express
+      .Router()
+      .get("/@me", this.auth, (req: LoggedInRequest, res) => res.send(req.user!))
+      .get("/@me/logins", this.auth, (req: LoggedInRequest, res) => res.json(req.user!.login_history))
+      .delete("/@me", this.auth, async (req: LoggedInRequest, res) => {
+        try {
+          const machines = await this.db.find_machines({ owner_uuid: req.user!.uuid });
+          const labels = await this.db.find_labels({ owner_uuid: req.user!.uuid });
 
-    router.get("/@me", this.auth, (req: LoggedInRequest, res) => res.send(req.user!));
+          await req.user!.delete();
+          await Promise.all(machines.map((machine) => machine.delete()));
+          await Promise.all(labels.map((label) => label.delete()));
 
-    router.get("/@me/logins", this.auth, (req: LoggedInRequest, res) => res.json(req.user!.login_history));
+          res.send({ message: "deleted user" });
+        } catch (error) {
+          res.status(500).json(error);
+        }
+      })
+      .get("/@me/machines", this.auth, (req: LoggedInRequest, res) => {
+        req.user!.get_machines().then((machines) => res.send(machines));
+      })
+      .get("/all", this.auth, adminMiddleware, (req, res) => {
+        this.db
+          .find_users({})
+          .then((users) => res.send(users.map((user) => user.toJSON({ transform: false }))))
+          .catch((error) => res.status(500).send(error));
+      })
+      .delete("/:uuid", this.auth, adminMiddleware, async (req: LoggedInRequest, res) => {
+        try {
+          const user = await this.db.find_user({ uuid: req.params.uuid });
+          const machines = await this.db.find_machines({ owner_uuid: user.uuid });
+          const labels = await this.db.find_labels({ owner_uuid: user.uuid });
 
-    router.delete("/@me", this.auth, (req: LoggedInRequest, res) =>
-      req
-        .user!.delete()
-        .then(() => res.send())
-        .catch(() => res.status(500).send())
-    );
+          await user.delete();
+          await Promise.all(machines.map((machine) => machine.delete()));
+          await Promise.all(labels.map((label) => label.delete()));
 
-    router.get("/@me/machines", this.auth, (req: LoggedInRequest, res) => {
-      req.user!.get_machines().then((machines) => res.send(machines));
-    });
-
-    router.get("/all", this.auth, adminMiddleware, (req, res) => {
-      this.db
-        .find_users({})
-        .then((users) => res.send(users.map((user) => user.toJSON({ transform: false }))))
-        .catch((error) => res.status(500).send(error));
-    });
-
-    router.delete("/:uuid", this.auth, adminMiddleware, (req: LoggedInRequest, res) => {
-      this.db
-        .find_user({ uuid: req.params.uuid })
-        .then((user) => user.delete())
-        .then(() => res.send({ message: "deleted user" }))
-        .catch((error) => res.status(500).json(error));
-    });
-
-    router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
-      this.db
-        .find_user({ uuid: req.params.uuid })
-        .then((user) => res.send(user))
-        .catch((error) => res.status(404).json({ error }))
-    );
-
-    router.get("/:uuid/machines", this.auth, (req: LoggedInRequest, res) => {
-      this.db
-        .find_user({ uuid: req.params.uuid })
-        .then((user) => user.get_machines(true))
-        .then((machines) => res.send(machines))
-        .catch((error) => res.status(500).json(error));
-    });
-
-    router.patch("/@avatar", this.auth, (req: LoggedInRequest, res) => {
-      Validators.validate_avatar_url(req.body.url)
-        ? req.user!.update_avatar(req.body.url).then((user) => res.send(user))
-        : res.status(400).json({ error: "invalid url" });
-    });
-
-    router.patch("/@banner", this.auth, (req: LoggedInRequest, res) =>
-      Validators.validate_avatar_url(req.body.url)
-        ? req.user!.update_banner(req.body.url).then((user) => res.send(user))
-        : res.status(400).json({ error: "invalid url" })
-    );
-
-    router.post("/@signup", async (req, res) =>
-      this.db.new_user(req.body, req.headers).then(
-        ({ user, token }) => res.status(201).json({ user: user, token }),
-        (reason) => res.status(400).json({ error: reason })
+          res.send({ message: "deleted user" });
+        } catch (error) {
+          res.status(500).json(error);
+        }
+      })
+      .get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_user({ uuid: req.params.uuid })
+          .then((user) => res.send(user))
+          .catch((error) => res.status(404).json({ error }))
       )
-    );
-
-    router.post("/@login", async (req, res) =>
-      this.db.login_user(req.body, req.headers).then(
-        ({ user, token }) => res.status(200).json({ user: user, token }),
-        (reason) => res.status(400).json({ error: reason })
+      .get("/:uuid/machines", this.auth, (req: LoggedInRequest, res) => {
+        this.db
+          .find_user({ uuid: req.params.uuid })
+          .then((user) => user.get_machines(true))
+          .then((machines) => res.send(machines))
+          .catch((error) => res.status(500).json(error));
+      })
+      .patch("/@avatar", this.auth, (req: LoggedInRequest, res) => {
+        Validators.validate_avatar_url(req.body.url)
+          ? req.user!.update_avatar(req.body.url).then((user) => res.send(user))
+          : res.status(400).json({ error: "invalid url" });
+      })
+      .patch("/@banner", this.auth, (req: LoggedInRequest, res) =>
+        Validators.validate_avatar_url(req.body.url)
+          ? req.user!.update_banner(req.body.url).then((user) => res.send(user))
+          : res.status(400).json({ error: "invalid url" })
       )
-    );
-
-    return router;
+      .post("/@signup", async (req, res) =>
+        this.db.new_user(req.body, req.headers).then(
+          ({ user, token }) => res.status(201).json({ user: user, token }),
+          (reason) => res.status(400).json({ error: reason })
+        )
+      )
+      .post("/@login", async (req, res) =>
+        this.db.login_user(req.body, req.headers).then(
+          ({ user, token }) => res.status(200).json({ user: user, token }),
+          (reason) => res.status(400).json({ error: reason })
+        )
+      );
   }
 
   private generate_label_routes() {
-    const router: Router = express.Router();
-    router.get("/all", this.auth, async (req: LoggedInRequest, res) =>
-      this.db
-        .find_labels({ owner_uuid: req.user!.uuid })
-        .then((labels) => res.send(labels))
-        .catch((error) => res.status(404).json(error))
-    );
-    router.get("/admin/all", this.auth, adminMiddleware, async (req: LoggedInRequest, res) =>
-      this.db
-        .find_labels({})
-        .then((labels) => res.send(labels))
-        .catch((error) => res.status(404).json(error))
-    );
-    router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
-      this.db
-        .find_label({ uuid: req.params.uuid })
-        .then((label) => res.send(label))
-        .catch((error) => res.status(404).json(error))
-    );
-    router.delete("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
-      this.db
-        .find_label({ uuid: req.params.uuid, owner_uuid: req.user!.uuid })
-        .then((label) => label.delete())
-        .then(() => res.send({ message: "deleted label" }))
-        .catch((error) => res.status(403).json(error))
-    );
-    router.post("/new", this.auth, adminMiddleware, (req: LoggedInRequest, res) => {
-      this.db
-        .new_label({ ...req.body, owner_uuid: req.user!.uuid })
-        .then((label) => res.status(201).json(label))
-        .catch((error) => res.status(400).json(error));
-    });
-    return router;
+    return express
+      .Router()
+      .get("/all", this.auth, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_labels({ owner_uuid: req.user!.uuid })
+          .then((labels) => res.send(labels))
+          .catch((error) => res.status(404).json(error))
+      )
+      .get("/admin/all", this.auth, adminMiddleware, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_labels({})
+          .then((labels) => res.send(labels))
+          .catch((error) => res.status(404).json(error))
+      )
+      .get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_label({ uuid: req.params.uuid })
+          .then((label) => res.send(label))
+          .catch((error) => res.status(404).json(error))
+      )
+      .delete("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_label({ uuid: req.params.uuid, owner_uuid: req.user!.uuid })
+          .then(async (label) => {
+            const machines = await this.db.find_machines({ labels: label.uuid });
+            await Promise.all(machines.map((machine) => machine.remove_label(label.uuid)));
+            return label.delete();
+          })
+          .then(() => res.send({ message: "deleted label" }))
+          .catch((error) => res.status(403).json(error))
+      )
+      .post("/new", this.auth, (req: LoggedInRequest, res) => {
+        this.db
+          .new_label({ ...req.body, owner_uuid: req.user!.uuid })
+          .then((label) => res.status(201).json(label))
+          .catch((error) => res.status(400).json(error));
+      });
   }
 
   private generate_machine_routes() {
-    const router: Router = express.Router();
+    return express
+      .Router()
+      .get("/@newkey", this.auth, (req: LoggedInRequest, res) => res.json(this.keyManager.createNewKey(req.user!.uuid)))
+      .post("/@signup", async (req, res) => {
+        const { two_factor_key, hardware_uuid, hostname } = req.body;
+        const userUuid = this.keyManager.validate(two_factor_key);
 
-    router.get("/@newkey", this.auth, (req: LoggedInRequest, res) => res.json(this.keyManager.createNewKey(req.user!.uuid)));
-
-    router.post("/@signup", async (req, res) => {
-      const { two_factor_key, hardware_uuid, hostname } = req.body;
-      const userUuid = this.keyManager.validate(two_factor_key);
-
-      if (!userUuid) return res.status(403).json({ error: "the 2FA token you provided has expired" });
-      this.db
-        .find_user({ uuid: userUuid })
-        .then((user) => {
-          this.db
-            .new_machine({ owner_uuid: user.uuid, hardware_uuid, hostname })
-            .then((machine) => res.json({ access_token: machine.access_token }))
-            .catch((error: MongoAPIError) => {
-              switch (error.code) {
-                case 11000:
-                  res.status(400).json({ error: "this machine is already registered in the database" });
-                  break;
-                default:
-                  res.status(500).json({ error });
-                  break;
-              }
-            });
-        })
-        .catch((error) => res.status(404).json({ error }));
-    });
-
-    router.delete("/:uuid", this.auth, async (req: LoggedInRequest, res) => {
-      if (!Validators.validate_uuid(req.params.uuid)) return res.status(400).json({ error: "uuid is invalid" });
-      const machine = await this.db.find_machine({ uuid: req.params.uuid });
-      if (!machine) return res.status(404).json({ error: "machine not found" });
-      if (machine.owner_uuid !== req.user!.uuid)
-        return res.status(403).json({ error: "you are not the owner of this machine" });
-      machine
-        .delete()
-        .then(() => res.json({ message: "gon" }))
-        .catch((error: any) => res.status(500).json({ error }));
-    });
-
-    return router;
+        if (!userUuid) return res.status(403).json({ error: "the 2FA token you provided has expired" });
+        this.db
+          .find_user({ uuid: userUuid })
+          .then((user) => {
+            this.db
+              .new_machine({ owner_uuid: user.uuid, hardware_uuid, hostname })
+              .then((machine) => res.json({ access_token: machine.access_token }))
+              .catch((error: MongoAPIError) => {
+                switch (error.code) {
+                  case 11000:
+                    res.status(400).json({ error: "this machine is already registered in the database" });
+                    break;
+                  default:
+                    res.status(500).json({ error });
+                    break;
+                }
+              });
+          })
+          .catch((error) => res.status(404).json({ error }));
+      })
+      .post("/label/:machine_uuid/:label_uuid", this.auth, (req: LoggedInRequest, res) => {
+        this.db
+          .find_machine({ uuid: req.params.machine_uuid })
+          .then((machine) => {
+            this.db
+              .find_label({ uuid: req.params.label_uuid })
+              .then((label) => {
+                if (machine.owner_uuid !== label.owner_uuid)
+                  return Promise.reject({ error: "you are not allowed to add this label to this machine" });
+                return machine.add_label(label.uuid);
+              })
+              .catch((e) => res.status(403).json(e))
+              .then(() => res.send({ message: "label added" }))
+              .catch((error) => res.status(404).json(error));
+          })
+          .catch((error) => res.status(404).json(error));
+      })
+      .delete("/label/:machine_uuid/:label_uuid", this.auth, (req: LoggedInRequest, res) => {
+        this.db
+          .find_machine({ uuid: req.params.machine_uuid })
+          .then((machine) => {
+            this.db
+              .find_label({ uuid: req.params.label_uuid })
+              .then((label) => {
+                if (machine.owner_uuid !== label.owner_uuid)
+                  return Promise.reject({ error: "you are not allowed to remove this label from this machine" });
+                return machine.remove_label(label.uuid);
+              })
+              .catch((e) => res.status(403).json(e))
+              .then(() => res.send({ message: "label removed" }))
+              .catch((error) => res.status(404).json(error));
+          })
+          .catch((error) => res.status(404).json(error));
+      })
+      .delete("/:uuid", this.auth, async (req: LoggedInRequest, res) => {
+        if (!Validators.validate_uuid(req.params.uuid)) return res.status(400).json({ error: "uuid is invalid" });
+        const machine = await this.db.find_machine({ uuid: req.params.uuid });
+        if (!machine) return res.status(404).json({ error: "machine not found" });
+        if (machine.owner_uuid !== req.user!.uuid)
+          return res.status(403).json({ error: "you are not the owner of this machine" });
+        machine
+          .delete()
+          .then(() => res.json({ message: "gon" }))
+          .catch((error: any) => res.status(500).json({ error }));
+      });
   }
 }
