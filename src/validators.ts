@@ -1,4 +1,5 @@
 import Joi from "joi";
+import { LabelIcon, LABEL_ICONS } from "./database/schemas/label";
 
 export class Validators {
   public static TRUSTED_IMAGE_HOSTERS = ["cdn.discordapp.com", "i.imgur.com"];
@@ -13,6 +14,11 @@ export class Validators {
     }
   };
 
+  public static validate_hex_color = (color: string) => {
+    const hex_regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    return hex_regex.test(color);
+  };
+
   public static validate_email = (email: string) =>
     Joi.string().email().not().empty().required().validate(email).error ? false : true;
 
@@ -21,6 +27,14 @@ export class Validators {
 
   public static validate_username = (username: string) =>
     Joi.string().required().min(4).max(32).alphanum().not().empty().validate(username).error ? false : true;
+
+  public static validate_label_name = (label_name: string) =>
+    Joi.string().required().min(3).max(16).alphanum().validate(label_name).error ? false : true;
+
+  public static validate_label_icon = (label_icon: LabelIcon) => LABEL_ICONS.includes(label_icon);
+
+  public static validate_label_description = (label_description: string) =>
+    Joi.string().required().max(300).validate(label_description).error ? false : true;
 
   public static validate_avatar_url = (url: string) => {
     // Check if the url is parsable

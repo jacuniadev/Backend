@@ -19,6 +19,7 @@ export class V1 {
     this.router.get("/ping", (_, res) => res.send());
     this.router.get("/status", async (_, res) => res.json(await getServerMetrics()));
     this.router.use("/users", this.generate_user_routes());
+    this.router.use("/labels", this.generate_label_routes());
     this.router.use("/machines", this.generate_machine_routes());
   }
 
@@ -96,6 +97,42 @@ export class V1 {
       )
     );
 
+    return router;
+  }
+
+  private generate_label_routes() {
+    const router: Router = express.Router();
+    router.get("/all", this.auth, async (req: LoggedInRequest, res) =>
+      this.db
+        .find_labels({ owner_uuid: req.user!.uuid })
+        .then((labels) => res.send(labels))
+        .catch((error) => res.status(404).json(error))
+    );
+    router.get("/admin/all", this.auth, adminMiddleware, async (req: LoggedInRequest, res) =>
+      this.db
+        .find_labels({})
+        .then((labels) => res.send(labels))
+        .catch((error) => res.status(404).json(error))
+    );
+    router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+      this.db
+        .find_label({ uuid: req.params.uuid })
+        .then((label) => res.send(label))
+        .catch((error) => res.status(404).json(error))
+    );
+    router.delete("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+      this.db
+        .find_label({ uuid: req.params.uuid, owner_uuid: req.user!.uuid })
+        .then((label) => label.delete())
+        .then(() => res.send({ message: "deleted label" }))
+        .catch((error) => res.status(403).json(error))
+    );
+    router.post("/new", this.auth, adminMiddleware, (req: LoggedInRequest, res) => {
+      this.db
+        .new_label({ ...req.body, owner_uuid: req.user!.uuid })
+        .then((label) => res.status(201).json(label))
+        .catch((error) => res.status(400).json(error));
+    });
     return router;
   }
 

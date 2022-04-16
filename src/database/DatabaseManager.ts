@@ -9,6 +9,7 @@ import { Validators } from "../validators";
 import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema } from "./schemas/machine";
 import { IUser, UserAuthResult, UserPasswordUpdateInput, users, userSchema, UserSignupInput } from "./schemas/user";
 import type { IncomingHttpHeaders } from "http";
+import { CreateLabelInput, ILabel, labels } from "./schemas/label";
 
 export interface IBaseDocument {
   uuid: string; // The unique identifier of the document
@@ -23,6 +24,7 @@ export interface IBaseDocument {
 export class DatabaseManager {
   public users: Model<IUser> = users;
   public machines: Model<IMachine> = machines;
+  public labels: Model<ILabel> = labels;
   private app_name = process.env.APP_NAME!;
 
   private constructor() {
@@ -67,12 +69,30 @@ export class DatabaseManager {
     }
   }
 
+  // pro-gramer move right here
   private generate_access_token = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");
 
+  public async new_label(input: CreateLabelInput) {
+    if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("invalid.owner_uuid");
+    if (input.name && !Validators.validate_label_name(input.name)) return Promise.reject("invalid.label.name");
+    if (input.color && !Validators.validate_hex_color(input.color)) return Promise.reject("invalid.hex.color");
+    if (input.icon && !Validators.validate_label_icon(input.icon)) return Promise.reject("invalid.label.icon");
+    if (input.description && !Validators.validate_label_description(input.description))
+      return Promise.reject("invalid.label.description");
+
+    return this.labels.create({
+      owner_uuid: input.owner_uuid,
+      name: input.name,
+      color: input.color,
+      description: input.description,
+      icon: input.icon,
+    });
+  }
+
   public async new_machine(input: CreateMachineInput) {
-    if (!Validators.validate_uuid(input.hardware_uuid)) return Promise.reject("hardware_uuid is invalid");
-    if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("owner_uuid is invalid");
-    if (!Validators.validate_hostname(input.hostname)) return Promise.reject("hostname is invalid");
+    if (!Validators.validate_uuid(input.hardware_uuid)) return Promise.reject("invalid.hardware_uuid");
+    if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("invalid.owner_uuid");
+    if (!Validators.validate_hostname(input.hostname)) return Promise.reject("invalid.hostname");
 
     const access_token = this.generate_access_token();
 
@@ -88,9 +108,9 @@ export class DatabaseManager {
    * Creates a new user in the database
    */
   public async new_user(form: UserSignupInput, headers: IncomingHttpHeaders) {
-    if (!Validators.validate_email(form.email)) return Promise.reject("email.invalid");
-    if (!Validators.validate_password(form.password)) return Promise.reject("password.invalid");
-    if (!Validators.validate_username(form.username)) return Promise.reject("username.invalid");
+    if (!Validators.validate_email(form.email)) return Promise.reject("invalid.email");
+    if (!Validators.validate_password(form.password)) return Promise.reject("invalid.password");
+    if (!Validators.validate_username(form.username)) return Promise.reject("invalid.username");
 
     try {
       const user = await this.users.create<UserSignupInput>(form);
@@ -113,8 +133,8 @@ export class DatabaseManager {
     { username, password }: { username: string; password: string },
     headers: IncomingHttpHeaders
   ): Promise<UserAuthResult> {
-    if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
-    if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
+    if (!Validators.validate_password(password)) return Promise.reject("invalid.password");
+    if (!Validators.validate_username(username)) return Promise.reject("invalid.username");
 
     const user = await this.find_user({ username });
 
@@ -142,26 +162,30 @@ export class DatabaseManager {
    * @returns The deleted user
    */
   public async delete_user({ username, password }: { username: string; password: string }) {
-    if (!Validators.validate_password(password)) return Promise.reject("password.invalid");
-    if (!Validators.validate_username(username)) return Promise.reject("username.invalid");
+    if (!Validators.validate_password(password)) return Promise.reject("invalid.password");
+    if (!Validators.validate_username(username)) return Promise.reject("invalid.username");
 
     const user = await this.find_user({ username });
     if (user && (await user.compare_password(password))) this.users.deleteOne({ username: username });
   }
 
-  private find_one = async <T>(collection: "machine" | "user", filter?: mongoose.FilterQuery<T>): Promise<T> => {
+  private find_one = async <T>(collection: "machine" | "user" | "label", filter?: mongoose.FilterQuery<T>): Promise<T> => {
     switch (collection) {
       case "user":
         return (await this.users.findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
+      case "label":
+        return (await this.labels.findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
       case "machine":
         return (await this.machines.findOne(filter)) ?? Promise.reject(`${collection}.notFound`);
     }
   };
 
-  private find = async <T>(collection: "machine" | "user", filter: mongoose.FilterQuery<T>): Promise<T[]> => {
+  private find = async <T>(collection: "machine" | "user" | "label", filter: mongoose.FilterQuery<T>): Promise<T[]> => {
     switch (collection) {
       case "user":
         return (await this.users.find(filter)) ?? Promise.reject(`${collection}s.notFound`);
+      case "label":
+        return (await this.labels.find(filter)) ?? Promise.reject(`${collection}s.notFound`);
       case "machine":
         return (await this.machines.find(filter)) ?? Promise.reject(`${collection}s.notFound`);
     }
@@ -169,6 +193,8 @@ export class DatabaseManager {
 
   public find_machine = (filter?: mongoose.FilterQuery<IMachine>) => this.find_one<IMachine>("machine", filter);
   public find_user = (filter?: mongoose.FilterQuery<IUser>) => this.find_one<IUser>("user", filter);
+  public find_label = (filter?: mongoose.FilterQuery<ILabel>) => this.find_one<ILabel>("label", filter);
   public find_machines = (filter: mongoose.FilterQuery<IMachine>) => this.find<IMachine>("machine", filter);
   public find_users = (filter: mongoose.FilterQuery<IUser>) => this.find<IUser>("user", filter);
+  public find_labels = (filter: mongoose.FilterQuery<ILabel>) => this.find<ILabel>("label", filter);
 }
