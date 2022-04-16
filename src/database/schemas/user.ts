@@ -80,7 +80,7 @@ export interface IUserMethods {
   update_email: (a: string) => Promise<IUser>;
   update_username: (a: string) => Promise<IUser>;
   update_login_history: (headers: IncomingHttpHeaders) => Promise<IUser>;
-  get_machines: () => Promise<IMachine[]>;
+  get_machines: (actual?: boolean) => Promise<IMachine[]>;
   login: (headers: IncomingHttpHeaders) => Promise<string>;
 }
 
@@ -116,9 +116,8 @@ userSchema.methods = {
     return this.save();
   },
 
-  get_machines: async function (this: IUser) {
-    // return machines.find({ owner_uuid: this.uuid });
-    return machines.find({}); // Temporary for now
+  get_machines: async function (this: IUser, actual: boolean = false) {
+    return actual ? machines.find({ owner_uuid: this.uuid }) : machines.find({}); // Temporary for now
   },
 
   update_password: async function (this: IUser, form: UserPasswordUpdateInput): Promise<IUser> {

@@ -67,6 +67,7 @@ machineSchema.set("toJSON", {
     delete ret.__v;
     delete ret._id;
     delete ret.access_token;
+    delete ret.access;
     ret.static_data?.public_ip && delete ret.static_data.public_ip;
     ret.static_data?.city && delete ret.static_data.city;
   },

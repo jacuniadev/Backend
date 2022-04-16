@@ -25,7 +25,7 @@ export class V1 {
   private generate_user_routes() {
     const router: Router = express.Router();
 
-    router.get("/@me", this.auth, (req: LoggedInRequest, res) => res.send(req.user!.toJSON()));
+    router.get("/@me", this.auth, (req: LoggedInRequest, res) => res.send(req.user!));
 
     router.get("/@me/logins", this.auth, (req: LoggedInRequest, res) => res.json(req.user!.login_history));
 
@@ -37,7 +37,7 @@ export class V1 {
     );
 
     router.get("/@me/machines", this.auth, (req: LoggedInRequest, res) => {
-      req.user!.get_machines().then((machines) => res.send(machines.map((machine) => machine.toJSON())));
+      req.user!.get_machines().then((machines) => res.send(machines));
     });
 
     router.get("/all", this.auth, adminMiddleware, (req, res) => {
@@ -58,32 +58,40 @@ export class V1 {
     router.get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
       this.db
         .find_user({ uuid: req.params.uuid })
-        .then((user) => res.send(user.toJSON()))
+        .then((user) => res.send(user))
         .catch((error) => res.status(404).json({ error }))
     );
 
+    router.get("/:uuid/machines", this.auth, (req: LoggedInRequest, res) => {
+      this.db
+        .find_user({ uuid: req.params.uuid })
+        .then((user) => user.get_machines(true))
+        .then((machines) => res.send(machines))
+        .catch((error) => res.status(500).json(error));
+    });
+
     router.patch("/@avatar", this.auth, (req: LoggedInRequest, res) => {
       Validators.validate_avatar_url(req.body.url)
-        ? req.user!.update_avatar(req.body.url).then((user) => res.send(user.toJSON()))
+        ? req.user!.update_avatar(req.body.url).then((user) => res.send(user))
         : res.status(400).json({ error: "invalid url" });
     });
 
     router.patch("/@banner", this.auth, (req: LoggedInRequest, res) =>
       Validators.validate_avatar_url(req.body.url)
-        ? req.user!.update_banner(req.body.url).then((user) => res.send(user.toJSON()))
+        ? req.user!.update_banner(req.body.url).then((user) => res.send(user))
         : res.status(400).json({ error: "invalid url" })
     );
 
     router.post("/@signup", async (req, res) =>
       this.db.new_user(req.body, req.headers).then(
-        ({ user, token }) => res.status(201).json({ user: user.toJSON(), token }),
+        ({ user, token }) => res.status(201).json({ user: user, token }),
         (reason) => res.status(400).json({ error: reason })
       )
     );
 
     router.post("/@login", async (req, res) =>
       this.db.login_user(req.body, req.headers).then(
-        ({ user, token }) => res.status(200).json({ user: user.toJSON(), token }),
+        ({ user, token }) => res.status(200).json({ user: user, token }),
         (reason) => res.status(400).json({ error: reason })
       )
     );
