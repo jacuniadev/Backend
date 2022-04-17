@@ -1,5 +1,6 @@
 import { Time } from "../types";
 import { v4 as uuidv4 } from "uuid";
+import { redisPublisher, redisSubscriber } from "../redis";
 
 /**
  * A manager that creates temporary keys for people to signup their machines with
@@ -7,11 +8,18 @@ import { v4 as uuidv4 } from "uuid";
 export class KeyManager extends Map<string, { key: string; timer: NodeJS.Timeout }> {
   public constructor(public expiration: number = Time.Minute) {
     super();
+    redisSubscriber.subscribe("keys", (message) => {
+      const { userUuid, key } = JSON.parse(message);
+      // console.log(`Got key ${key} for user ${userUuid} from redis`);
+      // set from other shards
+      this.add(userUuid, key);
+    });
   }
 
   public createNewKey(userUuid: string): { key: string; expiration: number } {
     const key = this.generateKey();
-    this.add(userUuid, key);
+    // send to all shards
+    redisPublisher.publish("keys", JSON.stringify({ userUuid, key }));
     return { key, expiration: Date.now() + Time.Minute };
   }
 

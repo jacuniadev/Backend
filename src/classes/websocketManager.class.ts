@@ -2,9 +2,9 @@ import http from "http";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { ISafeMachine, IStaticData, IMachine, IDynamicData, INetwork } from "../database/schemas/machine";
 import { isVirtualInterface } from "../logic";
+import { redisSubscriber, redisPublisher } from "../redis";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
-import painpeko from "pako";
 
 export interface ClientToBackendEvents extends MittEvent {
   login: { auth_token: string };
@@ -55,6 +55,14 @@ export class WebsocketManager {
   }
 
   constructor(server: http.Server, public db: DatabaseManager) {
+    // Whenever we get dynamic data from any other server pass it to the rest of the servers
+    redisSubscriber.subscribe("dynamicData", (message) => {
+      const dynamicData = JSON.parse(message);
+      // console.log(`Got dynamicData from machine ${dynamicData.uuid} from redis`);
+      // Broadcast to all clients of this shard
+      this.broadcastClients("machineData", dynamicData);
+    });
+
     const userSockets = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
 
     userSockets.on("connection", (socket) => {
@@ -87,8 +95,7 @@ export class WebsocketManager {
       socket.on("staticData", (data) => machine?.update_static_data(data));
 
       socket.on("dynamicData", (data) => {
-        // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
-        this.broadcastClients("machineData", {
+        const computedData = {
           ...data,
           uuid: machine!.uuid,
           // Computed values
@@ -98,7 +105,11 @@ export class WebsocketManager {
           tu: data.network.reduce((a, b) => (!isVirtualInterface(b) ? a + b.tx : a), 0) / 1000 / 1000,
           tvd: data.network.reduce((a, b) => (isVirtualInterface(b) ? a + b.rx : a), 0) / 1000 / 1000,
           tvu: data.network.reduce((a, b) => (isVirtualInterface(b) ? a + b.tx : a), 0) / 1000 / 1000,
-        });
+        };
+
+        // Pass to redis to all the other servers in the network
+        redisPublisher.publish("dynamicData", JSON.stringify(computedData));
+        // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
       });
     });
   }
