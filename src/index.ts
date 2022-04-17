@@ -1,8 +1,8 @@
 require("dotenv").config();
 import { Backend } from "./classes/backend.class";
 import chalk from "chalk";
-import { getMemoryUsage } from "./logic";
 import os from "os";
+import "./redis";
 
 async function main() {
   console.clear();

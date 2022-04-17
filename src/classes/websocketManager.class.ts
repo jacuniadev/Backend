@@ -2,10 +2,9 @@ import http from "http";
 import { DatabaseManager } from "../database/DatabaseManager";
 import { ISafeMachine, IStaticData, IMachine, IDynamicData, INetwork } from "../database/schemas/machine";
 import { isVirtualInterface } from "../logic";
+import { redisSubscriber, redisPublisher } from "../redis";
 import { MittEvent } from "../utils/mitt";
 import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
-import { createClient } from "redis";
-import { Logger } from "../utils/logger";
 
 export interface ClientToBackendEvents extends MittEvent {
   login: { auth_token: string };
@@ -27,14 +26,6 @@ export interface BackendToReporterEvents extends MittEvent {}
  * Welcome to the troll-zone :trollface:
  */
 export class WebsocketManager {
-  public redisSubscriber = createClient({
-    url: "redis://xornet-redis:6379",
-  });
-
-  public redisPublisher = createClient({
-    url: "redis://xornet-redis:6379",
-  });
-
   public userConnections: {
     [userID: string]: WebsocketConnection<ClientToBackendEvents>;
   } = {};
@@ -64,18 +55,12 @@ export class WebsocketManager {
   }
 
   constructor(server: http.Server, public db: DatabaseManager) {
-    this.redisSubscriber.connect().then(() => Logger.info("Redis Subscriber connected "));
-    this.redisPublisher.connect().then(() => Logger.info("Redis Publisher connected "));
-
     // Whenever we get dynamic data from any other server pass it to the rest of the servers
-    this.redisSubscriber.subscribe("dynamicData", (message, channel) => {
-      try {
-        console.log(`Server ${process.env.SHARD} received dynamicData message in channel ${channel}`);
-        // Broadcast to all clients of this shard
-        this.broadcastClients("machineData", JSON.parse(message));
-      } catch (ex) {
-        console.log("ERR::" + ex);
-      }
+    redisSubscriber.subscribe("dynamicData", (message) => {
+      const dynamicData = JSON.parse(message);
+      // console.log(`Got dynamicData from machine ${dynamicData.uuid} from redis`);
+      // Broadcast to all clients of this shard
+      this.broadcastClients("machineData", dynamicData);
     });
 
     const userSockets = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
@@ -123,7 +108,7 @@ export class WebsocketManager {
         };
 
         // Pass to redis to all the other servers in the network
-        this.redisPublisher.publish("dynamicData", JSON.stringify(computedData));
+        redisPublisher.publish("dynamicData", JSON.stringify(computedData));
         // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
       });
     });
