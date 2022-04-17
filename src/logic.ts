@@ -25,6 +25,7 @@ export const getServerMetrics = async () => {
     memory: await getMemoryUsage(),
     processor: await getProcessorUsage(),
     uptime: process.uptime(),
+    shard: process.env.SHARD_ID!,
   };
 };
 
