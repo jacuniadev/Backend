@@ -72,7 +72,7 @@ export class WebsocketManager {
       try {
         console.log(`Server ${process.env.SHARD} received dynamicData message in channel ${channel}`);
         // Broadcast to all clients of this shard
-        this.broadcastClients("machineData", message);
+        this.broadcastClients("machineData", JSON.parse(message));
       } catch (ex) {
         console.log("ERR::" + ex);
       }
