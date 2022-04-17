@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "dev": "nodemon ./src/index.ts",
+    "dev:cluster": "docker build -t xornet-backend . && docker-compose up",
     "prod": "nodemon ./src/index.ts",
     "test": "cross-env TESTING=true ts-mocha --exit --colors -p ./tsconfig.json ./tests/**/*.test.ts",
     "test:watch": "nodemon --ext ts --exec npm run test",
