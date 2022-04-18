@@ -72,10 +72,18 @@ export class DatabaseManager {
   // pro-gramer move right here
   private generate_access_token = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");
 
+  private randomHexColor() {
+    let color = "#";
+    for (let i = 0; i < 3; i++) color += ("0" + ~~(((1 + Math.random()) * Math.pow(16, 2)) / 2).toString(16)).slice(-2);
+    return color;
+  }
+
   public async new_label(input: CreateLabelInput) {
+    const color = input.color || this.randomHexColor();
+
     if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("invalid.owner_uuid");
     if (input.name && !Validators.validate_label_name(input.name)) return Promise.reject("invalid.label.name");
-    if (input.color && !Validators.validate_hex_color(input.color)) return Promise.reject("invalid.hex.color");
+    if (color && !Validators.validate_hex_color(color)) return Promise.reject("invalid.hex.color");
     if (input.icon && !Validators.validate_label_icon(input.icon)) return Promise.reject("invalid.label.icon");
     if (input.description && !Validators.validate_label_description(input.description))
       return Promise.reject("invalid.label.description");
@@ -83,7 +91,7 @@ export class DatabaseManager {
     return this.labels.create({
       owner_uuid: input.owner_uuid,
       name: input.name,
-      color: input.color,
+      color,
       description: input.description,
       icon: input.icon,
     });

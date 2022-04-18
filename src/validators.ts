@@ -15,6 +15,7 @@ export class Validators {
   };
 
   public static validate_hex_color = (color: string) => {
+    if (color === "") return true;
     const hex_regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
     return hex_regex.test(color);
   };
