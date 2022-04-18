@@ -74,9 +74,10 @@ export class DatabaseManager {
 
   public async new_label(input: CreateLabelInput) {
     const color = input.color || randomHexColor();
+    const name = input.name.toLowerCase().replace(/\s/g, "-");
 
     if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("invalid.owner_uuid");
-    if (input.name && !Validators.validate_label_name(input.name)) return Promise.reject("invalid.label.name");
+    if (input.name && !Validators.validate_label_name(name)) return Promise.reject("invalid.label.name");
     if (color && !Validators.validate_hex_color(color)) return Promise.reject("invalid.hex.color");
     if (input.icon && !Validators.validate_label_icon(input.icon)) return Promise.reject("invalid.label.icon");
     if (input.description && !Validators.validate_label_description(input.description))
@@ -84,7 +85,7 @@ export class DatabaseManager {
 
     return this.labels.create({
       owner_uuid: input.owner_uuid,
-      name: input.name,
+      name,
       color,
       description: input.description,
       icon: input.icon,

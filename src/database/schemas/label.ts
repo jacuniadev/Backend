@@ -17,7 +17,7 @@ export const labelSchema = new mongoose.Schema<ILabel, mongoose.Model<ILabel>, I
   name: {
     type: String,
     required: false,
-    default: "New Label",
+    default: "label",
   },
   owner_uuid: {
     type: String,
