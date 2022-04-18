@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 import { MongoServerError } from "mongodb";
 import mongoose, { Model } from "mongoose";
 import { v4 as uuidv4 } from "uuid";
-import { checkEnvironmentVariables } from "../logic";
+import { checkEnvironmentVariables, randomHexColor } from "../logic";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
 import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema } from "./schemas/machine";
@@ -72,14 +72,8 @@ export class DatabaseManager {
   // pro-gramer move right here
   private generate_access_token = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");
 
-  private randomHexColor() {
-    let color = "#";
-    for (let i = 0; i < 3; i++) color += ("0" + ~~(((1 + Math.random()) * Math.pow(16, 2)) / 2).toString(16)).slice(-2);
-    return color;
-  }
-
   public async new_label(input: CreateLabelInput) {
-    const color = input.color || this.randomHexColor();
+    const color = input.color || randomHexColor();
 
     if (!Validators.validate_uuid(input.owner_uuid)) return Promise.reject("invalid.owner_uuid");
     if (input.name && !Validators.validate_label_name(input.name)) return Promise.reject("invalid.label.name");
