@@ -42,7 +42,7 @@ export class WebsocketManager {
    * @param data The data to send
    * @param specificClients The list of specific clients to emit to
    */
-  public broadcastClients(event: keyof BackendToClientEvents, data?: any, specificClients?: string[]) {
+  public broadcastClients(event: keyof BackendToClientEvents, data?: string, specificClients?: string[]) {
     // If they defined specific client uuids then just emit to those
     if (specificClients) {
       return Object.entries(this.userConnections).forEach(
@@ -108,8 +108,9 @@ export class WebsocketManager {
         };
 
         // Pass to redis to all the other servers in the network
-        redisPublisher.publish("dynamicData", JSON.stringify(computedData));
-        // this.broadcastClients("machineData", computedData, usersThatHaveAccess);
+        process.env.SHARD
+          ? redisPublisher.publish("dynamicData", JSON.stringify(computedData))
+          : this.broadcastClients("machineData", JSON.stringify(computedData));
       });
     });
   }
