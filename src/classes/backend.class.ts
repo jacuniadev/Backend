@@ -10,9 +10,10 @@ import log from "../middleware/log";
 import { V1 } from "../routes/v1/v1";
 import { Logger } from "../utils/logger";
 import { WebsocketManager } from "./websocketManager.class";
+import compression from "compression";
 
 export class Backend {
-  public express: Express = express().use(cors).use(log).use(express.json()).use(new V1(this.db).router);
+  public express: Express = express().use(compression()).use(cors).use(log).use(express.json()).use(new V1(this.db).router);
   public port = process.env.PORT!;
   public verbose = process.env.VERBOSE!;
   public secure = process.env.SECURE! === "true";
