@@ -9,11 +9,11 @@ async function main() {
 
   const hostname = `${chalk.cyan("hostname")}  ${chalk.reset(os.hostname())}`;
   const arch = `${chalk.cyan("arch")}      ${chalk.reset(os.arch())}`;
-  const pid = `${chalk.cyan("pid")}       ${chalk.reset(process.pid)}`;
   const secure = `${chalk.cyan("secure")}    ${chalk.reset(process.env.SECURE!)}`;
   const mode = `${chalk.cyan("mode")}      ${
     process.env.MODE! === "production" ? chalk.green("production") : chalk.blue("development")
   }`;
+  const shard = process.env.SHARD_ID ? `${chalk.cyan("shard")} ${chalk.reset(process.env.SHARD_ID)}` : "";
 
   const logo = chalk.blue(`
  
@@ -21,9 +21,7 @@ async function main() {
   | |/_/ __ \\/ _ \\/ |/ / __/_  __/      ${arch}
  _>  </ /_/ / , _/    / _/  / /         ${mode}
 /_/|_|\\____/_/|_/_/|_/___/ /_/          ${secure}
-    John Xina is behind you             ${
-      process.env.SHARD_ID ? `${chalk.cyan("shard")} ${chalk.reset(process.env.SHARD_ID)}` : ""
-    }
+    John Xina is behind you             ${shard}
 `);
 
   console.log(logo);

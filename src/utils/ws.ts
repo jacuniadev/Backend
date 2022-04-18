@@ -19,12 +19,12 @@ export class WebsocketConnection<T extends MittEvent> extends Mitt<T> {
 
     this.on("*", (name, event) => {
       socket.send(
-        pako.gzip(
-          JSON.stringify({
-            e: name,
-            d: event,
-          })
-        )
+        // pako.gzip(
+        JSON.stringify({
+          e: name,
+          d: event,
+        })
+        // )
       );
     });
   }
