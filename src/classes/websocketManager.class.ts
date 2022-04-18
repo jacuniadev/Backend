@@ -108,7 +108,7 @@ export class WebsocketManager {
         };
 
         // Pass to redis to all the other servers in the network
-        process.env.SHARD
+        process.env.SHARD_ID
           ? redisPublisher.publish("dynamicData", JSON.stringify(computedData))
           : this.broadcastClients("machineData", JSON.stringify(computedData));
       });

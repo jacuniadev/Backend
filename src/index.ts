@@ -19,9 +19,11 @@ async function main() {
  
    _  ______  ___  _  ____________      ${hostname}
   | |/_/ __ \\/ _ \\/ |/ / __/_  __/      ${arch}
- _>  </ /_/ / , _/    / _/  / /         ${pid}
+ _>  </ /_/ / , _/    / _/  / /         ${mode}
 /_/|_|\\____/_/|_/_/|_/___/ /_/          ${secure}
-    John Xina is behind you             ${mode}
+    John Xina is behind you             ${
+      process.env.SHARD_ID ? `${chalk.cyan("shard")} ${chalk.reset(process.env.SHARD_ID)}` : ""
+    }
 `);
 
   console.log(logo);
