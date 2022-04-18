@@ -29,7 +29,7 @@ export class Validators {
     Joi.string().required().min(4).max(32).alphanum().not().empty().validate(username).error ? false : true;
 
   public static validate_label_name = (label_name: string) =>
-    Joi.string().required().min(3).max(16).alphanum().validate(label_name).error ? false : true;
+    Joi.string().required().min(3).max(16).validate(label_name).error ? false : true;
 
   public static validate_label_icon = (label_icon: LabelIcon) => LABEL_ICONS.includes(label_icon);
 
