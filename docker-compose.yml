@@ -11,6 +11,8 @@ services:
     xornet-redis:
         image: redis
         restart: unless-stopped
+        ports:
+            - "6379:6379"
     xornet-backend-1:
         image: xornet-backend
         restart: unless-stopped
