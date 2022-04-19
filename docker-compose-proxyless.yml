@@ -4,20 +4,28 @@ services:
     xornet-backend-1:
         image: xornet-backend
         restart: unless-stopped
+        ports:
+            - "7001:7000"
         environment:
             - SHARD_ID=xnet-mirai-1
     xornet-backend-2:
         image: xornet-backend
         restart: unless-stopped
+        ports:
+            - "7002:7000"
         environment:
             - SHARD_ID=xnet-mirai-2
     xornet-backend-3:
         image: xornet-backend
         restart: unless-stopped
+        ports:
+            - "7003:7000"
         environment:
             - SHARD_ID=xnet-mirai-3
     xornet-backend-4:
         image: xornet-backend
         restart: unless-stopped
+        ports:
+            - "7004:7000"
         environment:
             - SHARD_ID=xnet-mirai-4
