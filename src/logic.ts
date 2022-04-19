@@ -1,5 +1,6 @@
 import chalk from "chalk";
 import osu from "node-os-utils";
+import os from "os";
 import { INetwork } from "./database/schemas/machine";
 import { Logger } from "./utils/logger";
 
@@ -25,7 +26,7 @@ export const getServerMetrics = async () => {
     memory: await getMemoryUsage(),
     processor: await getProcessorUsage(),
     uptime: process.uptime(),
-    shard: process.env.SHARD_ID! || "solo",
+    shard: process.env.SHARD_ID! ? `${os.hostname().toLowerCase()}-${process.env.SHARD_ID!}` : "solo",
   };
 };
 
