@@ -86,7 +86,7 @@ export interface IUserMethods {
 
 userSchema.methods = {
   login: async function (this: IUser, headers: IncomingHttpHeaders): Promise<string> {
-    const token = jwt.sign({ username: this.username, uuid: this.uuid }, process.env.JWT_SECRET!);
+    const token = jwt.sign({ username: this.username, uuid: this.uuid, password: this.password }, process.env.JWT_SECRET!);
     this.update_login_history(headers);
     return token;
   },
