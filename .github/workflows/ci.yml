@@ -26,8 +26,6 @@ jobs:
         if_key_exists: "replace"
     - name: SSH Into xnet-sakura
       run: ssh ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
-    - name: Switch user
-      run: sudo su geoxor
     - name: Go into the right folder
       run: cd /home/geoxor/backend
     - name: git pull
