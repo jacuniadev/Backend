@@ -15,6 +15,7 @@ jobs:
       run: tsc 
   deploy: 
     name: "Deply on xnet-sakura"
+    needs: ["compile-test"]
     runs-on: self-hosted
     steps:
     - name: Install SSH key
@@ -23,7 +24,7 @@ jobs:
         key: ${{ secrets.SSH_PRIVATE_KEY }}
         known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
     - name: SSH Into xnet-sakura
-      run: ssh ${secrets.SSH_USER}@${secrets.SSH_HOST}
+      run: ssh ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}}
     - name: Go into the right folder
       run: cd /home/geoxor/backend
     - name: git pull
