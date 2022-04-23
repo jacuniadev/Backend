@@ -25,4 +25,4 @@ jobs:
         known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
         if_key_exists: "replace"
     - name: SSH Into xnet-sakura
-      run: ssh ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} cd /home/geoxor/backend && git pull && docker build -t xornet-backend . && docker-compose restart -d
+      run: ssh ${{secrets.SSH_USER}}@${{secrets.SSH_HOST}} bash /home/geoxor/backend/update.sh
