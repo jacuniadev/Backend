@@ -11,13 +11,13 @@ export interface ClientToBackendEvents extends MittEvent {
 }
 
 export interface BackendToClientEvents extends MittEvent {
-  dynamicData: { machines: ISafeMachine[] };
+  "dynamic-data": { machines: ISafeMachine[] };
 }
 
 export interface ReporterToBackendEvents extends MittEvent {
   login: { auth_token: string };
-  staticData: IStaticData;
-  dynamicData: IDynamicData;
+  "static-data": IStaticData;
+  "dynamic-data": IDynamicData;
 }
 
 export interface BackendToReporterEvents extends MittEvent {}
