@@ -159,6 +159,8 @@ export class V1 {
             this.db
               .new_machine({ owner_uuid: user.uuid, hardware_uuid, hostname })
               .then((machine) => {
+                // broadcast to everyone
+                // TODO: probably move this redis line somewhere else
                 redisPublisher.publish("machine-added", JSON.stringify(machine));
                 res.json({ access_token: machine.access_token });
               })
