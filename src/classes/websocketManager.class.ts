@@ -12,6 +12,7 @@ export interface ClientToBackendEvents extends MittEvent {
 
 export interface BackendToClientEvents extends MittEvent {
   "dynamic-data": { machines: ISafeMachine[] };
+  "machine-added": { machine: ISafeMachine };
 }
 
 export interface ReporterToBackendEvents extends MittEvent {
