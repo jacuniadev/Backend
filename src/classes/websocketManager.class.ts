@@ -11,7 +11,7 @@ export interface ClientToBackendEvents extends MittEvent {
 }
 
 export interface BackendToClientEvents extends MittEvent {
-  machineData: { machines: ISafeMachine[] };
+  dynamicData: { machines: ISafeMachine[] };
 }
 
 export interface ReporterToBackendEvents extends MittEvent {
@@ -56,12 +56,9 @@ export class WebsocketManager {
 
   constructor(server: http.Server, public db: DatabaseManager) {
     // Whenever we get dynamic data from any other server pass it to the rest of the servers
-    redisSubscriber.subscribe("dynamicData", (message) => {
-      const dynamicData = JSON.parse(message);
-      // console.log(`Got dynamicData from machine ${dynamicData.uuid} from redis`);
-      // Broadcast to all clients of this shard
-      this.broadcastClients("machineData", dynamicData);
-    });
+    // Broadcast to all clients of this shard
+    redisSubscriber.subscribe("dynamic-data", (message) => this.broadcastClients("dynamic-data", JSON.parse(message)));
+    redisSubscriber.subscribe("machine-added", (message) => this.broadcastClients("machine-added", JSON.parse(message)));
 
     const userSockets = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
 
@@ -92,9 +89,9 @@ export class WebsocketManager {
         }
       });
 
-      socket.on("staticData", (data) => machine?.update_static_data(data));
+      socket.on("static-data", (data) => machine?.update_static_data(data));
 
-      socket.on("dynamicData", (data) => {
+      socket.on("dynamic-data", (data) => {
         const computedData = {
           ...data,
           uuid: machine!.uuid,
@@ -109,8 +106,8 @@ export class WebsocketManager {
 
         // Pass to redis to all the other servers in the network
         process.env.SHARD_ID
-          ? redisPublisher.publish("dynamicData", JSON.stringify(computedData))
-          : this.broadcastClients("machineData", JSON.stringify(computedData));
+          ? redisPublisher.publish("dynamic-data", JSON.stringify(computedData))
+          : this.broadcastClients("dynamic-data", JSON.stringify(computedData));
       });
     });
   }

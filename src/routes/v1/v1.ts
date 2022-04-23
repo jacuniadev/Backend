@@ -6,6 +6,7 @@ import { LoggedInRequest } from "../../database/schemas/user";
 import { getServerMetrics } from "../../logic";
 import { adminMiddleware } from "../../middleware/admin";
 import { init_auth } from "../../middleware/auth";
+import { redisPublisher } from "../../redis";
 import { Validators } from "../../validators";
 
 export class V1 {
@@ -157,7 +158,10 @@ export class V1 {
           .then((user) => {
             this.db
               .new_machine({ owner_uuid: user.uuid, hardware_uuid, hostname })
-              .then((machine) => res.json({ access_token: machine.access_token }))
+              .then((machine) => {
+                redisPublisher.publish("machine-added", JSON.stringify(machine));
+                res.json({ access_token: machine.access_token });
+              })
               .catch((error: MongoAPIError) => {
                 switch (error.code) {
                   case 11000:
