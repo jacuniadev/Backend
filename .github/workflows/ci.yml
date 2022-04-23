@@ -13,3 +13,22 @@ jobs:
       run: npm i 
     - name: 🛠 Compile typescript
       run: tsc 
+  deploy: 
+    name: "Deply on xnet-sakura"
+    runs-on: self-hosted
+    steps:
+    - name: Install SSH key
+      uses: shimataro/ssh-key-action@v2
+      with:
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+    - name: SSH Into xnet-sakura
+      run: ssh ${secrets.SSH_USER}@${secrets.SSH_HOST}
+    - name: Go into the right folder
+      run: cd /home/geoxor/backend
+    - name: git pull
+      run: Pull updates
+    - name: Build the new backend
+      run: docker build -t xornet-backend .
+    - name: Restart containers
+      run: docker-compose restart -d
