@@ -143,6 +143,7 @@ export const LABEL_ICONS: LabelIcon[] = [
   "unmaximize",
   "up",
   "upgrade",
+  "flask",
   "user",
   "video-card",
   "zap",
@@ -154,6 +155,7 @@ export type LabelIcon =
   | "area-chart"
   | "at-sign"
   | "back"
+  | "flask"
   | "clock"
   | "close"
   | "color-palette"
