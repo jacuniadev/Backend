@@ -89,6 +89,7 @@ export const LABEL_ICONS: LabelIcon[] = [
   "at-sign",
   "back",
   "clock",
+  "flask",
   "close",
   "color-palette",
   "command-palette",
@@ -169,6 +170,7 @@ export type LabelIcon =
   | "happy-skull"
   | "hdd"
   | "home"
+  | "flask"
   | "ipv6"
   | "key"
   | "lightning-bolt"
