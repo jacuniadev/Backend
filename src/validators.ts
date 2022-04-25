@@ -2,7 +2,14 @@ import Joi from "joi";
 import { LabelIcon, LABEL_ICONS } from "./database/schemas/label";
 
 export class Validators {
-  public static TRUSTED_IMAGE_HOSTERS = ["cdn.discordapp.com", "i.imgur.com"];
+  public static TRUSTED_IMAGE_HOSTERS = [
+    "cdn.discordapp.com",
+    "media.discordapp.net",
+    "i.imgur.com",
+    "i.redd.it",
+    "i.gyazo.com",
+    "i.reddituploads.com",
+  ];
   public static ALLOWED_IMAGE_EXTENSIONS = ["png", "gif", "jpg", "jpeg", "webp"];
 
   public static validate_url = (url: string) => {
