@@ -11,6 +11,7 @@ export interface ClientToBackendEvents extends MittEvent {
 }
 
 export interface BackendToClientEvents extends MittEvent {
+  heartbeat: {};
   "dynamic-data": { machines: ISafeMachine[] };
   "machine-added": { machine: ISafeMachine };
 }
@@ -19,9 +20,12 @@ export interface ReporterToBackendEvents extends MittEvent {
   login: { auth_token: string };
   "static-data": IStaticData;
   "dynamic-data": IDynamicData;
+  pong: { timestamp: number };
 }
 
-export interface BackendToReporterEvents extends MittEvent {}
+export interface BackendToReporterEvents extends MittEvent {
+  ping: {};
+}
 
 /**
  * Welcome to the troll-zone :trollface:
@@ -35,7 +39,10 @@ export class WebsocketManager {
     [machineID: string]: WebsocketConnection<ReporterToBackendEvents>;
   } = {};
 
-  public heartbeat = setInterval(() => this.broadcastClients("heartbeat"), 1000);
+  public heartbeat = setInterval(() => {
+    this.broadcastClients("heartbeat");
+    // this.pingReporters();
+  }, 1000);
 
   /**
    * Sends an event to all the clients or to a specified list of clients by their uuid
@@ -53,6 +60,10 @@ export class WebsocketManager {
 
     // Otherwise emit to all the clients
     Object.values(this.userConnections).forEach(async (user) => user.emit(event, data));
+  }
+
+  public pingReporters() {
+    Object.values(this.reporterConnections).forEach((reporter) => reporter.emit("ping", { timestamp: Date.now() }));
   }
 
   constructor(server: http.Server, public db: DatabaseManager) {
@@ -74,6 +85,7 @@ export class WebsocketManager {
 
     reporterSockets.on("connection", async (socket) => {
       let machine: IMachine | undefined = undefined;
+      let ping: number = 0;
       // let usersThatHaveAccess: string[] = [];
 
       socket.on("login", async (data) => {
@@ -90,11 +102,16 @@ export class WebsocketManager {
         }
       });
 
+      socket.on("pong", ({ timestamp }) => {
+        ping = Date.now() - timestamp;
+      });
+
       socket.on("static-data", (data) => machine?.update_static_data(data));
 
       socket.on("dynamic-data", (data) => {
         const computedData = {
           ...data,
+          ping,
           uuid: machine!.uuid,
           // Computed values
           cau: ~~(data.cpu.usage.reduce((a, b) => a + b, 0) / data.cpu.usage.length),
