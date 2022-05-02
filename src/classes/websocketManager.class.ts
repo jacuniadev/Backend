@@ -132,8 +132,9 @@ export class WebsocketManager {
       socket.on("static-data", (data) => machine?.update_static_data(data));
 
       socket.on("dynamic-data", (data) => {
-        machine!.last_update = Date.now();
-        machine!.save();
+        if (!machine) return socket.socket.close();
+        machine.last_update = Date.now();
+        machine.save();
 
         const computedData = {
           ...data,
