@@ -77,12 +77,13 @@ export class DatabaseManager {
     if (process.env.SHARD_ID && process.env.SHARD_ID !== "1") return;
 
     Logger.info(`Database cleanup started...`);
-
     const machines = await this.machines.find({});
+    const promises = [];
+
     for (const machine of machines) {
       // if its been longer than 30 days
       if (!machine.last_update || machine.last_update < Date.now() - 1000 * 60 * 60 * 24 * 30) {
-        await machine.delete();
+        promises.push(machine.delete());
         Logger.info(`Deleted machine ${chalk.blue(machine.uuid)} because it hasn't been updated in 30 days`);
         continue;
       }
@@ -90,9 +91,11 @@ export class DatabaseManager {
       if (machine.status === MachineStatus.Online && machine.last_update < Date.now() - 1000 * 10) {
         machine.status = MachineStatus.Offline;
         Logger.info(`Marked machine ${chalk.blue(machine.uuid)} as offline because it hasn't been updated in 10 seconds`);
-        await machine.save();
+        promises.push(machine.save());
       }
     }
+
+    await Promise.allSettled(promises);
     Logger.info(chalk.green("Database check complete"));
   }
 
