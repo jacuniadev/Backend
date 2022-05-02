@@ -74,7 +74,7 @@ export interface ILabel extends mongoose.Document {
   updated_at: number;
 }
 
-export interface CreateLabelInput {
+export interface ICreateLabelInput {
   name: string;
   owner_uuid: string;
   color?: string;

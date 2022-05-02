@@ -9,7 +9,7 @@ import { Validators } from "../validators";
 import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema } from "./schemas/machine";
 import { IUser, UserAuthResult, UserPasswordUpdateInput, users, userSchema, UserSignupInput } from "./schemas/user";
 import type { IncomingHttpHeaders } from "http";
-import { CreateLabelInput, ILabel, labels } from "./schemas/label";
+import { ICreateLabelInput, ILabel, labels } from "./schemas/label";
 
 export interface IBaseDocument {
   uuid: string; // The unique identifier of the document
@@ -72,7 +72,7 @@ export class DatabaseManager {
   // pro-gramer move right here
   private generate_access_token = () => `${uuidv4()}${uuidv4()}${uuidv4()}${uuidv4()}`.replace(/-/g, "");
 
-  public async new_label(input: CreateLabelInput) {
+  public async new_label(input: ICreateLabelInput) {
     const color = input.color || randomHexColor();
     const name = input.name.toLowerCase().replace(/\s/g, "-");
 

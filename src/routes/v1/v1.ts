@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import { MongoAPIError } from "mongodb";
 import { KeyManager } from "../../classes/keyManager.class";
 import { DatabaseManager } from "../../database/DatabaseManager";
+import { ICreateLabelInput, ICreateLabelInput, ILabel, labels } from "../../database/schemas/label";
 import { LoggedInRequest } from "../../database/schemas/user";
 import { getServerMetrics } from "../../logic";
 import { adminMiddleware } from "../../middleware/admin";
@@ -135,6 +136,13 @@ export class V1 {
           })
           .then(() => res.send({ message: "deleted label" }))
           .catch((error) => res.status(403).json(error))
+      )
+      .patch<{}, {}, ICreateLabelInput>("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_label({ uuid: req.params.uuid, owner_uuid: req.user!.uuid })
+          .then((label) => label.update(req.body))
+          .catch((error) => res.status(403).json(error))
+          .then((label) => res.json(label))
       )
       .post("/new", this.auth, (req: LoggedInRequest, res) => {
         this.db
