@@ -19,15 +19,40 @@ describe("validate_avatar_url()", () => {
     "hello world",
   ];
 
-  it("should return true for valid urls", async () => {
+  describe("should return true for valid urls", async () => {
     for (const url of VALID_URLS) {
-      expect(Validators.validate_avatar_url(url)).to.be.true;
+      it(`should return true for valid avatar_url: ${url}`, async () => {
+        expect(Validators.validate_avatar_url(url)).to.be.true;
+      });
     }
   });
 
-  it("should return false for invalid urls", async () => {
+  describe("should return false for invalid urls", async () => {
     for (const url of INVALID_URLS) {
-      expect(Validators.validate_avatar_url(url)).to.be.false;
+      it(`should return false for invalid avatar_url: ${url}`, async () => {
+        expect(Validators.validate_avatar_url(url)).to.be.false;
+      });
+    }
+  });
+});
+
+describe("validate_hostname()", async () => {
+  const VALID_HOSTNAMES = ["cdn.discordapp.com", "media.discordapp.net", "i.imgur.com", "783f7f2f32-j3fk.test.com"];
+  const INVALID_HOSTNAMES = ["your mom", "@%@%783f7f2f32j3fk", "-oaiwndoaiwnd.com"];
+
+  describe(`should return true for valid hostnames`, async () => {
+    for (const hostname of VALID_HOSTNAMES) {
+      it(`should return true for valid hostname: ${hostname}`, async () => {
+        expect(Validators.validate_hostname(hostname)).to.be.true;
+      });
+    }
+  });
+
+  describe(`should return false for invalid hostnames`, async () => {
+    for (const hostname of INVALID_HOSTNAMES) {
+      it(`should return false for invalid hostname: ${hostname}`, async () => {
+        expect(Validators.validate_hostname(hostname)).to.be.false;
+      });
     }
   });
 });

@@ -115,10 +115,6 @@ export class DatabaseManager {
    * Creates a new user in the database
    */
   public async new_user(form: UserSignupInput, headers: IncomingHttpHeaders) {
-    if (!Validators.validate_email(form.email)) return Promise.reject("invalid.email");
-    if (!Validators.validate_password(form.password)) return Promise.reject("invalid.password");
-    if (!Validators.validate_username(form.username)) return Promise.reject("invalid.username");
-
     try {
       const user = await this.users.create<UserSignupInput>(form);
       return { user, token: await user.login(headers) };

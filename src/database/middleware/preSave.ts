@@ -11,11 +11,6 @@ export type PreSaveProps = {
   isModified: (a: string) => boolean;
 };
 
-/**
- * This function updates the "updated_at" field automatically
- * whenever something changes on the database and it also will encrypt the
- * password of a user if it changes
- */
 export const preSaveMiddleware = async function <T extends IBaseDocument & PreSaveProps>(this: T, next: Function) {
   if (this.isNew) {
     this.created_at = Date.now();
