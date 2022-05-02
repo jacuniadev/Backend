@@ -11,7 +11,7 @@ export const init_auth = (db: DatabaseManager) => {
     if (req.headers.authorization) {
       try {
         const { uuid, username, password } = jwt.verify(
-          req.headers.authorization.replace("Bearer ", ""),
+          req.headers.authorization.replace("Bearer ", "").trim(),
           process.env.JWT_SECRET!
         ) as IUser;
         const user = await db.users.findOne({ uuid, username, password });
