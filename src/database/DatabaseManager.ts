@@ -62,7 +62,24 @@ export class DatabaseManager {
     Logger.info(`Connecting to ${chalk.blue(DB_URL)}`);
     try {
       await mongoose.connect(DB_URL, { appName: this.app_name });
-      return Logger.info(chalk.green("MongoDB Connected"));
+      Logger.info(chalk.green("MongoDB Connected"));
+      const machines = await this.machines.find({});
+      for (const machine of machines) {
+        // if its been longer than 30 days
+        if (machine.last_update < Date.now() - 1000 * 60 * 60 * 24 * 30) {
+          await machine.delete();
+          Logger.info(`Deleted machine ${chalk.blue(machine.uuid)} because it hasn't been updated in 30 days`);
+          continue;
+        }
+
+        if (machine.status === MachineStatus.Online && machine.last_update < Date.now() - 1000 * 10) {
+          machine.status = MachineStatus.Offline;
+          Logger.info(`Marked machine ${chalk.blue(machine.uuid)} as offline because it hasn't been updated in 10 seconds`);
+          await machine.save();
+        }
+      }
+      Logger.info(chalk.green("Database check complete"));
+      return;
     } catch (reason) {
       Logger.error("MongoDB failed to connect, reason: ", reason);
       process.exit(1);

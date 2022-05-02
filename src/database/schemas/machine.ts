@@ -37,6 +37,9 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
   updated_at: {
     type: Number,
   },
+  last_update: {
+    type: Number,
+  },
   name: {
     type: String,
     required: true,
@@ -132,6 +135,7 @@ export interface ISafeMachine extends IBaseDocument {
   description?: string; // A description of the machine
   access: string[]; // The list of users that have access to this machine
   status: MachineStatus;
+  last_update: number;
   static_data: ISafeStaticData; // The static data of the machine
 }
 
