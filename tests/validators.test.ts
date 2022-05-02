@@ -2,6 +2,26 @@ import { describe, it } from "mocha";
 import { expect } from "chai";
 import { Validators } from "../src/validators";
 
+describe("validate_hex_color()", () => {
+  describe("should return true for valid colors", () => {
+    const VALID_HEXCOLORS = ["#000000", "#fff"];
+    for (const color of VALID_HEXCOLORS) {
+      it(`should return true for valid color: ${color}`, async () => {
+        expect(Validators.validate_hex_color(color)).to.be.true;
+      });
+    }
+  });
+
+  describe("should return false for invalid colors", () => {
+    const INVALID_HEXCOLORS = ["#000000000", "#fffff", "#ff", "#ffffff0"];
+    for (const color of INVALID_HEXCOLORS) {
+      it(`should return false for invalid color: ${color}`, async () => {
+        expect(Validators.validate_hex_color(color)).to.be.false;
+      });
+    }
+  });
+});
+
 describe("validate_avatar_url()", () => {
   const VALID_URLS = [
     "https://cdn.discordapp.com/avatars/1234567890123456789/1234567890123456789.png",

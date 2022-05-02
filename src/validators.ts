@@ -36,12 +36,18 @@ export class Validators {
     }
   };
 
+  /**
+   * @tested
+   */
   public static validate_hex_color = (color: string) => {
     if (color === "") return true;
     const hex_regex = /^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
     return hex_regex.test(color);
   };
 
+  /**
+   * @tested
+   */
   public static validate_email = (email: string) =>
     Joi.string().email().not().empty().required().validate(email).error ? false : true;
 
@@ -66,6 +72,9 @@ export class Validators {
   public static validate_label_description = (label_description: string) =>
     Joi.string().required().max(300).validate(label_description).error ? false : true;
 
+  /**
+   * @tested
+   */
   public static validate_avatar_url = (url: string) => {
     // Check if the url is parsable
     if (!this.validate_url(url)) return false;
@@ -77,8 +86,14 @@ export class Validators {
     return true;
   };
 
+  /**
+   * @tested
+   */
   public static validate_uuid = (uuid: string) => (Joi.string().required().uuid().validate(uuid).error ? false : true);
 
+  /**
+   * @tested
+   */
   public static validate_hostname = (hostname: string) =>
     Joi.string()
       .required()
