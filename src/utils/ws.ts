@@ -16,7 +16,7 @@ export class WebsocketConnection<T extends MittEvent> extends Mitt<T> {
       const { e: event, d: data } = parseData(message);
       this.emit(event, data);
     });
-
+    socket.on("close", () => this.emit("close" as any));
     this.on("*", (name, event) => {
       socket.send(
         // pako.gzip(

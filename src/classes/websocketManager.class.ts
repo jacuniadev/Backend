@@ -1,6 +1,6 @@
 import http from "http";
 import { DatabaseManager } from "../database/DatabaseManager";
-import { ISafeMachine, IStaticData, IMachine, IDynamicData, INetwork } from "../database/schemas/machine";
+import { ISafeMachine, IStaticData, IMachine, IDynamicData, INetwork, MachineStatus } from "../database/schemas/machine";
 import { isVirtualInterface } from "../logic";
 import { redisSubscriber, redisPublisher } from "../redis";
 import { MittEvent } from "../utils/mitt";
@@ -8,6 +8,7 @@ import { newWebSocketHandler, WebsocketConnection } from "../utils/ws";
 
 export interface ClientToBackendEvents extends MittEvent {
   login: { auth_token: string };
+  close: {};
 }
 
 export interface BackendToClientEvents extends MittEvent {
@@ -17,6 +18,7 @@ export interface BackendToClientEvents extends MittEvent {
 }
 
 export interface ReporterToBackendEvents extends MittEvent {
+  close: {};
   login: { auth_token: string };
   "static-data": IStaticData;
   "dynamic-data": IDynamicData;
@@ -87,6 +89,13 @@ export class WebsocketManager {
       let machine: IMachine | undefined = undefined;
       let ping: number = 0;
       // let usersThatHaveAccess: string[] = [];
+
+      socket.on("close", () => {
+        if (machine) {
+          machine.status = MachineStatus.Offline;
+          machine.save();
+        }
+      });
 
       socket.on("login", async (data) => {
         try {

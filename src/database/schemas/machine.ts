@@ -1,7 +1,12 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
 import { preSaveMiddleware } from "../middleware/preSave";
-import { ILabel } from "./label";
+
+export enum MachineStatus {
+  Online,
+  Offline,
+  Updating,
+}
 
 export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachine>, IMachineMethods>({
   uuid: {
@@ -39,6 +44,11 @@ export const machineSchema = new mongoose.Schema<IMachine, mongoose.Model<IMachi
   description: {
     type: String,
     required: false,
+  },
+  status: {
+    type: Number,
+    required: true,
+    default: MachineStatus.Offline,
   },
   icon: {
     type: String,
@@ -121,6 +131,7 @@ export interface ISafeMachine extends IBaseDocument {
   labels: mongoose.Types.Array<string>; // The labels of the machine
   description?: string; // A description of the machine
   access: string[]; // The list of users that have access to this machine
+  status: MachineStatus;
   static_data: ISafeStaticData; // The static data of the machine
 }
 

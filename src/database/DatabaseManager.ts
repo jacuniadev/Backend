@@ -6,7 +6,7 @@ import { v4 as uuidv4 } from "uuid";
 import { checkEnvironmentVariables, randomHexColor } from "../logic";
 import { Logger } from "../utils/logger";
 import { Validators } from "../validators";
-import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema } from "./schemas/machine";
+import { CreateMachineInput, IMachine, IStaticData, machines, machineSchema, MachineStatus } from "./schemas/machine";
 import { IUser, UserAuthResult, UserPasswordUpdateInput, users, userSchema, UserSignupInput } from "./schemas/user";
 import type { IncomingHttpHeaders } from "http";
 import { ICreateLabelInput, ILabel, labels } from "./schemas/label";
@@ -155,7 +155,8 @@ export class DatabaseManager {
   public async login_machine(access_token: string) {
     const machine = await this.machines.findOne({ access_token });
     if (!machine) return Promise.reject("Invalid access token");
-    return machine;
+    machine.status = MachineStatus.Online;
+    return machine.save();
   }
 
   /**
