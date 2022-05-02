@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { IBaseDocument } from "../DatabaseManager";
-import { preSaveMiddleware } from "../middleware/preSave";
+import { labelPreSaveMiddleware, preSaveMiddleware } from "../middleware/preSave";
 
 export const labelSchema = new mongoose.Schema<ILabel, mongoose.Model<ILabel>, ILabelMethods>({
   uuid: {
@@ -48,6 +48,7 @@ labelSchema.set("toJSON", {
 });
 
 labelSchema.pre("save", preSaveMiddleware);
+labelSchema.pre("save", labelPreSaveMiddleware);
 
 export const labels = mongoose.model<ILabel>("Label", labelSchema);
 

@@ -4,7 +4,7 @@ import { IMachine, machines } from "./machine";
 import express from "express";
 import { Validators } from "../../validators";
 import bcrypt from "bcryptjs";
-import { preSaveMiddleware } from "../middleware/preSave";
+import { preSaveMiddleware, userPreSaveMiddleware } from "../middleware/preSave";
 import type { IncomingHttpHeaders } from "http";
 import jwt from "jsonwebtoken";
 
@@ -67,6 +67,7 @@ userSchema.set("toJSON", {
 });
 
 userSchema.pre("save", preSaveMiddleware);
+userSchema.pre("save", userPreSaveMiddleware);
 
 /// ------------------------------------------------------------------------------
 /// ------- METHODS --------------------------------------------------------------

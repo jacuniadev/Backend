@@ -163,6 +163,12 @@ export class V1 {
   private generate_machine_routes() {
     return express
       .Router()
+      .get("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
+        this.db
+          .find_machine({ uuid: req.params.uuid })
+          .then((machine) => res.send(machine))
+          .catch((error) => res.status(404).json(error))
+      )
       .get("/@newkey", this.auth, (req: LoggedInRequest, res) => res.json(this.keyManager.createNewKey(req.user!.uuid)))
       .post("/@signup", async (req, res) => {
         const { two_factor_key, hardware_uuid, hostname } = req.body;
