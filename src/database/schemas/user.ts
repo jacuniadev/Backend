@@ -31,6 +31,10 @@ export const userSchema = new mongoose.Schema<IUser, mongoose.Model<IUser>, IUse
     type: Boolean,
     default: false,
   },
+  biography: {
+    type: String,
+    default: "I like servers",
+  },
   created_at: {
     type: Number,
   },
@@ -162,6 +166,7 @@ export interface ISafeUser extends IBaseDocument {
   avatar: string; // The avatar url of the user
   banner: string; // The avatar url of the user
   username: string; // The username of the user
+  biography: string; // The biography of the user
   is_admin: boolean; // Whether the user is an admin
 }
 
