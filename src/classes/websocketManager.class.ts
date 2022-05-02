@@ -104,9 +104,6 @@ export class WebsocketManager {
 
           // Tell the clients that this machine is offline :trollcrazy:
           for (const user_uuid of [updatedMachine.owner_uuid, ...updatedMachine.access]) {
-            console.log(Object.keys(this.userConnections));
-            console.log(`trying to emit to user: `, user_uuid);
-
             Object.entries(this.userConnections).forEach(([session_uuid, user]) => {
               // we check if it startswith the id because after the uuid they have the timestamp
               // that tells the clients apart, that way we emit to all the clients that have the same user uuid

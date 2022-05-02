@@ -10,8 +10,6 @@ export class KeyManager extends Map<string, { key: string; timer: NodeJS.Timeout
     super();
     redisSubscriber.subscribe("keys", (message) => {
       const { userUuid, key } = JSON.parse(message);
-      // console.log(`Got key ${key} for user ${userUuid} from redis`);
-      // set from other shards
       this.add(userUuid, key);
     });
   }
