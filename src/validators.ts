@@ -1,5 +1,6 @@
 import Joi from "joi";
-import { LabelIcon, LABEL_ICONS } from "./database/schemas/label";
+import { ICreateLabelInput, LabelIcon, LABEL_ICONS } from "./database/schemas/label";
+import { randomHexColor } from "./logic";
 
 export class Validators {
   public static TRUSTED_IMAGE_HOSTERS = [
@@ -11,6 +12,20 @@ export class Validators {
     "i.reddituploads.com",
   ];
   public static ALLOWED_IMAGE_EXTENSIONS = ["png", "gif", "jpg", "jpeg", "webp"];
+
+  public static validate_label = (input: ICreateLabelInput) => {
+    const color = input.color || randomHexColor();
+    const name = input.name.toLowerCase().replace(/\s/g, "-");
+    let error = undefined;
+
+    if (!Validators.validate_uuid(input.owner_uuid)) error = "invalid.owner_uuid";
+    if (input.name && !Validators.validate_label_name(name)) error = "invalid.label.name";
+    if (color && !Validators.validate_hex_color(color)) error = "invalid.hex.color";
+    if (input.icon && !Validators.validate_label_icon(input.icon)) error = "invalid.label.icon";
+    if (input.description && !Validators.validate_label_description(input.description)) error = "invalid.label.description";
+
+    return { color, name, error };
+  };
 
   public static validate_url = (url: string) => {
     try {

@@ -140,9 +140,17 @@ export class V1 {
       .patch<{}, {}, ICreateLabelInput>("/:uuid", this.auth, async (req: LoggedInRequest, res) =>
         this.db
           .find_label({ uuid: req.params.uuid, owner_uuid: req.user!.uuid })
-          .then((label) => label.update({ ...label, ...req.body }))
-          .catch((error) => res.status(403).json(error))
+          .then((label) => {
+            req.body.name && Validators.validate_label_name(req.body.name) && (label.name = req.body.name);
+            req.body.color && Validators.validate_hex_color(req.body.color) && (label.color = req.body.color);
+            req.body.description &&
+              Validators.validate_label_description(req.body.description) &&
+              (label.description = req.body.description);
+            req.body.icon && Validators.validate_label_icon(req.body.icon) && (label.icon = req.body.icon);
+            return label.save();
+          })
           .then((label) => res.json(label))
+          .catch((error) => res.status(403).json(error))
       )
       .post("/new", this.auth, (req: LoggedInRequest, res) => {
         this.db

@@ -64,6 +64,7 @@ labelSchema.methods = {} as ILabelMethods;
 export interface ILabelMethods {}
 
 export interface ILabel extends mongoose.Document {
+  [key: string]: any;
   uuid: string;
   owner_uuid: string;
   name: string;
