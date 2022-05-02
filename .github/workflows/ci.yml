@@ -1,6 +1,26 @@
 name: Check on Push
 
-on: [push, workflow_dispatch]
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - '**.ts'
+      - '**/tsconfig.json'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'Dockerfile'
+      - '**.yml'
+      - '**.cfg'
+  pull_request:
+    paths:
+      - '**.ts'
+      - '**/tsconfig.json'
+      - 'package-lock.json'
+      - 'package.json'
+      - 'Dockerfile'
+      - '**.yml'
+      - '**.cfg'
 
 jobs:
   compile-test:
