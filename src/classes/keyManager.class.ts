@@ -18,8 +18,8 @@ export class KeyManager extends Map<string, { key: string; timer: NodeJS.Timeout
 
   public createNewKey(userUuid: string): { key: string; expiration: number } {
     const key = this.generateKey();
-    // send to all shards
-    redisPublisher.publish("keys", JSON.stringify({ userUuid, key }));
+    // Pass to redis to all the other servers in the network
+    process.env.SHARD_ID ? redisPublisher.publish("keys", JSON.stringify({ userUuid, key })) : this.add(userUuid, key);
     return { key, expiration: Date.now() + Time.Minute };
   }
 

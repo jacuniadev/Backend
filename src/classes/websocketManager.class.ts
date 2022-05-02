@@ -53,7 +53,7 @@ export class WebsocketManager {
    * @param data The data to send
    * @param specificClients The list of specific clients to emit to
    */
-  public broadcastClients(event: keyof BackendToClientEvents, data?: string, specificClients?: string[]) {
+  public broadcastClients(event: keyof BackendToClientEvents, data?: string | object, specificClients?: string[]) {
     // If they defined specific client uuids then just emit to those
     if (specificClients) {
       return Object.entries(this.userConnections).forEach(
@@ -78,10 +78,16 @@ export class WebsocketManager {
     const userSockets = newWebSocketHandler<ClientToBackendEvents>(server, "/client");
 
     userSockets.on("connection", (socket) => {
+      let session_uuid = "";
+
       socket.on("login", async (data) => {
         const user = await this.db.login_user_websocket(data.auth_token);
-        this.userConnections[`${user.uuid}-${Date.now()}`] = socket;
+        if (!user) return socket.socket.close();
+        session_uuid = `${user.uuid}-${Date.now()}`;
+        this.userConnections[session_uuid] = socket;
       });
+
+      socket.on("close", () => delete this.userConnections[session_uuid]);
     });
 
     const reporterSockets = newWebSocketHandler<ReporterToBackendEvents>(server, "/reporter");
@@ -95,9 +101,17 @@ export class WebsocketManager {
         if (machine) {
           machine.status = MachineStatus.Offline;
           const updatedMachine = await machine.save();
+
           // Tell the clients that this machine is offline :trollcrazy:
           for (const user_uuid of [updatedMachine.owner_uuid, ...updatedMachine.access]) {
-            this.userConnections[user_uuid].emit("machine-disconnected", { machine: updatedMachine });
+            console.log(Object.keys(this.userConnections));
+            console.log(`trying to emit to user: `, user_uuid);
+
+            Object.entries(this.userConnections).forEach(([session_uuid, user]) => {
+              // we check if it startswith the id because after the uuid they have the timestamp
+              // that tells the clients apart, that way we emit to all the clients that have the same user uuid
+              session_uuid.startsWith(user_uuid) && user.emit("machine-disconnected", updatedMachine);
+            });
           }
         }
       });
@@ -137,7 +151,7 @@ export class WebsocketManager {
         // Pass to redis to all the other servers in the network
         process.env.SHARD_ID
           ? redisPublisher.publish("dynamic-data", JSON.stringify(computedData))
-          : this.broadcastClients("dynamic-data", JSON.stringify(computedData));
+          : this.broadcastClients("dynamic-data", computedData);
       });
     });
   }

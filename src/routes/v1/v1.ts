@@ -166,7 +166,11 @@ export class V1 {
       .get("/@newkey", this.auth, (req: LoggedInRequest, res) => res.json(this.keyManager.createNewKey(req.user!.uuid)))
       .post("/@signup", async (req, res) => {
         const { two_factor_key, hardware_uuid, hostname } = req.body;
+        console.log(two_factor_key);
+
         const userUuid = this.keyManager.validate(two_factor_key);
+
+        console.log(userUuid);
 
         if (!userUuid) return res.status(403).json({ error: "the 2FA token you provided has expired" });
         this.db

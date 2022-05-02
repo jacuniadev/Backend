@@ -3,8 +3,8 @@ import { IBaseDocument } from "../DatabaseManager";
 import { preSaveMiddleware } from "../middleware/preSave";
 
 export enum MachineStatus {
-  Online,
   Offline,
+  Online,
   Updating,
 }
 
