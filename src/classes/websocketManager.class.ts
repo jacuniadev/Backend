@@ -15,6 +15,7 @@ export interface BackendToClientEvents extends MittEvent {
   heartbeat: {};
   "dynamic-data": { machines: ISafeMachine[] };
   "machine-added": { machine: ISafeMachine };
+  "machine-disconnected": { machine: ISafeMachine };
 }
 
 export interface ReporterToBackendEvents extends MittEvent {
@@ -90,10 +91,14 @@ export class WebsocketManager {
       let ping: number = 0;
       // let usersThatHaveAccess: string[] = [];
 
-      socket.on("close", () => {
+      socket.on("close", async () => {
         if (machine) {
           machine.status = MachineStatus.Offline;
-          machine.save();
+          const updatedMachine = await machine.save();
+          // Tell the clients that this machine is offline :trollcrazy:
+          for (const user_uuid of [updatedMachine.owner_uuid, ...updatedMachine.access]) {
+            this.userConnections[user_uuid].emit("machine-disconnected", { machine: updatedMachine });
+          }
         }
       });
 
@@ -111,9 +116,7 @@ export class WebsocketManager {
         }
       });
 
-      socket.on("pong", ({ timestamp }) => {
-        ping = Date.now() - timestamp;
-      });
+      socket.on("pong", ({ timestamp }) => (ping = Date.now() - timestamp));
 
       socket.on("static-data", (data) => machine?.update_static_data(data));
 
